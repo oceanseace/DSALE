@@ -1,0 +1,78 @@
+{
+ "data_satir": 19707,
+ "bozuk_tellcordia_id": [
+  {
+   "bina_serial": "BN-0000219347",
+   "tellcordia_id": "1,61623150353E+011",
+   "ad": "FOMARA PARK"
+  },
+  {
+   "bina_serial": "BN-00004142-25",
+   "tellcordia_id": "1,60147209511E+011",
+   "ad": "17-BOSTANCI KENT-BRS-1050 KONUTLAR"
+  }
+ ],
+ "tekrar_eden_satir": [
+  {
+   "bina_serial": "BN0001199470",
+   "ad": "ATILIM  NO8",
+   "res_hp": 8,
+   "toplam_hp": 8
+  },
+  {
+   "bina_serial": "BN0001199470",
+   "ad": "ATILIM  NO8",
+   "res_hp": 9,
+   "toplam_hp": 9
+  }
+ ],
+ "tekil_bina": 19706,
+ "onemap_kaynak": "https://arcgis.turkcell.com.tr/arcgis/rest/services/ONEMAP/BINA/MapServer/0",
+ "onemap_cekim_tarihi": "2026-09-19T14:02:25.433Z",
+ "eslesme": {
+  "Tellcordia ID": 19704,
+  "Bina Serial": 2
+ },
+ "ilce_uyusmazligi": [
+  {
+   "bina_serial": "BN-00001763-1",
+   "ilce_crm": "Kestel",
+   "ilce": "Nilüfer"
+  }
+ ],
+ "aktif_res_gt_res_hp": 303,
+ "kat_tahmin_katsayisi_konut_per_m2_per_kat": 0.007358645901307374,
+ "kat_kaynagi": {
+  "OneMap": 9871,
+  "Tahmin": 9835
+ },
+ "site_grup_sayisi": 9464,
+ "toplamlar": {
+  "toplam_hp": 315966,
+  "res_hp": 296778,
+  "soho_hp": 19188,
+  "aktif_toplam": 116940,
+  "aktif_res": 108491,
+  "firsat": 189272,
+  "bina": 19706
+ },
+ "il_dagilimi": {
+  "Bursa": 19440,
+  "Yalova": 266
+ },
+ "ilce_dagilimi": {
+  "Nilüfer": 9676,
+  "Osmangazi": 2852,
+  "Yıldırım": 2287,
+  "Mudanya": 1737,
+  "İnegöl": 1361,
+  "Gürsu": 639,
+  "Kestel": 422,
+  "Yalova Merkez": 266,
+  "Gemlik": 194,
+  "Yenişehir": 187,
+  "Orhangazi": 85
+ },
+ "mahalle_sayisi": 155,
+ "konum_eksik": 0
+}

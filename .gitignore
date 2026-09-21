@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node / Electron uygulaması
+app/node_modules/
+app/dist/
+app/dist-electron/
+app/dist-html/
+app/dist-sunum/
+app/dist-kesif/
+app/release/
+app/vendor-cache/
+
+# Üretilen simge/splash rasterleri (kaynak build/icon.svg sürüm kontrolünde)
+app/build/icon-*.png
+app/build/icon.ico
+app/build/icon.png
+app/build/splash.bmp
+app/build/splash.png
+app/electron/icon.png
+
+# Ekran görüntüleri ve ara çıktılar
+app/qa/
+outputs/_onbellek/
+outputs/*.exe
+outputs/*.mp4
+outputs/_*.log

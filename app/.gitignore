@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-html/
+dist-kesif/
+dist-sunum/
+release/
+qa/
+*.log

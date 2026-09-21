@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    Dehanet EÇM · Bursa Fiber Satış Haritası uygulama simgesi (yer tutucu).
+    8 halka dilimi = 8 satış bölgesi; ortadaki sarı iğne = Nilüfer'deki ofis.
+    scripts/ikon.mjs bunu PNG/ICO'ya çevirir (sürüm ajanı).
+  -->
+  <defs>
+    <linearGradient id="zemin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A1630"/>
+      <stop offset="1" stop-color="#03060D"/>
+    </linearGradient>
+    <radialGradient id="hale" cx="0.5" cy="0.46" r="0.42">
+      <stop offset="0" stop-color="#FFC400" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFC400" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="216" fill="url(#zemin)"/>
+  <circle cx="512" cy="470" r="430" fill="url(#hale)"/>
+
+  <!-- 8 bölge dilimi -->
+  <g fill="none" stroke-width="34" stroke-linecap="round" transform="translate(512 500)">
+    <path d="M 0 -330 A 330 330 0 0 1 233 -233" stroke="#6EFF3D"/>
+    <path d="M 249 -217 A 330 330 0 0 1 330 0"  stroke="#1FC7FF"/>
+    <path d="M 330 22 A 330 330 0 0 1 233 233"  stroke="#FF3D8E"/>
+    <path d="M 217 249 A 330 330 0 0 1 0 330"   stroke="#1FFFC7"/>
+    <path d="M -22 330 A 330 330 0 0 1 -233 233" stroke="#5C77FF"/>
+    <path d="M -249 217 A 330 330 0 0 1 -330 0" stroke="#F7A164"/>
+    <path d="M -330 -22 A 330 330 0 0 1 -233 -233" stroke="#EA00FF"/>
+    <path d="M -217 -249 A 330 330 0 0 1 -22 -330" stroke="#FF2E2E"/>
+  </g>
+
+  <!-- ofis iğnesi -->
+  <path d="M512 232c-96 0-174 78-174 174 0 122 150 296 166 313a11 11 0 0 0 16 0c16-17 166-191 166-313 0-96-78-174-174-174z"
+        fill="#FFC400"/>
+  <circle cx="512" cy="404" r="66" fill="#03060D"/>
+</svg>
