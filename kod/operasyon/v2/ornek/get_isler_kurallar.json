@@ -1,0 +1,300 @@
+{
+ "hedef_saatleri": {
+  "deger": {
+   "varsayilan": 24,
+   "kurallar": [
+    {
+     "desen": "MODEM DEGISIKLIGI",
+     "saat": 168,
+     "not": "Modem değişim SL 7 gün"
+    },
+    {
+     "desen": "CIHAZ IADE BEKLENIYOR",
+     "saat": 360,
+     "not": "Cihaz İade Bekleniyor 15 gün"
+    },
+    {
+     "desen": "TT FIBER",
+     "saat": 48,
+     "not": "TT fiber 48 s"
+    },
+    {
+     "desen": "ATA",
+     "saat": 168,
+     "not": "ATA 7 gün"
+    }
+   ]
+  },
+  "varsayilan": {
+   "varsayilan": 24,
+   "kurallar": [
+    {
+     "desen": "MODEM DEGISIKLIGI",
+     "saat": 168,
+     "not": "Modem değişim SL 7 gün"
+    },
+    {
+     "desen": "CIHAZ IADE BEKLENIYOR",
+     "saat": 360,
+     "not": "Cihaz İade Bekleniyor 15 gün"
+    },
+    {
+     "desen": "TT FIBER",
+     "saat": 48,
+     "not": "TT fiber 48 s"
+    },
+    {
+     "desen": "ATA",
+     "saat": 168,
+     "not": "ATA 7 gün"
+    }
+   ]
+  },
+  "aciklama": "İş tipine göre hedef süre (saat). Eşleşmeyen iş 24 saat.",
+  "teyit_bekliyor": "BOSS 'Modem Değişikliği' işinin 7 günlük modem değişim SL'ine girdiği teyit edilmeli.",
+  "degisti": false
+ },
+ "serit_kurallari": {
+  "deger": [
+   {
+    "desen": "TV ARIZA",
+    "serit": "BTK",
+    "btk_saat": 6
+   },
+   {
+    "desen": "BAGLANTI PROBLEM",
+    "serit": "BTK",
+    "btk_saat": 12
+   },
+   {
+    "desen": "ARAMA PROBLEM",
+    "serit": "BTK",
+    "btk_saat": 12
+   },
+   {
+    "desen": "DOPING",
+    "serit": "BTK",
+    "btk_saat": 24
+   },
+   {
+    "desen": "KANAL SIKAYET",
+    "serit": "MASA",
+    "btk_saat": null
+   }
+  ],
+  "varsayilan": [
+   {
+    "desen": "TV ARIZA",
+    "serit": "BTK",
+    "btk_saat": 6
+   },
+   {
+    "desen": "BAGLANTI PROBLEM",
+    "serit": "BTK",
+    "btk_saat": 12
+   },
+   {
+    "desen": "ARAMA PROBLEM",
+    "serit": "BTK",
+    "btk_saat": 12
+   },
+   {
+    "desen": "DOPING",
+    "serit": "BTK",
+    "btk_saat": 24
+   },
+   {
+    "desen": "KANAL SIKAYET",
+    "serit": "MASA",
+    "btk_saat": null
+   }
+  ],
+  "aciklama": "İş tipine göre şerit ve BTK hedefi.",
+  "teyit_bekliyor": "TV 6 s / Bağlantı 12 s belgede bulunamadı; FOX 'Hedef SL' değerinden geliyor.",
+  "degisti": false
+ },
+ "oncelikli_isler": {
+  "deger": [
+   {
+    "desen": "KANAL SIKAYET",
+    "neden": "Kanal şikâyeti: süre zaten kaçmış — önce bu"
+   }
+  ],
+  "varsayilan": [
+   {
+    "desen": "KANAL SIKAYET",
+    "neden": "Kanal şikâyeti: süre zaten kaçmış — önce bu"
+   }
+  ],
+  "aciklama": "Listede en üste çıkan iş tipleri.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "btk_durduran_aski": {
+  "deger": [
+   "abone",
+   "bilgi belge",
+   "btk sureci",
+   "genel ariza"
+  ],
+  "varsayilan": [
+   "abone",
+   "bilgi belge",
+   "btk sureci",
+   "genel ariza"
+  ],
+  "aciklama": "Nedeninde bu sözcükler geçen askı BTK saatini durdurur.",
+  "teyit_bekliyor": "TT kaynaklı askının BTK saatini durdurup durdurmadığı belirsiz (varsayılan: durdurmaz).",
+  "degisti": false
+ },
+ "aski_sinirlari": {
+  "deger": {
+   "abone": 96,
+   "abone_uyari": 72,
+   "malzeme": 8,
+   "malzeme_btk": 2,
+   "genel_ariza": 168,
+   "bilgi_belge": 240,
+   "diger": 72,
+   "diger_btk": 24
+  },
+  "varsayilan": {
+   "abone": 96,
+   "abone_uyari": 72,
+   "malzeme": 8,
+   "malzeme_btk": 2,
+   "genel_ariza": 168,
+   "bilgi_belge": 240,
+   "diger": 72,
+   "diger_btk": 24
+  },
+  "aciklama": "Askının en uzun süresi (saat).",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "aski_gecerlilik": {
+  "deger": {
+   "acik": true,
+   "webphone": true,
+   "sms": true,
+   "farkli_gun": 2,
+   "boss_askisina_guven": true
+  },
+  "varsayilan": {
+   "acik": true,
+   "webphone": true,
+   "sms": true,
+   "farkli_gun": 2,
+   "boss_askisina_guven": true
+  },
+  "aciklama": "Abone kaynaklı askının saati durdurması için gereken aramalar.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "arama_merdiveni": {
+  "deger": {
+   "pencere": "10:00-18:00",
+   "son_saat": "22:00",
+   "ara_saat": 3,
+   "gun1": 2,
+   "gun2": 2,
+   "min_sure_sn": 30,
+   "sms_zorunlu": true
+  },
+  "varsayilan": {
+   "pencere": "10:00-18:00",
+   "son_saat": "22:00",
+   "ara_saat": 3,
+   "gun1": 2,
+   "gun2": 2,
+   "min_sure_sn": 30,
+   "sms_zorunlu": true
+  },
+  "aciklama": "Ulaşılamayan müşteriyi arama kuralları.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "btk_sikayet": {
+  "deger": {
+   "ilk_is_gunu": 10,
+   "reopen_is_gunu": 5,
+   "alarm_ilk": [
+    8,
+    10
+   ],
+   "alarm_reopen": [
+    3,
+    5
+   ]
+  },
+  "varsayilan": {
+   "ilk_is_gunu": 10,
+   "reopen_is_gunu": 5,
+   "alarm_ilk": [
+    8,
+    10
+   ],
+   "alarm_reopen": [
+    3,
+    5
+   ]
+  },
+  "aciklama": "BTK şikâyet süresi (iş günü) ve alarm günleri.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "resmi_tatiller": {
+  "deger": [
+   "01-01",
+   "04-23",
+   "05-01",
+   "05-19",
+   "07-15",
+   "08-30",
+   "10-29"
+  ],
+  "varsayilan": [
+   "01-01",
+   "04-23",
+   "05-01",
+   "05-19",
+   "07-15",
+   "08-30",
+   "10-29"
+  ],
+  "aciklama": "İş günü hesabında atlanan günler.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "kesinti_etkilenen": {
+  "deger": [
+   "BAGLANTI PROBLEM",
+   "TV ARIZA",
+   "ARAMA PROBLEM",
+   "DOPING"
+  ],
+  "varsayilan": [
+   "BAGLANTI PROBLEM",
+   "TV ARIZA",
+   "ARAMA PROBLEM",
+   "DOPING"
+  ],
+  "aciklama": "Genel arızada sevk edilmeyen iş tipleri.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "kesinti_ornek_esigi": {
+  "deger": 5,
+  "varsayilan": 5,
+  "aciklama": "Bülten yokken verimlilik ekibine gönderilecek en az örnek.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ },
+ "kesinti_ornek_saat": {
+  "deger": 12,
+  "varsayilan": 12,
+  "aciklama": "Örnek toplarken bakılan son saat.",
+  "teyit_bekliyor": null,
+  "degisti": false
+ }
+}

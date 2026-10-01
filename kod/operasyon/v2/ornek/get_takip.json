@@ -1,0 +1,347 @@
+{
+ "sunucu_zamani": "2026-09-30 17:54:05",
+ "hikaye": "Bugün 37 açık iş var. 2'sinin 24 saatine 2 saatten az kaldı — önce onlar.",
+ "manset": {
+  "acik": 37,
+  "asan24": 18,
+  "atanmamis": 16,
+  "en_eski_atanmamis_dk": 40,
+  "btk48": 0,
+  "en_yasli_btk_s": 51,
+  "kontrol": 3
+ },
+ "uyum24": {
+  "oran": 0.62,
+  "n": 180,
+  "yaklasik": true,
+  "egim": [
+   {
+    "gun": "2026-09-24",
+    "oran": 0.5
+   },
+   {
+    "gun": "2026-09-25",
+    "oran": 0.52
+   },
+   {
+    "gun": "2026-09-26",
+    "oran": 0.54
+   },
+   {
+    "gun": "2026-09-27",
+    "oran": 0.56
+   },
+   {
+    "gun": "2026-09-28",
+    "oran": 0.58
+   },
+   {
+    "gun": "2026-09-29",
+    "oran": 0.6
+   },
+   {
+    "gun": "2026-09-30",
+    "oran": 0.62
+   }
+  ]
+ },
+ "btk": {
+  "tv6": 0.4,
+  "baglanti12": 0.55,
+  "teshis45": 0.3
+ },
+ "birikim": {
+  "asan24": 18,
+  "egim_gun": -4,
+  "seri": [
+   {
+    "zaman": "2026-09-24 17:54:05",
+    "acik": 450,
+    "asan24": 300
+   },
+   {
+    "zaman": "2026-09-25 17:54:05",
+    "acik": 447,
+    "asan24": 296
+   },
+   {
+    "zaman": "2026-09-26 17:54:05",
+    "acik": 444,
+    "asan24": 292
+   },
+   {
+    "zaman": "2026-09-27 17:54:05",
+    "acik": 441,
+    "asan24": 288
+   },
+   {
+    "zaman": "2026-09-28 17:54:05",
+    "acik": 438,
+    "asan24": 284
+   },
+   {
+    "zaman": "2026-09-29 17:54:05",
+    "acik": 435,
+    "asan24": 280
+   },
+   {
+    "zaman": "2026-09-30 17:54:05",
+    "acik": 432,
+    "asan24": 276
+   }
+  ]
+ },
+ "kapasite": {
+  "talep": 62,
+  "aktif": 4,
+  "kapasite": 55,
+  "mod": "asiri_yuk",
+  "esnek_oneri": 1,
+  "elle": false,
+  "mesaj": null
+ },
+ "hiz_hatti": [
+  {
+   "adim": "boss_sistem",
+   "medyan_dk": 34,
+   "p90_dk": 80,
+   "n": 120,
+   "hedef_dk": 30,
+   "hedefte_oran": 0.45
+  },
+  {
+   "adim": "atama",
+   "medyan_dk": 9,
+   "p90_dk": 22,
+   "n": 64,
+   "hedef_dk": 15,
+   "hedefte_oran": 0.78
+  },
+  {
+   "adim": "teknik_gordu",
+   "medyan_dk": 4,
+   "p90_dk": 12,
+   "n": 40,
+   "hedef_dk": 5,
+   "hedefte_oran": 0.6
+  },
+  {
+   "adim": "boss_islendi",
+   "medyan_dk": 11,
+   "p90_dk": 35,
+   "n": 30,
+   "hedef_dk": 15,
+   "hedefte_oran": 0.66
+  },
+  {
+   "adim": "yol",
+   "medyan_dk": 38,
+   "p90_dk": 70,
+   "n": 25,
+   "hedef_dk": 60,
+   "hedefte_oran": 0.82
+  },
+  {
+   "adim": "saha",
+   "medyan_dk": 55,
+   "p90_dk": 130,
+   "n": 22,
+   "hedef_dk": 120,
+   "hedefte_oran": 0.86
+  },
+  {
+   "adim": "uctan_uca",
+   "medyan_dk": 1260,
+   "p90_dk": 2900,
+   "n": 90,
+   "hedef_dk": 1440,
+   "hedefte_oran": 0.58
+  }
+ ],
+ "hijyen": {
+  "cozuldu_boss_acik": 1,
+  "askida_uyanmasiz": 0,
+  "boss_islenecek": 6,
+  "rapor_yas_dk": 12,
+  "askida_btk_durdu": 3,
+  "btk_alarm": 1,
+  "genel_ariza": 1,
+  "oncelikli": 1
+ },
+ "obekler": [
+  {
+   "id": 1,
+   "ad": "Görükle",
+   "acik": 3,
+   "geciken": 3,
+   "btk": 3,
+   "atanmamis": 2,
+   "sahip": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   }
+  },
+  {
+   "id": 2,
+   "ad": "Özlüce",
+   "acik": 10,
+   "geciken": 7,
+   "btk": 7,
+   "atanmamis": 2,
+   "sahip": {
+    "id": 102,
+    "ad": "Veli Demir",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   }
+  },
+  {
+   "id": 3,
+   "ad": "Dumlupınar",
+   "acik": 1,
+   "geciken": 1,
+   "btk": 1,
+   "atanmamis": 1,
+   "sahip": {
+    "id": 103,
+    "ad": "Can Yıldız",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": false
+   }
+  },
+  {
+   "id": 4,
+   "ad": "Beşevler",
+   "acik": 6,
+   "geciken": 2,
+   "btk": 4,
+   "atanmamis": 3,
+   "sahip": {
+    "id": 104,
+    "ad": "Emre Şahin",
+    "gorevler": [
+     "teknik",
+     "yonetici"
+    ],
+    "unvan": "Teknik - Müdür",
+    "giris_var": true
+   }
+  },
+  {
+   "id": 5,
+   "ad": "Yıldırım",
+   "acik": 6,
+   "geciken": 4,
+   "btk": 5,
+   "atanmamis": 2,
+   "sahip": {
+    "id": 105,
+    "ad": "Deniz Öztürk",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": false
+   }
+  },
+  {
+   "id": 6,
+   "ad": "Mudanya",
+   "acik": 2,
+   "geciken": 1,
+   "btk": 0,
+   "atanmamis": 0,
+   "sahip": null
+  },
+  {
+   "id": 7,
+   "ad": "Yalova",
+   "acik": 6,
+   "geciken": 4,
+   "btk": 3,
+   "atanmamis": 3,
+   "sahip": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   }
+  },
+  {
+   "id": 8,
+   "ad": "Gürsu",
+   "acik": 0,
+   "geciken": 0,
+   "btk": 0,
+   "atanmamis": 0,
+   "sahip": null
+  }
+ ],
+ "teknikler": [
+  {
+   "id": 101,
+   "ad": "Ali Kaya",
+   "atanan": 4,
+   "biten": 0,
+   "evde_yok": 0,
+   "yolda_sahada": 1,
+   "ilk_is": "2026-09-30 14:34:05"
+  },
+  {
+   "id": 102,
+   "ad": "Veli Demir",
+   "atanan": 5,
+   "biten": 0,
+   "evde_yok": 1,
+   "yolda_sahada": 0,
+   "ilk_is": "2026-09-30 14:34:05"
+  },
+  {
+   "id": 103,
+   "ad": "Can Yıldız",
+   "atanan": 0,
+   "biten": 1,
+   "evde_yok": 0,
+   "yolda_sahada": 0,
+   "ilk_is": "2026-09-30 14:34:05"
+  },
+  {
+   "id": 104,
+   "ad": "Emre Şahin",
+   "atanan": 3,
+   "biten": 1,
+   "evde_yok": 0,
+   "yolda_sahada": 0,
+   "ilk_is": "2026-09-30 14:34:05"
+  },
+  {
+   "id": 105,
+   "ad": "Deniz Öztürk",
+   "atanan": 3,
+   "biten": 1,
+   "evde_yok": 0,
+   "yolda_sahada": 0,
+   "ilk_is": null
+  }
+ ],
+ "sistem": {
+  "son_rapor": "2026-09-30 17:42:05",
+  "son_yedek": "2026-09-30 02:54:05",
+  "son_goc": "2026-09-30 19:40:12",
+  "saklama_metni": "Müşteri bilgisi kapanıştan 30 gün sonra silinir; ham rapor 7 gün, yedekler 30 gün tutulur."
+ }
+}

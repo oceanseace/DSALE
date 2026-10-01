@@ -1,0 +1,14 @@
+body { background: var(--kart); display: flex; flex-direction: column; }
+.icerik { flex: 1; overflow: auto; padding: 18px 28px 12px; }
+.ust { display: flex; align-items: center; gap: 12px; font-size: 17px; }
+.icerik h2 { margin: 18px 0 6px; }
+.radyo { padding: 10px 12px; margin-top: 6px; }
+.satir { padding: 8px 0; }
+.ipucu { color: var(--metin-3); font-size: 13px; }
+.kucuk-not { font-size: 12.5px; color: var(--metin-3); margin-top: 8px; }
+.dugmeler.kucuk-bosluk { margin-top: 8px; }
+.alt-cubuk {
+  flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 28px;
+  border-top: 1px solid var(--cizgi); background: var(--kart);
+}
+.alt-cubuk .mesaj { flex: 1; margin: 0; }

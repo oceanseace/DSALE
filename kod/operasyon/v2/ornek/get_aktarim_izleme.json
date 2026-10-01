@@ -1,0 +1,20 @@
+{
+ "acik": true,
+ "klasorler": [
+  "C:\\Users\\kullanici\\Downloads",
+  "C:\\Users\\kullanici\\Desktop"
+ ],
+ "desenler": [
+  "TeknikTaskDetayRaporu*.xlsx"
+ ],
+ "yoklama_sn": 15,
+ "sabit_sn": 5,
+ "son_bakis": "2026-09-30 17:53:53",
+ "son_alinan": {
+  "aktarim_id": 41,
+  "zaman": "2026-09-30 17:42:05",
+  "dosya_adi": "TeknikTaskDetayRaporu.xlsx",
+  "sonuc": "Yeni rapor alındı · 12 yeni iş, 3 kapandı"
+ },
+ "onay_bekleyen": []
+}

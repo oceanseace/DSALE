@@ -1,0 +1,20 @@
+{
+ "esik": 5,
+ "saat": 12,
+ "gruplar": [
+  {
+   "il": "Bursa",
+   "ilce": "Yıldırım",
+   "adet": 6,
+   "is_nolar": [
+    "412000000",
+    "412007919",
+    "412015838",
+    "412023757",
+    "412031676",
+    "412039595"
+   ],
+   "paket": "Toplu arıza şüphesi · Bursa/Yıldırım · son 12 saatte 6 iş\nTask No\tTask Adı\tMahalle\tAçılış\tMüşteri No\n412000000\tTeknik Servis Ücretlendirme\tBostanlı\t2026-09-29 05:43\t5550000000\n412007919\tBağlantı Problemi\tKurtul\t2026-09-29 09:01\t5550001111\n412015838\tBağlantı Problemi\tYiğitler\t2026-09-29 10:49\t5550002222\n412023757\tSosyal Destek Evrak Toplama\tBeşevler\t2026-09-29 22:41\t5550003333\n412031676\tTV+ Arıza\tKayapa\t2026-09-29 16:39\t5550004444\n412039595\tBağlantı Problemi\tMimarsinan\t2026-09-30 04:02\t5550005555\nHizmet ID ve seri no BOSS'tan eklenmeli."
+  }
+ ]
+}

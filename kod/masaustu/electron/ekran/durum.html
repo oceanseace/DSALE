@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:" />
+  <title>Dehanet Saha</title>
+  <link rel="stylesheet" href="ortak.css" />
+</head>
+<body>
+  <main class="sahne">
+    <section class="kart" aria-live="polite">
+      <div class="marka" aria-hidden="true">S</div>
+      <div id="rozet"></div>
+      <h1 id="baslik">Sunucu açılıyor…</h1>
+      <p id="ayrinti"></p>
+      <div class="yol gizli" id="veriYolu"></div>
+
+      <!-- hazirlaniyor / kuruluyor -->
+      <div id="bekleme">
+        <div class="cark" role="progressbar" aria-label="Bekleniyor"></div>
+        <div class="canli" id="canli"></div>
+        <p class="alt-not gizli" id="sabir">İlk açılışta ya da güncellemeden sonra birkaç dakika sürebilir. Veriniz yedeklenmeden hiçbir şey değişmez.</p>
+      </div>
+
+      <!-- ilk açılış -->
+      <div id="ilk" class="gizli">
+        <button class="secenek" data-eylem="yeniKurulum">
+          <div class="simge"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></div>
+          <div><b>Yeni kurulum</b><span>19.706 bina yüklenir, ekip için davet kodları üretilir. Bir dakikadan kısa sürer.</span></div>
+        </button>
+        <button class="secenek" data-eylem="iceAktar">
+          <div class="simge"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10M5.5 8.5 10 13l4.5-4.5M4 16.5h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+          <div><b>Var olan veriyi getir</b><span>Daha önce kullanılan Saha Sistemi'nin <i>saha.db</i> dosyasını seçin. Kaynağa dokunulmaz, doğrulanmış kopya alınır.</span></div>
+        </button>
+        <div class="dugmeler"><button class="dugme sade" data-eylem="ayarlar">Veri klasörünü değiştir…</button></div>
+      </div>
+
+      <!-- veritabanı yok ama yedek var -->
+      <div id="yedekVar" class="gizli">
+        <div class="dugmeler">
+          <button class="dugme birincil" data-eylem="geriYukleEnYeni">En yeni yedeği geri yükle</button>
+          <button class="dugme" data-eylem="yedekSec">Başka yedek seç…</button>
+        </div>
+        <div class="dugmeler"><button class="dugme sade" id="bosKurulum">Yine de boş kurulum yap</button></div>
+      </div>
+
+      <!-- kurulum / içe aktarma bitti -->
+      <div id="tamam" class="gizli">
+        <pre class="cikti" id="cikti"></pre>
+        <p class="alt-not">Davet kodunu kişiye sözlü verin; kişi ilk girişte kendi PIN'ini belirler. Kodlara daha sonra tepsideki simge → <b>Davet kodları</b> ile ulaşabilirsiniz.</p>
+        <div class="dugmeler">
+          <button class="dugme birincil" data-eylem="baslat">Sunucuyu başlat</button>
+          <button class="dugme" id="kopyala">Kopyala</button>
+        </div>
+      </div>
+
+      <!-- durduruldu -->
+      <div id="durdu" class="gizli">
+        <div class="dugmeler"><button class="dugme birincil" data-eylem="baslat">Sunucuyu başlat</button></div>
+      </div>
+
+      <!-- başka sunucu açık -->
+      <div id="harici" class="gizli">
+        <div class="dugmeler">
+          <button class="dugme birincil" data-eylem="hariciAc">Açık olanı göster</button>
+          <button class="dugme" data-eylem="ayarlar">Ayarlar</button>
+          <button class="dugme" data-eylem="yenidenDene">Yeniden dene</button>
+        </div>
+      </div>
+
+      <!-- çalışıyor (yerel ekrana düşüldüyse) -->
+      <div id="calisiyor" class="gizli">
+        <div class="dugmeler">
+          <button class="dugme birincil" data-eylem="arayuzuAc">Yönetici ekranını aç</button>
+          <button class="dugme" data-eylem="telefon">Telefonla bağlan</button>
+        </div>
+      </div>
+
+      <!-- hata -->
+      <div id="hata" class="gizli">
+        <details id="ayrintiKutusu"><summary>Ayrıntılar</summary><pre class="cikti" id="satirlar"></pre></details>
+        <div class="dugmeler">
+          <button class="dugme birincil" data-eylem="yenidenDene">Yeniden dene</button>
+          <button class="dugme" data-eylem="gunluguAc">Günlüğü aç</button>
+          <button class="dugme" data-eylem="veriKlasorunuAc">Veri klasörü</button>
+          <button class="dugme" data-eylem="ayarlar">Ayarlar</button>
+        </div>
+      </div>
+
+      <p class="alt-not" id="altNot"></p>
+      <p class="alt-not yol-notu" id="altYol"></p>
+    </section>
+  </main>
+  <script src="durum.js"></script>
+</body>
+</html>

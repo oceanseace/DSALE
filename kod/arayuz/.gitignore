@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-sahte/
+
+# QA ekran görüntüleri (yeniden üretilebilir). Kılavuzun kullandığı görseller
+# belgeler/gorsel/ altında durur ve sürüm kontrolündedir.
+qa/*.png
+qa/e2e/
+
+# İş emri ekranı görüntüleri — gerçek rapordan adres içerebilir
+qa/is-emri/
+# Faz 2 QA ekran görüntüleri — gerçek iş emri raporundan adres içerebilir
+qa/faz2/
+# v2 tasarım/denetim ekran görüntüleri — canlı verinin kopyasından, adres içerebilir
+qa/v2/

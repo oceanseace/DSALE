@@ -1,0 +1,45 @@
+# Saha Sistemi — GÜNCELLEMEDE ÜZERİNE YAZILMAYAN YOLLAR (spec §1.13)
+#
+# Yeni sürüm dosyalarını kopyalarken aşağıdaki yolları KOPYALAMAYIN, SİLMEYİN, ÜZERİNE YAZMAYIN.
+# Bunlar bu bilgisayarın canlı verisidir; depoda yoktur, yeniden üretilemez.
+#
+# Yollar ÇALIŞMA KLASÖRÜNE göredir (kod/yollar.py → CALISMA):
+#   SAHA_VERI_DIZINI verilirse orası; verilmezse depoda gelistirme/veri (geliştirme verisi).
+#   Canlıda: DSALE/canli/veri  (SAHA_VERI_DIZINI=canli\veri).
+#
+#   saha/saha.db*            kişiler, PIN'ler, ziyaretler, iş emirleri, öbekler (tek dosya + -wal/-shm)
+#   saha/gizli.key           oturum anahtarı — silinirse bütün telefonlar oturumdan düşer
+#   saha/yedek/**            günlük, göç ve aktarım yedekleri
+#   saha/kayit/**            sunucu günlüğü
+#   saha/ek/**               ticket fotoğrafları
+#   saha/raporlar/**         günlük Excel raporları
+#   operasyon/obekler.json   eski öbek tanımları (ilk güncellemede veritabanına aktarılır, sonra yalnız okunur)
+#   operasyon/veri/**        yüklenen BOSS raporları, öbek aynaları (kişisel veri; yerel kalır)
+#   gelen/**                 yüklenen tur raporları ve OneMap dökümleri
+#   cikti/**                 sunucunun hesapladığı planlar ve bölgeleme Excel'leri
+#
+# TODO(YAYINLA) — kod/saha/YAYINLA.bat (henüz yok) için yapılacaklar:
+#   1. Canlı sunucu SAHA_VERI_DIZINI=<DSALE>\canli\veri ile başlatılır (BASLAT.bat → canli\...).
+#      Varsayılan (gelistirme\veri) canlıda ASLA kullanılmaz.
+#   2. İlk yayında canli\surum'daki ESKİ düzenin verisi canli\veri'ye taşınır (göreli düzen aynı kalır):
+#        canli\surum\saha\saha.db*  gizli.key  yedek\  kayit\  ek\  raporlar\  →  canli\veri\saha\
+#        canli\surum\operasyon\obekler.json  operasyon\veri\               →  canli\veri\operasyon\
+#        canli\surum\data\raw\gelen\                                       →  canli\veri\gelen\
+#        canli\surum\outputs\saha_bolgeleme\  outputs\_onbellek\saha\       →  canli\veri\cikti\
+#      Önce sunucu durdurulur ve doğrulanmış yedek alınır (saha.yedekle); hiçbir şey silinmez.
+#   3. Kod kopyalanırken bu listedeki yollar atlanır ve varlıkları doğrulanır.
+#   4. Zamanlanmış "Yedek" görevi (kod\saha\gorev) canlı veri için aynı SAHA_VERI_DIZINI ile çalışır.
+#   5. Yayınlanan kopyada yollar.KOK kopyanın köküdür: veri\, cikti\, kod\arayuz\dist kopyayla birlikte gider.
+#      Depo dışındaki PS26 (yollar.PS26 = KOK'un yanı) için canlıda ayar "ps26_klasoru" ya da SAHA_PS26 verilir.
+saha/saha.db
+saha/saha.db-wal
+saha/saha.db-shm
+saha/gizli.key
+saha/yedek/**
+saha/kayit/**
+saha/ek/**
+saha/raporlar/**
+operasyon/obekler.json
+operasyon/veri/**
+gelen/**
+cikti/**

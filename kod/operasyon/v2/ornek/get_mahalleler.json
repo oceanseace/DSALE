@@ -1,0 +1,24 @@
+{
+ "ilceler": [
+  {
+   "il": "Bursa",
+   "ilce": "Gürsu",
+   "il_k": "BURSA",
+   "ilce_k": "GURSU",
+   "mahalle_sayisi": 0,
+   "tum_ilce_obek": {
+    "id": 8,
+    "ad": "Gürsu"
+   }
+  }
+ ],
+ "mahalleler": [],
+ "oneriler": [
+  {
+   "id": 603,
+   "ad": "Ertuğrul",
+   "ilce": "Nilüfer",
+   "benzerlik": 0.72
+  }
+ ]
+}

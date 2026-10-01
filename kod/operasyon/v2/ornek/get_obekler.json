@@ -1,0 +1,295 @@
+{
+ "surum": 7,
+ "obekler": [
+  {
+   "id": 1,
+   "ad": "Görükle",
+   "renk": 0,
+   "sahip": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "yedek": {
+    "id": 102,
+    "ad": "Veli Demir",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "mahalleler": [
+    {
+     "ref": "Bursa/Nilüfer/Görükle",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Görükle",
+     "tum_ilce": false,
+     "acik": 0
+    },
+    {
+     "ref": "Bursa/Nilüfer/Kayapa",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Kayapa",
+     "tum_ilce": false,
+     "acik": 3
+    }
+   ],
+   "acik": 3,
+   "geciken": 3,
+   "btk": 3,
+   "atanmamis": 2
+  },
+  {
+   "id": 2,
+   "ad": "Özlüce",
+   "renk": 1,
+   "sahip": {
+    "id": 102,
+    "ad": "Veli Demir",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "yedek": null,
+   "mahalleler": [
+    {
+     "ref": "Bursa/Nilüfer/Özlüce",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Özlüce",
+     "tum_ilce": false,
+     "acik": 6
+    },
+    {
+     "ref": "Bursa/Nilüfer/Ertuğrul",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Ertuğrul",
+     "tum_ilce": false,
+     "acik": 4
+    }
+   ],
+   "acik": 10,
+   "geciken": 7,
+   "btk": 7,
+   "atanmamis": 2
+  },
+  {
+   "id": 3,
+   "ad": "Dumlupınar",
+   "renk": 2,
+   "sahip": {
+    "id": 103,
+    "ad": "Can Yıldız",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": false
+   },
+   "yedek": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "mahalleler": [
+    {
+     "ref": "Bursa/Nilüfer/Dumlupınar",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Dumlupınar",
+     "tum_ilce": false,
+     "acik": 0
+    }
+   ],
+   "acik": 1,
+   "geciken": 1,
+   "btk": 1,
+   "atanmamis": 1
+  },
+  {
+   "id": 4,
+   "ad": "Beşevler",
+   "renk": 3,
+   "sahip": {
+    "id": 104,
+    "ad": "Emre Şahin",
+    "gorevler": [
+     "teknik",
+     "yonetici"
+    ],
+    "unvan": "Teknik - Müdür",
+    "giris_var": true
+   },
+   "yedek": null,
+   "mahalleler": [
+    {
+     "ref": "Bursa/Nilüfer/Beşevler",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Beşevler",
+     "tum_ilce": false,
+     "acik": 4
+    },
+    {
+     "ref": "Bursa/Nilüfer/Ataevler",
+     "il": "Bursa",
+     "ilce": "Nilüfer",
+     "mahalle": "Ataevler",
+     "tum_ilce": false,
+     "acik": 2
+    }
+   ],
+   "acik": 6,
+   "geciken": 2,
+   "btk": 4,
+   "atanmamis": 3
+  },
+  {
+   "id": 5,
+   "ad": "Yıldırım",
+   "renk": 4,
+   "sahip": {
+    "id": 105,
+    "ad": "Deniz Öztürk",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": false
+   },
+   "yedek": {
+    "id": 103,
+    "ad": "Can Yıldız",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": false
+   },
+   "mahalleler": [
+    {
+     "ref": "Bursa/Yıldırım/Yiğitler",
+     "il": "Bursa",
+     "ilce": "Yıldırım",
+     "mahalle": "Yiğitler",
+     "tum_ilce": false,
+     "acik": 2
+    },
+    {
+     "ref": "Bursa/Yıldırım/Mimarsinan",
+     "il": "Bursa",
+     "ilce": "Yıldırım",
+     "mahalle": "Mimarsinan",
+     "tum_ilce": false,
+     "acik": 4
+    }
+   ],
+   "acik": 6,
+   "geciken": 4,
+   "btk": 5,
+   "atanmamis": 2
+  },
+  {
+   "id": 6,
+   "ad": "Mudanya",
+   "renk": 5,
+   "sahip": null,
+   "yedek": null,
+   "mahalleler": [
+    {
+     "ref": "Bursa/Mudanya/*",
+     "il": "Bursa",
+     "ilce": "Mudanya",
+     "mahalle": "İlçenin tamamı",
+     "tum_ilce": true,
+     "acik": 2
+    }
+   ],
+   "acik": 2,
+   "geciken": 1,
+   "btk": 0,
+   "atanmamis": 0
+  },
+  {
+   "id": 7,
+   "ad": "Yalova",
+   "renk": 6,
+   "sahip": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "yedek": null,
+   "mahalleler": [
+    {
+     "ref": "Yalova/Merkez/*",
+     "il": "Yalova",
+     "ilce": "Merkez",
+     "mahalle": "İlçenin tamamı",
+     "tum_ilce": true,
+     "acik": 3
+    },
+    {
+     "ref": "Yalova/Çiftlikköy/*",
+     "il": "Yalova",
+     "ilce": "Çiftlikköy",
+     "mahalle": "İlçenin tamamı",
+     "tum_ilce": true,
+     "acik": 3
+    }
+   ],
+   "acik": 6,
+   "geciken": 4,
+   "btk": 3,
+   "atanmamis": 3
+  },
+  {
+   "id": 8,
+   "ad": "Gürsu",
+   "renk": 7,
+   "sahip": null,
+   "yedek": null,
+   "mahalleler": [
+    {
+     "ref": "Bursa/Gürsu/*",
+     "il": "Bursa",
+     "ilce": "Gürsu",
+     "mahalle": "İlçenin tamamı",
+     "tum_ilce": true,
+     "acik": 0
+    }
+   ],
+   "acik": 0,
+   "geciken": 0,
+   "btk": 0,
+   "atanmamis": 0
+  }
+ ],
+ "obeksiz": [
+  {
+   "il": "Bursa",
+   "ilce": "Kestel",
+   "mahalle": "Kurtul",
+   "mahalle_id": 612,
+   "acik": 1
+  }
+ ]
+}

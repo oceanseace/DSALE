@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:" />
+  <title>Ayarlar</title>
+  <link rel="stylesheet" href="ortak.css" />
+  <link rel="stylesheet" href="ayarlar.css" />
+</head>
+<body>
+  <main class="icerik">
+    <div class="ust"><div class="marka kucuk" aria-hidden="true">S</div><b>Ayarlar</b></div>
+
+    <h2>Bağlantı</h2>
+    <label class="radyo"><input type="radio" name="ag" value="1" id="agAcik" />
+      <div><b>Ofis ağı</b><span>Telefonlar ofis Wi‑Fi'sinden bağlanır. Sunucu bilgisayarı için doğru seçim.</span></div></label>
+    <label class="radyo"><input type="radio" name="ag" value="0" id="agKapali" />
+      <div><b>Yalnız bu bilgisayar</b><span>Telefonlar bağlanamaz. Deneme ve eğitim için.</span></div></label>
+    <div class="satir"><label for="port">Port <span class="ipucu">(telefonlardaki adresin sonundaki sayı)</span></label><input type="number" id="port" min="1024" max="65535" step="1" /></div>
+
+    <h2>Veri klasörü</h2>
+    <div class="yol" id="veri"></div>
+    <div class="dugmeler kucuk-bosluk">
+      <button class="dugme" id="degistir">Değiştir…</button>
+      <button class="dugme" id="ac">Klasörü aç</button>
+      <button class="dugme sade" id="varsayilan">Varsayılana dön</button>
+    </div>
+    <p class="kucuk-not">Değiştirmek veriyi taşımaz: yeni klasör boşsa ilk kurulum ekranı açılır, eski veri oradan "Var olan veriyi getir" ile alınır. Güncellemeler bu klasöre dokunmaz.</p>
+
+    <h2>Başlangıç</h2>
+    <div class="satir"><label for="otomatik">Bilgisayar açılınca arka planda başlat</label><input type="checkbox" id="otomatik" /></div>
+
+    <p class="kucuk-not gizli" id="gecici">Bu oturum komut satırı ayarlarıyla açıldı; kaydettiğiniz ayar bir sonraki açılışta geçerli olur.</p>
+  </main>
+  <footer class="alt-cubuk">
+    <p class="mesaj" id="mesaj"></p>
+    <button class="dugme" id="vazgec">Vazgeç</button>
+    <button class="dugme birincil" id="kaydet">Kaydet</button>
+  </footer>
+  <script src="ayarlar.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "saha-app",
+  "productName": "Saha Sistemi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dehanet EÇM · Saha Sistemi — satışçı saha uygulaması (PWA)",
+  "author": "Dehanet EÇM",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build:hizli": "vite build",
+    "onizle": "vite preview --port 4173 --host 127.0.0.1",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "ikon": "node scripts/ikon.mjs",
+    "qa": "node qa/cek.mjs",
+    "build:sahte": "vite build --mode sahte --outDir dist-sahte",
+    "e2e": "node qa/e2e.mjs"
+  },
+  "dependencies": {
+    "@deck.gl/core": "~9.4.0",
+    "@deck.gl/layers": "~9.4.0",
+    "@deck.gl/react": "~9.4.0",
+    "idb": "^8.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.2.0",
+    "playwright-core": "^1.63.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.6"
+  }
+}

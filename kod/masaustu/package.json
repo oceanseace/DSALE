@@ -1,0 +1,104 @@
+{
+  "name": "dehanet-saha",
+  "productName": "Dehanet Saha",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dehanet EÇM · Saha Sistemi — ofis sunucusu ve yönetici ekranı (masaüstü)",
+  "author": "Dehanet EÇM",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "baslat": "electron .",
+    "paketle": "electron-builder --win nsis portable --x64"
+  },
+  "dependencies": {
+    "qrcode-generator": "2.0.4"
+  },
+  "devDependencies": {
+    "electron": "44.4.3",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.dehanet.saha",
+    "productName": "Dehanet Saha",
+    "executableName": "DehanetSaha",
+    "copyright": "© 2026 TURKCELL SUPERONLINE DEHANET EÇM",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build/sunucu",
+        "to": "sunucu",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "build",
+        "to": "ikon",
+        "filter": [
+          "icon.png",
+          "icon.ico",
+          "tepsi*.png",
+          "tepsi*.ico"
+        ]
+      }
+    ],
+    "asar": true,
+    "compression": "normal",
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "electronLanguages": [
+      "tr",
+      "en-US"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": true,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dehanet Saha",
+      "uninstallDisplayName": "Dehanet Saha",
+      "artifactName": "DehanetSaha-Kurulum-${version}.exe",
+      "installerLanguages": [
+        "tr_TR"
+      ],
+      "language": "1055",
+      "include": "nsis/installer.nsh",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "DehanetSaha.exe",
+      "unpackDirName": "DehanetSaha"
+    }
+  }
+}

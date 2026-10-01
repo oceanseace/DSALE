@@ -1,0 +1,129 @@
+[
+ {
+  "id": 101,
+  "ad": "Ali Kaya",
+  "gorevler": [
+   "teknik"
+  ],
+  "unvan": "Teknik - Sorumlu",
+  "giris_var": true,
+  "etiket": [],
+  "boss_ekip": "ALI KAYA EKIBI",
+  "kapasite": 15,
+  "bugun": {
+   "atanan": 4,
+   "biten": 0,
+   "btk": 3
+  },
+  "obekler": [
+   {
+    "id": 1,
+    "ad": "Görükle"
+   },
+   {
+    "id": 7,
+    "ad": "Yalova"
+   }
+  ],
+  "bugun_yok": false
+ },
+ {
+  "id": 102,
+  "ad": "Veli Demir",
+  "gorevler": [
+   "teknik"
+  ],
+  "unvan": "Teknik - Sorumlu",
+  "giris_var": true,
+  "etiket": [],
+  "boss_ekip": "VELI DEMIR",
+  "kapasite": 15,
+  "bugun": {
+   "atanan": 5,
+   "biten": 0,
+   "btk": 3
+  },
+  "obekler": [
+   {
+    "id": 2,
+    "ad": "Özlüce"
+   }
+  ],
+  "bugun_yok": false
+ },
+ {
+  "id": 103,
+  "ad": "Can Yıldız",
+  "gorevler": [
+   "teknik"
+  ],
+  "unvan": "Teknik - Sorumlu",
+  "giris_var": false,
+  "etiket": [],
+  "boss_ekip": null,
+  "kapasite": 12,
+  "bugun": {
+   "atanan": 0,
+   "biten": 1,
+   "btk": 0
+  },
+  "obekler": [
+   {
+    "id": 3,
+    "ad": "Dumlupınar"
+   }
+  ],
+  "bugun_yok": false
+ },
+ {
+  "id": 104,
+  "ad": "Emre Şahin",
+  "gorevler": [
+   "teknik",
+   "yonetici"
+  ],
+  "unvan": "Teknik - Müdür",
+  "giris_var": true,
+  "etiket": [
+   "lider"
+  ],
+  "boss_ekip": null,
+  "kapasite": 10,
+  "bugun": {
+   "atanan": 3,
+   "biten": 1,
+   "btk": 2
+  },
+  "obekler": [
+   {
+    "id": 4,
+    "ad": "Beşevler"
+   }
+  ],
+  "bugun_yok": false
+ },
+ {
+  "id": 105,
+  "ad": "Deniz Öztürk",
+  "gorevler": [
+   "teknik"
+  ],
+  "unvan": "Teknik - Sorumlu",
+  "giris_var": false,
+  "etiket": [],
+  "boss_ekip": "DENIZ OZTURK",
+  "kapasite": 15,
+  "bugun": {
+   "atanan": 3,
+   "biten": 1,
+   "btk": 2
+  },
+  "obekler": [
+   {
+    "id": 5,
+    "ad": "Yıldırım"
+   }
+  ],
+  "bugun_yok": true
+ }
+]

@@ -1,0 +1,18 @@
+{
+ "hata": "Bu raporda 180 açık iş yok (açık işlerin %41'i). Rapor süzgeçli ya da tek ilçe indirilmiş olabilir.",
+ "kod": "onay_gerekli",
+ "aktarim_id": 43,
+ "fark": {
+  "yeni": 0,
+  "degisen": 12,
+  "kaybolan": 180,
+  "yeniden_acilan": 0,
+  "degismeyen": 245
+ },
+ "nedenler": [
+  "cok_kaybolan"
+ ],
+ "acik": 437,
+ "kaybolan_oran": 0.41,
+ "son_rapor_zamani": "2026-09-30 17:42:05"
+}

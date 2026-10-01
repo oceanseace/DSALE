@@ -1,0 +1,23 @@
+{
+ "GET /api/isler": "get_isler.json",
+ "GET /api/isler/degisim": "get_isler_degisim.json",
+ "GET /api/isler/{is_no}": "get_isler_is_no.json",
+ "GET /api/isler/teknikler": "get_isler_teknikler.json",
+ "GET /api/isler/boss-ekip": "get_isler_boss_ekip.json",
+ "GET /api/isler/ayarlar": "get_isler_ayarlar.json",
+ "GET /api/boss/giden": "get_boss_giden.json",
+ "GET /api/aranacaklar": "get_aranacaklar.json",
+ "GET /api/islerim": "get_islerim.json",
+ "GET /api/obekler": "get_obekler.json",
+ "GET /api/mahalleler": "get_mahalleler.json",
+ "GET /api/ilceler": "get_ilceler.json",
+ "GET /api/aktarim": "get_aktarim.json",
+ "GET /api/aktarim/izleme": "get_aktarim_izleme.json",
+ "POST /api/aktarim": "post_aktarim.json",
+ "POST /api/aktarim#onay_gerekli": "post_aktarim_onay_gerekli.json",
+ "GET /api/takip": "get_takip.json",
+ "GET /api/takip/satis": "get_takip_satis.json",
+ "GET /api/isler/kurallar": "get_isler_kurallar.json",
+ "GET /api/kesinti": "get_kesinti.json",
+ "GET /api/kesinti/aday": "get_kesinti_aday.json"
+}

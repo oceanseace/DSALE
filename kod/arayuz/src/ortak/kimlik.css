@@ -1,0 +1,107 @@
+/* Bina kimlik kartı — satışçı ve yönetici ekranlarında ortak */
+.bk-kart {
+  margin-top: 16px;
+  border: 1px solid var(--cizgi);
+  border-radius: 16px;
+  background: var(--kart);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  /* Üst kapsayıcı kartı uzatsa bile satırlar yayılmasın */
+  align-content: start;
+  align-self: start;
+  flex: none;
+}
+.bk-baslik {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--metin-2);
+  padding: 2px 4px 4px;
+}
+.bk-satir {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'etiket durum' 'deger durum';
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 1px;
+  width: 100%;
+  min-height: 52px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--cizgi);
+  background: transparent;
+  color: var(--metin);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  align-content: center;
+}
+.bk-satir:active { transform: scale(0.995); }
+.bk-etiket { grid-area: etiket; font-size: 12px; font-weight: 600; color: var(--metin-2); }
+.bk-deger {
+  grid-area: deger;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.bk-durum {
+  grid-area: durum;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--birincil-yazi);
+  white-space: nowrap;
+}
+.bk-durum.bk-tamam { color: var(--yesil); }
+.bk-durum.bk-hata { color: var(--kirmizi); }
+.bk-dugme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--birincil);
+  background: var(--birincil);
+  color: var(--dolgu-yazi);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0 12px;
+  text-align: center;
+}
+.bk-dugme.ikincil {
+  background: transparent;
+  color: var(--birincil-yazi);
+}
+.bk-ticket { display: grid; gap: 8px; margin-top: 6px; }
+.bk-ticket-dugmeler { display: grid; gap: 6px; }
+.bk-ekip { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--metin-2); }
+.bk-ekip input {
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--cizgi);
+  background: transparent;
+  color: var(--metin);
+  padding: 0 12px;
+  font-size: 15px;
+}
+.bk-bildiri {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--yesil);
+  padding: 2px 4px;
+}
+/* Geniş ekranda etiket solda, değer ortada tek satır */
+@media (min-width: 560px) {
+  .bk-satir {
+    grid-template-columns: 120px 1fr auto;
+    grid-template-areas: 'etiket deger durum';
+    min-height: 46px;
+  }
+}

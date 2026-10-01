@@ -1,0 +1,81 @@
+[
+ {
+  "is_no": "412102947",
+  "boss_task_no": "412102947",
+  "alanlar": {
+   "ekip": "VELI DEMIR",
+   "randevu_baslangic": null,
+   "randevu_bitis": null
+  },
+  "neden": "ekip",
+  "olusma": "2026-09-29 02:50:05"
+ },
+ {
+  "is_no": "412126704",
+  "boss_task_no": "412126704",
+  "alanlar": {
+   "ekip": "VELI DEMIR",
+   "randevu_baslangic": "2026-10-01 01:00:00",
+   "randevu_bitis": "2026-10-01 03:00:00"
+  },
+  "neden": "ekip,randevu",
+  "olusma": "2026-09-29 06:56:05"
+ },
+ {
+  "is_no": "412134623",
+  "boss_task_no": "412134623",
+  "alanlar": {
+   "ekip": "DENIZ OZTURK",
+   "randevu_baslangic": null,
+   "randevu_bitis": null
+  },
+  "neden": "ekip",
+  "olusma": "2026-09-30 10:51:05"
+ },
+ {
+  "is_no": "412158380",
+  "boss_task_no": "412158380",
+  "alanlar": {
+   "ekip": "ALI KAYA EKIBI",
+   "randevu_baslangic": "2026-10-01 01:00:00",
+   "randevu_bitis": "2026-10-01 03:00:00",
+   "talep_ulasamama_sms": true
+  },
+  "neden": "sms",
+  "olusma": "2026-09-29 15:32:05"
+ },
+ {
+  "is_no": "412166299",
+  "boss_task_no": "412166299",
+  "alanlar": {
+   "ekip": "ALI KAYA EKIBI",
+   "randevu_baslangic": null,
+   "randevu_bitis": null,
+   "talep_ulasamama_sms": true
+  },
+  "neden": "sms",
+  "olusma": "2026-09-29 07:04:05"
+ },
+ {
+  "is_no": "412229651",
+  "boss_task_no": "412229651",
+  "alanlar": {
+   "ekip": "Can Yıldız",
+   "randevu_baslangic": null,
+   "randevu_bitis": null
+  },
+  "neden": "ekip",
+  "olusma": "2026-09-29 11:46:05"
+ },
+ {
+  "is_no": "B-260930-001",
+  "boss_task_no": null,
+  "alanlar": {
+   "ekip": "DENIZ OZTURK",
+   "randevu_baslangic": null,
+   "randevu_bitis": null
+  },
+  "neden": "ekip",
+  "olusma": "2026-09-30 09:16:05"
+ }
+]

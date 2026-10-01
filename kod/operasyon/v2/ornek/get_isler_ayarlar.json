@@ -1,0 +1,112 @@
+{
+ "dilimler": [
+  {
+   "bas": "08:00",
+   "bit": "10:00"
+  },
+  {
+   "bas": "10:00",
+   "bit": "12:00"
+  },
+  {
+   "bas": "12:00",
+   "bit": "14:00"
+  },
+  {
+   "bas": "14:00",
+   "bit": "16:00"
+  },
+  {
+   "bas": "16:00",
+   "bit": "18:00"
+  },
+  {
+   "bas": "18:00",
+   "bit": "20:00"
+  }
+ ],
+ "mesai": {
+  "bas": "08:00",
+  "bit": "20:00"
+ },
+ "musteri_tel": "kapali",
+ "boss_task_url": null,
+ "aski_nedenleri": [
+  {
+   "kod": "abone",
+   "metin": "Abone kaynaklı (müşteriye ulaşılamadı / müşteri istedi)",
+   "durdurur": true
+  },
+  {
+   "kod": "abone_aksam",
+   "metin": "Abone kaynaklı (akşam araması)",
+   "durdurur": true
+  },
+  {
+   "kod": "malzeme",
+   "metin": "Malzeme bekleniyor",
+   "durdurur": false
+  },
+  {
+   "kod": "genel_ariza",
+   "metin": "Genel arıza (SOL kaynaklı)",
+   "durdurur": true
+  },
+  {
+   "kod": "bilgi_belge",
+   "metin": "BTK süreci kaynaklı (Bilgi & Belge)",
+   "durdurur": true
+  },
+  {
+   "kod": "tt",
+   "metin": "TT kaynaklı",
+   "durdurur": false
+  },
+  {
+   "kod": "altyapi",
+   "metin": "Altyapı / şebeke kaynaklı",
+   "durdurur": false
+  },
+  {
+   "kod": "ata",
+   "metin": "İrtibat hatalı (ATA havuzu)",
+   "durdurur": false
+  },
+  {
+   "kod": "diger",
+   "metin": "Diğer",
+   "durdurur": false
+  }
+ ],
+ "son24_askida_durur": false,
+ "btk_durduran_aski": [
+  "abone",
+  "bilgi belge",
+  "btk sureci",
+  "genel ariza"
+ ],
+ "kutlamalar": true,
+ "kapanis_nedenleri": [
+  {
+   "kod": "telefonda_cozuldu",
+   "metin": "Telefonda çözüldü (canlı test yapıldı)"
+  },
+  {
+   "kod": "iptal",
+   "metin": "İptal"
+  },
+  {
+   "kod": "mukerrer",
+   "metin": "Mükerrer kayıt"
+  },
+  {
+   "kod": "musteri_vazgecti",
+   "metin": "Müşteri vazgeçti"
+  },
+  {
+   "kod": "musteriye_ulasilamadi",
+   "metin": "Müşteriye ulaşılamadı (arama merdiveni tamam)"
+  }
+ ],
+ "teknik_kapasite": 15
+}

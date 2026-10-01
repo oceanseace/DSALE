@@ -1,0 +1,696 @@
+{
+ "sunucu_zamani": "2026-09-30 17:54:05",
+ "imlec": 1062,
+ "isler": [
+  {
+   "is_no": "412150461",
+   "boss_task_no": "412150461",
+   "kaynak": "boss",
+   "kanal_grubu": "dehanet",
+   "task_adi": "Arama Problemi",
+   "serit": "BTK",
+   "btk_hedef_saat": 12,
+   "durum": "sahada",
+   "kova": "teknikte",
+   "durum_zamani": "2026-09-29 16:28:05",
+   "il": "Yalova",
+   "ilce": "Merkez",
+   "mahalle": "Bahçelievler",
+   "musteri_adi": "Hakan T.",
+   "musteri_no": "5550021109",
+   "kisa_adres": "Bahçelievler · Park Evleri",
+   "obek": {
+    "id": 7,
+    "ad": "Yalova",
+    "renk": 6
+   },
+   "obek_elle": false,
+   "triyaj_nedeni": null,
+   "triyaj_metni": null,
+   "konum_yaklasik": false,
+   "lat": 40.65307054641377,
+   "lon": 29.276045305944795,
+   "acilis": "2026-09-29 16:07:05",
+   "son24": "2026-09-30 16:07:05",
+   "btk_hedef": "2026-09-30 04:07:05",
+   "kalan_dk": -107,
+   "renk": "kirmizi",
+   "gecikti": true,
+   "bekleme_dk": null,
+   "randevu": null,
+   "atanan": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "oneri": null,
+   "ticket": null,
+   "binada_acik_ticket": 0,
+   "rozetler": [
+    "btk",
+    "bayi"
+   ],
+   "kotu_gecmis": false,
+   "sira": 2,
+   "surum": 2,
+   "btk_durdu": false,
+   "btk_hedef_net": "2026-09-30 04:07:05",
+   "btk_kalan_dk": -827,
+   "oncelik": null,
+   "btk_sikayet": null,
+   "genel_ariza": false,
+   "adres": "Park Evleri Bahçelievler Mah. Merkez/Yalova",
+   "lokasyon": "10000703",
+   "mahalle_kaynak": "lokasyon",
+   "konum_kaynak": "bina",
+   "bina": {
+    "serial": "BN-900019",
+    "ad": "Park Evleri",
+    "location_id": "10000703",
+    "lat": 40.65307054641377,
+    "lon": 29.276045305944795
+   },
+   "boss": {
+    "durum": "Açık",
+    "randevu_durumu": "Randevusuz",
+    "randevu_bas": null,
+    "randevu_bit": null,
+    "ekip": "MERKEZ EKIP 3",
+    "aski_nedeni": null,
+    "sl": "SL Geçmedi",
+    "sl_saat": 14.5,
+    "son_aciklama": null,
+    "bekleyen": null,
+    "islendi": null
+   },
+   "uyanma": null,
+   "askida_neden": null,
+   "evde_yok_sayisi": 0,
+   "masa_vade": "2026-09-29 17:03:05",
+   "teshis_sonucu": null,
+   "soz": "Müşteriye söz: yarın 12:00'ye kadar",
+   "birincil": null,
+   "izinler": {
+    "ata": true,
+    "randevu": true,
+    "ticket": true,
+    "obek": true,
+    "iletisim": false,
+    "durumlar": [
+     "askida",
+     "merkeze",
+     "cozuldu"
+    ],
+    "ofisten_kapat": true,
+    "yeniden_ac": false,
+    "boss_bagla": false
+   },
+   "boss_url": null,
+   "bayi_oneri": null,
+   "olaylar": [
+    {
+     "id": 1034,
+     "zaman": "2026-09-29 16:58:05",
+     "kisi": null,
+     "tur": "durum",
+     "ozet": "Yola çıktı",
+     "notu": null
+    },
+    {
+     "id": 1033,
+     "zaman": "2026-09-29 16:27:05",
+     "kisi": "Selin Aksoy",
+     "tur": "atama",
+     "ozet": "Ali K.'ya atadı · 9 dk içinde",
+     "notu": null
+    },
+    {
+     "id": 1032,
+     "zaman": "2026-09-29 16:18:05",
+     "kisi": null,
+     "tur": "olustu",
+     "ozet": "Rapordan geldi",
+     "notu": null
+    }
+   ],
+   "aski": [],
+   "aski_durdu_dk": 0,
+   "btk_net_gecen_dk": 1547,
+   "boss_giden": null,
+   "kapanis": null,
+   "kapanis_nedeni": null,
+   "acilma_sayisi": 1,
+   "ilk_gorulme": "2026-09-29 16:18:05",
+   "gorulme_zamani": "2026-09-29 16:18:05",
+   "aski_uyari": null,
+   "aramalar": [],
+   "merdiven": {
+    "deneme": 0,
+    "gecerli": 0,
+    "gerekli": 4,
+    "gunler": [],
+    "son": null,
+    "sonraki": "2026-09-30 17:54:05",
+    "tamam": false,
+    "eksik": "4 arama daha gerekli (0/4)",
+    "sms_eksik": 0,
+    "ulasildi": false,
+    "ata_havuzu": false
+   }
+  },
+  {
+   "is_no": "412158380",
+   "boss_task_no": "412158380",
+   "kaynak": "boss",
+   "kanal_grubu": "bos",
+   "task_adi": "Sosyal Destek Evrak Toplama",
+   "serit": "LOJISTIK",
+   "btk_hedef_saat": null,
+   "durum": "ulasilamadi",
+   "kova": "beklemede",
+   "durum_zamani": "2026-09-29 15:33:05",
+   "il": "Bursa",
+   "ilce": "Mudanya",
+   "mahalle": "Güzelyalı",
+   "musteri_adi": "Selin E.",
+   "musteri_no": "5550022220",
+   "kisa_adres": "Güzelyalı · Göl Konutları",
+   "obek": {
+    "id": 6,
+    "ad": "Mudanya",
+    "renk": 5
+   },
+   "obek_elle": false,
+   "triyaj_nedeni": null,
+   "triyaj_metni": null,
+   "konum_yaklasik": false,
+   "lat": 40.36490356439426,
+   "lon": 28.916525466939806,
+   "acilis": "2026-09-29 14:46:05",
+   "son24": "2026-09-30 14:46:05",
+   "btk_hedef": null,
+   "kalan_dk": -188,
+   "renk": "kirmizi",
+   "gecikti": true,
+   "bekleme_dk": null,
+   "randevu": {
+    "bas": "2026-10-01 01:00:00",
+    "bit": "2026-10-01 03:00:00",
+    "teyitli": true,
+    "kaynak": "boss"
+   },
+   "atanan": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "oneri": null,
+   "ticket": null,
+   "binada_acik_ticket": 0,
+   "rozetler": [
+    "boss_islenecek",
+    "yeniden"
+   ],
+   "kotu_gecmis": false,
+   "sira": 3,
+   "surum": 3,
+   "btk_durdu": false,
+   "btk_hedef_net": null,
+   "btk_kalan_dk": null,
+   "oncelik": null,
+   "btk_sikayet": null,
+   "genel_ariza": false,
+   "adres": "Göl Konutları Güzelyalı Mah. Mudanya/Bursa",
+   "lokasyon": "10000740",
+   "mahalle_kaynak": "lokasyon",
+   "konum_kaynak": "bina",
+   "bina": {
+    "serial": "BN-900020",
+    "ad": "Göl Konutları",
+    "location_id": "10000740",
+    "lat": 40.36490356439426,
+    "lon": 28.916525466939806
+   },
+   "boss": {
+    "durum": "Açık",
+    "randevu_durumu": "Randevulu",
+    "randevu_bas": "2026-10-01 01:00:00",
+    "randevu_bit": "2026-10-01 03:00:00",
+    "ekip": null,
+    "aski_nedeni": null,
+    "sl": "SL Geçmedi",
+    "sl_saat": 14.5,
+    "son_aciklama": null,
+    "bekleyen": "sms",
+    "islendi": null
+   },
+   "uyanma": null,
+   "askida_neden": null,
+   "evde_yok_sayisi": 1,
+   "masa_vade": null,
+   "teshis_sonucu": null,
+   "soz": "Müşteriye söz: yarın 12:00'ye kadar",
+   "birincil": "yeniden_ata",
+   "izinler": {
+    "ata": true,
+    "randevu": true,
+    "ticket": true,
+    "obek": true,
+    "iletisim": false,
+    "durumlar": [
+     "askida",
+     "merkeze",
+     "cozuldu"
+    ],
+    "ofisten_kapat": true,
+    "yeniden_ac": false,
+    "boss_bagla": false
+   },
+   "boss_url": null,
+   "bayi_oneri": null,
+   "olaylar": [
+    {
+     "id": 1036,
+     "zaman": "2026-09-29 15:32:05",
+     "kisi": "Selin Aksoy",
+     "tur": "atama",
+     "ozet": "Ali K.'ya atadı · 9 dk içinde",
+     "notu": null
+    },
+    {
+     "id": 1035,
+     "zaman": "2026-09-29 15:23:05",
+     "kisi": null,
+     "tur": "olustu",
+     "ozet": "Rapordan geldi",
+     "notu": null
+    }
+   ],
+   "aski": [],
+   "aski_durdu_dk": 0,
+   "btk_net_gecen_dk": null,
+   "boss_giden": {
+    "is_no": "412158380",
+    "boss_task_no": "412158380",
+    "alanlar": {
+     "ekip": "ALI KAYA EKIBI",
+     "randevu_baslangic": "2026-10-01 01:00:00",
+     "randevu_bitis": "2026-10-01 03:00:00",
+     "talep_ulasamama_sms": true
+    },
+    "neden": "sms",
+    "olusma": "2026-09-29 15:32:05"
+   },
+   "kapanis": null,
+   "kapanis_nedeni": null,
+   "acilma_sayisi": 2,
+   "ilk_gorulme": "2026-09-29 15:23:05",
+   "gorulme_zamani": "2026-09-29 15:23:05",
+   "aski_uyari": null,
+   "aramalar": [
+    {
+     "zaman": "2026-09-30 12:00:00",
+     "sonuc": "ulasilamadi",
+     "sure_sn": 35,
+     "webphone": true,
+     "sms": true,
+     "yeni_numara": false,
+     "kisi": "Selin Aksoy"
+    },
+    {
+     "zaman": "2026-09-30 15:10:00",
+     "sonuc": "mesgul_kapali",
+     "sure_sn": null,
+     "webphone": true,
+     "sms": false,
+     "yeni_numara": false,
+     "kisi": "Selin Aksoy"
+    }
+   ],
+   "merdiven": {
+    "deneme": 2,
+    "gecerli": 2,
+    "gerekli": 4,
+    "gunler": [
+     2
+    ],
+    "son": "2026-09-30 15:10:00",
+    "sonraki": "2026-10-01 10:00:00",
+    "tamam": false,
+    "eksik": "2 arama daha gerekli (2/4)",
+    "sms_eksik": 1,
+    "ulasildi": false,
+    "ata_havuzu": false
+   }
+  },
+  {
+   "is_no": "412253408",
+   "boss_task_no": "412253408",
+   "kaynak": "boss",
+   "kanal_grubu": "bos",
+   "task_adi": "Bağlantı Problemi",
+   "serit": "BTK",
+   "btk_hedef_saat": 12,
+   "durum": "atandi",
+   "kova": "teknikte",
+   "durum_zamani": "2026-09-29 20:11:05",
+   "il": "Yalova",
+   "ilce": "Merkez",
+   "mahalle": "Bahçelievler",
+   "musteri_adi": "Selin E.",
+   "musteri_no": "5550035552",
+   "kisa_adres": "Bahçelievler · Menekşe Sitesi",
+   "obek": {
+    "id": 7,
+    "ad": "Yalova",
+    "renk": 6
+   },
+   "obek_elle": false,
+   "triyaj_nedeni": null,
+   "triyaj_metni": null,
+   "konum_yaklasik": false,
+   "lat": 40.65379175673798,
+   "lon": 29.273694046733716,
+   "acilis": "2026-09-29 19:40:05",
+   "son24": "2026-09-30 19:40:05",
+   "btk_hedef": "2026-09-30 07:40:05",
+   "kalan_dk": 106,
+   "renk": "kirmizi",
+   "gecikti": true,
+   "bekleme_dk": null,
+   "randevu": {
+    "bas": "2026-09-30 19:00:00",
+    "bit": "2026-09-30 21:00:00",
+    "teyitli": true,
+    "kaynak": "biz"
+   },
+   "atanan": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "oneri": null,
+   "ticket": null,
+   "binada_acik_ticket": 0,
+   "rozetler": [
+    "btk"
+   ],
+   "kotu_gecmis": false,
+   "sira": 3,
+   "surum": 3,
+   "btk_durdu": false,
+   "btk_hedef_net": "2026-09-30 07:40:05",
+   "btk_kalan_dk": -614,
+   "oncelik": null,
+   "btk_sikayet": null,
+   "genel_ariza": false,
+   "adres": "Menekşe Sitesi Bahçelievler Mah. Merkez/Yalova",
+   "lokasyon": "10001184",
+   "mahalle_kaynak": "lokasyon",
+   "konum_kaynak": "bina",
+   "bina": {
+    "serial": "BN-900032",
+    "ad": "Menekşe Sitesi",
+    "location_id": "10001184",
+    "lat": 40.65379175673798,
+    "lon": 29.273694046733716
+   },
+   "boss": {
+    "durum": "Açık",
+    "randevu_durumu": "Randevusuz",
+    "randevu_bas": null,
+    "randevu_bit": null,
+    "ekip": null,
+    "aski_nedeni": null,
+    "sl": "SL Geçmedi",
+    "sl_saat": 14.5,
+    "son_aciklama": null,
+    "bekleyen": null,
+    "islendi": null
+   },
+   "uyanma": null,
+   "askida_neden": null,
+   "evde_yok_sayisi": 0,
+   "masa_vade": "2026-09-29 20:46:05",
+   "teshis_sonucu": null,
+   "soz": "Müşteriye söz: yarın 12:00'ye kadar",
+   "birincil": null,
+   "izinler": {
+    "ata": true,
+    "randevu": true,
+    "ticket": true,
+    "obek": true,
+    "iletisim": false,
+    "durumlar": [
+     "askida",
+     "merkeze",
+     "cozuldu"
+    ],
+    "ofisten_kapat": true,
+    "yeniden_ac": false,
+    "boss_bagla": false
+   },
+   "boss_url": null,
+   "bayi_oneri": null,
+   "olaylar": [
+    {
+     "id": 1053,
+     "zaman": "2026-09-29 20:10:05",
+     "kisi": "Selin Aksoy",
+     "tur": "atama",
+     "ozet": "Ali K.'ya atadı · 9 dk içinde",
+     "notu": null
+    },
+    {
+     "id": 1052,
+     "zaman": "2026-09-29 20:01:05",
+     "kisi": null,
+     "tur": "olustu",
+     "ozet": "Rapordan geldi",
+     "notu": null
+    }
+   ],
+   "aski": [],
+   "aski_durdu_dk": 0,
+   "btk_net_gecen_dk": 1334,
+   "boss_giden": null,
+   "kapanis": null,
+   "kapanis_nedeni": null,
+   "acilma_sayisi": 1,
+   "ilk_gorulme": "2026-09-29 20:01:05",
+   "gorulme_zamani": "2026-09-29 20:01:05",
+   "aski_uyari": null,
+   "aramalar": [],
+   "merdiven": {
+    "deneme": 0,
+    "gecerli": 0,
+    "gerekli": 4,
+    "gunler": [],
+    "son": null,
+    "sonraki": "2026-09-30 17:54:05",
+    "tamam": false,
+    "eksik": "4 arama daha gerekli (0/4)",
+    "sms_eksik": 0,
+    "ulasildi": false,
+    "ata_havuzu": false
+   }
+  },
+  {
+   "is_no": "412166299",
+   "boss_task_no": "412166299",
+   "kaynak": "boss",
+   "kanal_grubu": "bos",
+   "task_adi": "Bağlantı Problemi",
+   "serit": "BTK",
+   "btk_hedef_saat": 12,
+   "durum": "ulasilamadi",
+   "kova": "beklemede",
+   "durum_zamani": "2026-09-29 07:05:05",
+   "il": "Yalova",
+   "ilce": "Merkez",
+   "mahalle": "Bahçelievler",
+   "musteri_adi": "Burak P.",
+   "musteri_no": "5550023331",
+   "kisa_adres": "Bahçelievler · Göl Konutları",
+   "obek": {
+    "id": 7,
+    "ad": "Yalova",
+    "renk": 6
+   },
+   "obek_elle": false,
+   "triyaj_nedeni": null,
+   "triyaj_metni": null,
+   "konum_yaklasik": false,
+   "lat": 40.65387008073926,
+   "lon": 29.274718586915917,
+   "acilis": "2026-09-29 06:35:05",
+   "son24": "2026-09-30 06:35:05",
+   "btk_hedef": "2026-09-29 18:35:05",
+   "kalan_dk": -679,
+   "renk": "kirmizi",
+   "gecikti": true,
+   "bekleme_dk": null,
+   "randevu": null,
+   "atanan": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   },
+   "oneri": null,
+   "ticket": null,
+   "binada_acik_ticket": 0,
+   "rozetler": [
+    "btk",
+    "boss_islenecek"
+   ],
+   "kotu_gecmis": false,
+   "sira": 4,
+   "surum": 1,
+   "btk_durdu": false,
+   "btk_hedef_net": "2026-09-29 18:35:05",
+   "btk_kalan_dk": -1399,
+   "oncelik": null,
+   "btk_sikayet": null,
+   "genel_ariza": false,
+   "adres": "Göl Konutları Bahçelievler Mah. Merkez/Yalova",
+   "lokasyon": "10000777",
+   "mahalle_kaynak": "lokasyon",
+   "konum_kaynak": "bina",
+   "bina": {
+    "serial": "BN-900021",
+    "ad": "Göl Konutları",
+    "location_id": "10000777",
+    "lat": 40.65387008073926,
+    "lon": 29.274718586915917
+   },
+   "boss": {
+    "durum": "Açık",
+    "randevu_durumu": "Randevusuz",
+    "randevu_bas": null,
+    "randevu_bit": null,
+    "ekip": "ALI KAYA EKIBI",
+    "aski_nedeni": null,
+    "sl": "SL Geçmedi",
+    "sl_saat": 14.5,
+    "son_aciklama": null,
+    "bekleyen": "sms",
+    "islendi": null
+   },
+   "uyanma": null,
+   "askida_neden": null,
+   "evde_yok_sayisi": 2,
+   "masa_vade": "2026-09-29 07:40:05",
+   "teshis_sonucu": null,
+   "soz": "Müşteriye söz: bugün 17:00'ye kadar",
+   "birincil": "yeniden_ata",
+   "izinler": {
+    "ata": true,
+    "randevu": true,
+    "ticket": true,
+    "obek": true,
+    "iletisim": false,
+    "durumlar": [
+     "askida",
+     "merkeze",
+     "cozuldu"
+    ],
+    "ofisten_kapat": true,
+    "yeniden_ac": false,
+    "boss_bagla": false
+   },
+   "boss_url": null,
+   "bayi_oneri": null,
+   "olaylar": [
+    {
+     "id": 1038,
+     "zaman": "2026-09-29 07:04:05",
+     "kisi": "Selin Aksoy",
+     "tur": "atama",
+     "ozet": "Ali K.'ya atadı · 9 dk içinde",
+     "notu": null
+    },
+    {
+     "id": 1037,
+     "zaman": "2026-09-29 06:55:05",
+     "kisi": null,
+     "tur": "olustu",
+     "ozet": "Rapordan geldi",
+     "notu": null
+    }
+   ],
+   "aski": [],
+   "aski_durdu_dk": 0,
+   "btk_net_gecen_dk": 2119,
+   "boss_giden": {
+    "is_no": "412166299",
+    "boss_task_no": "412166299",
+    "alanlar": {
+     "ekip": "ALI KAYA EKIBI",
+     "randevu_baslangic": null,
+     "randevu_bitis": null,
+     "talep_ulasamama_sms": true
+    },
+    "neden": "sms",
+    "olusma": "2026-09-29 07:04:05"
+   },
+   "kapanis": null,
+   "kapanis_nedeni": null,
+   "acilma_sayisi": 1,
+   "ilk_gorulme": "2026-09-29 06:55:05",
+   "gorulme_zamani": "2026-09-29 06:55:05",
+   "aski_uyari": null,
+   "aramalar": [
+    {
+     "zaman": "2026-09-30 12:00:00",
+     "sonuc": "ulasilamadi",
+     "sure_sn": 35,
+     "webphone": true,
+     "sms": true,
+     "yeni_numara": false,
+     "kisi": "Selin Aksoy"
+    },
+    {
+     "zaman": "2026-09-30 15:10:00",
+     "sonuc": "mesgul_kapali",
+     "sure_sn": null,
+     "webphone": true,
+     "sms": false,
+     "yeni_numara": false,
+     "kisi": "Selin Aksoy"
+    }
+   ],
+   "merdiven": {
+    "deneme": 2,
+    "gecerli": 2,
+    "gerekli": 4,
+    "gunler": [
+     2
+    ],
+    "son": "2026-09-30 15:10:00",
+    "sonraki": "2026-10-01 10:00:00",
+    "tamam": false,
+    "eksik": "2 arama daha gerekli (2/4)",
+    "sms_eksik": 1,
+    "ulasildi": false,
+    "ata_havuzu": false
+   }
+  }
+ ],
+ "bitenler": []
+}

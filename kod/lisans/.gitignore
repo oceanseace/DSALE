@@ -1,0 +1,14 @@
+# Lisans klasörü — özel anahtar ve verilen lisanslar ASLA depoya girmez.
+# Kasa varsayılan olarak depo DIŞINDADIR (%USERPROFILE%\.saha-lisans); bu satırlar yanlışlıkla
+# buraya kopyalanan dosyalara karşı emniyettir. Genel anahtar (genel_anahtar.pem) depoya GİRER.
+ozel_anahtar*.pem
+*ozel*.pem
+*.key
+kasa/
+lisanslar/
+verilenler.jsonl
+*.lisans.json
+lisans.json
+lisans_durum.json
+__pycache__/
+.pytest_cache/

@@ -1,0 +1,13 @@
+{
+  "surum": 1,
+  "aciklama": "ÖRNEK (sentetik) öbek tanımları — testler ve taze kurulum için. Gerçek tanımlar operasyon/obekler.json'dadır (depoda yok) ve güncellemede yalnız bir kez okunup veritabanına aktarılır.",
+  "obekler": [
+    {"ad": "Görükle", "mahalleler": ["Bursa/Nilüfer/Görükle", "Bursa/Nilüfer/Kayapa"]},
+    {"ad": "Özlüce", "mahalleler": ["Bursa/Nilüfer/Özlüce", "Bursa/Nilüfer/Ertuğrul", "Nilüfer/Fethiye"]},
+    {"ad": "Dumlupınar", "mahalleler": ["Bursa/Nilüfer/Dumlupınar"]},
+    {"ad": "Beşevler", "mahalleler": ["Bursa/Nilüfer/Beşevler", "Bursa/Nilüfer/Ataevler"]},
+    {"ad": "Yıldırım", "mahalleler": ["Bursa/Yıldırım/Yiğitler", "Bursa/Yıldırım/Mimarsinan"]},
+    {"ad": "Mudanya", "mahalleler": ["Bursa/Mudanya/*"]},
+    {"ad": "Yalova", "mahalleler": ["Yalova/Merkez/*", "Yalova/Çiftlikköy/*"]}
+  ]
+}

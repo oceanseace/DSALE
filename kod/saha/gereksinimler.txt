@@ -1,0 +1,15 @@
+# Saha Sistemi sunucusu
+#   .venv/Scripts/python.exe -m pip install -r saha/gereksinimler.txt
+fastapi>=0.115
+uvicorn[standard]>=0.30
+itsdangerous>=2.2
+openpyxl>=3.1
+python-multipart>=0.0.9
+# Faz 2: veri kalitesi, bölge planlayıcı, tur raporu (dsale/ ile aynı yığın)
+pandas>=2.2
+numpy>=1.26
+scipy>=1.13
+shapely>=2.0
+# testler
+pytest>=8.0
+httpx>=0.27

@@ -1,0 +1,28 @@
+/* Saha eklentisi — WhatsApp balon düğmesi. Yalnız kendi sınıfımıza (.ds-talep-dugme) ve onu taşıyan
+   balonun konumlanmasına dokunur. */
+:has(> .ds-talep-dugme) { position: relative; }
+[role="row"] .ds-talep-dugme {
+  position: absolute;
+  top: 4px;
+  right: -76px;
+  z-index: 5;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 13px;
+  background: #0b63e5;
+  color: #ffffff;
+  font: 600 12px/26px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.25);
+}
+[role="row"] .ds-talep-dugme.ds-giden { right: auto; left: -76px; }
+[role="row"]:hover .ds-talep-dugme,
+[role="row"] .ds-talep-dugme:focus-visible,
+[role="row"] .ds-talep-dugme.ds-kayitli { opacity: 1; }
+[role="row"] .ds-talep-dugme.ds-kayitli { background: #0b7a3f; }
+[role="row"] .ds-talep-dugme:focus-visible { outline: 2px solid #0b63e5; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { [role="row"] .ds-talep-dugme { transition: none; } }

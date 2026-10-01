@@ -1,0 +1,45 @@
+{
+ "demo_dahil": true,
+ "bugun": {
+  "ziyaret": 41,
+  "temas": 22,
+  "satis": 3,
+  "aktif_satisci": 2,
+  "toplam_satisci": 2
+ },
+ "hafta": {
+  "ziyaret": 198,
+  "temas": 104,
+  "satis": 14,
+  "hedef": null,
+  "ilerleme": null
+ },
+ "huni": {
+  "ziyaret": 198,
+  "temas": 104,
+  "satis": 14
+ },
+ "satiscilar": [
+  {
+   "id": 201,
+   "ad": "Oğuz Tekin",
+   "bolge": 3,
+   "bugun_ziyaret": 23,
+   "bugun_satis": 2,
+   "hafta_ziyaret": 110,
+   "hafta_satis": 9,
+   "donusum": 0.082
+  },
+  {
+   "id": 202,
+   "ad": "Gül Sarı",
+   "bolge": 5,
+   "bugun_ziyaret": 18,
+   "bugun_satis": 1,
+   "hafta_ziyaret": 88,
+   "hafta_satis": 5,
+   "donusum": 0.057
+  }
+ ],
+ "altyapisi_cozulen_bina": 2
+}

@@ -2,28 +2,65 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 
-# Node / Electron uygulaması
-app/node_modules/
-app/dist/
-app/dist-electron/
-app/dist-html/
-app/dist-sunum/
-app/dist-kesif/
-app/release/
-app/vendor-cache/
+# Çalışan sistem (canlı sürüm + veritabanı + yedekler + kayıtlar) — asla git'e girmez
+canli/
+# Geliştirme verisi (gerçek kişilerin kopyası olabilir: saha.db, gizli.key, yedekler, öbekler) — yerel kalır
+gelistirme/
 
+# Masaüstü uygulamasının kökteki kopyası (DERLE.bat üretir; içinde bina verisi var)
+/DehanetSaha.exe
+
+# Sunum uygulaması (kod/sunum): bağımlılıklar ve derleme çıktıları
+kod/sunum/node_modules/
+kod/sunum/dist/
+kod/sunum/dist-electron/
+kod/sunum/dist-html/
+kod/sunum/dist-sunum/
+kod/sunum/dist-kesif/
+kod/sunum/release/
+kod/sunum/vendor-cache/
 # Üretilen simge/splash rasterleri (kaynak build/icon.svg sürüm kontrolünde)
-app/build/icon-*.png
-app/build/icon.ico
-app/build/icon.png
-app/build/splash.bmp
-app/build/splash.png
-app/electron/icon.png
+kod/sunum/build/icon-*.png
+kod/sunum/build/icon.ico
+kod/sunum/build/icon.png
+kod/sunum/build/splash.bmp
+kod/sunum/build/splash.png
+kod/sunum/electron/icon.png
+# Ekran görüntüleri
+kod/sunum/qa/
 
-# Ekran görüntüleri ve ara çıktılar
-app/qa/
-outputs/_onbellek/
-outputs/*.exe
-outputs/*.mp4
-outputs/_*.log
+# Arayüz (kod/arayuz): bağımlılıklar ve derleme çıktıları (ayrıntı: kod/arayuz/.gitignore)
+kod/arayuz/node_modules/
+kod/arayuz/dist/
+kod/arayuz/dist-sahte/
+
+# Masaüstü (kod/masaustu) ve eklenti (kod/eklenti) derlemeleri
+kod/masaustu/node_modules/
+kod/masaustu/build/
+kod/masaustu/dist/
+kod/eklenti/node_modules/
+kod/eklenti/dist/
+
+# Ara çıktılar
+cikti/_onbellek/
+cikti/*.exe
+cikti/*.mp4
+cikti/_*.log
+# Sunucunun bölgeleme çıktıları (eski varsayılan yer; artık çalışma klasöründe)
+cikti/saha_bolgeleme/
+
+# Operasyon: yüklenen iş emri raporları (kişisel veri — yerel kalır)
+kod/operasyon/veri/
+*_hazir.xlsx
+# v2: öbek tanımları canlı veridir (DB esastır); depoya sentetik kod/operasyon/obekler.ornek.json girer
+kod/operasyon/obekler.json
+
+# Operasyon analiz çıktıları — ekip adları ve rapor türevleri içerir (yerel kalır)
+kod/operasyon/analiz/cikti/
+kod/operasyon/analiz/hakem*/cikti/
+
+# Saha Sistemi faz 2: üretilen önbellek ve yüklenen tur raporları (yerel kalır)
+veri/master/bina_kalite_kanit.json
+veri/raw/gelen/

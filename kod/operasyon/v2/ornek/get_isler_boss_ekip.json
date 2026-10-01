@@ -1,0 +1,34 @@
+{
+ "eslesmemis": [
+  {
+   "boss_ekip": "MERKEZ EKIP 3",
+   "is": 2
+  }
+ ],
+ "eslesmis": [
+  {
+   "boss_ekip": "ALI KAYA EKIBI",
+   "kisi": {
+    "id": 101,
+    "ad": "Ali Kaya",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   }
+  },
+  {
+   "boss_ekip": "VELI DEMIR",
+   "kisi": {
+    "id": 102,
+    "ad": "Veli Demir",
+    "gorevler": [
+     "teknik"
+    ],
+    "unvan": "Teknik - Sorumlu",
+    "giris_var": true
+   }
+  }
+ ]
+}

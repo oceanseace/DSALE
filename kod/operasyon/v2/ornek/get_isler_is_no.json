@@ -1,0 +1,160 @@
+{
+ "is_no": "412174218",
+ "boss_task_no": "412174218",
+ "kaynak": "boss",
+ "kanal_grubu": "global",
+ "task_adi": "STB Cihaz Değişikliği",
+ "serit": "SAHA",
+ "btk_hedef_saat": null,
+ "durum": "askida",
+ "kova": "beklemede",
+ "durum_zamani": "2026-09-30 02:39:05",
+ "il": "Bursa",
+ "ilce": "Nilüfer",
+ "mahalle": "Özlüce",
+ "musteri_adi": "Gül Çelik",
+ "musteri_no": "5550024442",
+ "kisa_adres": "Özlüce · Göl Konutları",
+ "obek": {
+  "id": 2,
+  "ad": "Özlüce",
+  "renk": 1
+ },
+ "obek_elle": false,
+ "triyaj_nedeni": null,
+ "triyaj_metni": null,
+ "konum_yaklasik": false,
+ "lat": 40.21990217311997,
+ "lon": 28.960776262348706,
+ "acilis": "2026-09-30 02:20:05",
+ "son24": "2026-10-01 02:20:05",
+ "btk_hedef": null,
+ "kalan_dk": 506,
+ "renk": "amber",
+ "gecikti": false,
+ "bekleme_dk": null,
+ "randevu": null,
+ "atanan": null,
+ "oneri": {
+  "teknik": {
+   "id": 102,
+   "ad": "Veli Demir",
+   "gorevler": [
+    "teknik"
+   ],
+   "unvan": "Teknik - Sorumlu",
+   "giris_var": true
+  },
+  "bas": "2026-09-30 18:00:00",
+  "bit": "2026-09-30 20:00:00",
+  "neden": "Özlüce öbeğinin teknisyeni · bugün 5/15"
+ },
+ "boss_ekip": null,
+ "ticket": null,
+ "binada_acik_ticket": 0,
+ "rozetler": [
+  "global"
+ ],
+ "kotu_gecmis": false,
+ "sira": null,
+ "surum": 2,
+ "btk_durdu": true,
+ "btk_hedef_net": null,
+ "btk_kalan_dk": null,
+ "oncelik": null,
+ "btk_sikayet": null,
+ "genel_ariza": false,
+ "adres": "Göl Konutları Özlüce Mah. Nilüfer/Bursa",
+ "lokasyon": "10000814",
+ "mahalle_kaynak": "lokasyon",
+ "konum_kaynak": "bina",
+ "bina": {
+  "serial": "BN-900022",
+  "ad": "Göl Konutları",
+  "location_id": "10000814",
+  "lat": 40.21990217311997,
+  "lon": 28.960776262348706
+ },
+ "boss": {
+  "durum": "Askıya alındı",
+  "randevu_durumu": "Randevusuz",
+  "randevu_bas": null,
+  "randevu_bit": null,
+  "ekip": null,
+  "aski_nedeni": "Abone kaynaklı",
+  "sl": "SL Geçmedi",
+  "sl_saat": 14.5,
+  "son_aciklama": null,
+  "bekleyen": null,
+  "islendi": null
+ },
+ "uyanma": "2026-09-30 19:46:05",
+ "askida_neden": "Abone kaynaklı",
+ "evde_yok_sayisi": 0,
+ "masa_vade": null,
+ "teshis_sonucu": null,
+ "soz": "Müşteriye söz: bugün 17:00'ye kadar",
+ "birincil": "uyandir",
+ "izinler": {
+  "ata": true,
+  "randevu": true,
+  "ticket": true,
+  "obek": true,
+  "iletisim": false,
+  "durumlar": [
+   "askida",
+   "merkeze",
+   "cozuldu"
+  ],
+  "ofisten_kapat": true,
+  "yeniden_ac": false,
+  "boss_bagla": false
+ },
+ "boss_url": null,
+ "bayi_oneri": null,
+ "olaylar": [
+  {
+   "id": 1039,
+   "zaman": "2026-09-30 02:29:05",
+   "kisi": null,
+   "tur": "olustu",
+   "ozet": "Rapordan geldi",
+   "notu": null
+  }
+ ],
+ "aski": [
+  {
+   "id": 522,
+   "baslama": "2026-09-30 12:20:05",
+   "bitis": null,
+   "neden": "Abone kaynaklı",
+   "kaynak": "boss",
+   "durdurur": true,
+   "yaklasik": true,
+   "sure_dk": 334
+  }
+ ],
+ "aski_durdu_dk": 334,
+ "btk_net_gecen_dk": null,
+ "boss_giden": null,
+ "kapanis": null,
+ "kapanis_nedeni": null,
+ "acilma_sayisi": 1,
+ "ilk_gorulme": "2026-09-30 02:29:05",
+ "gorulme_zamani": "2026-09-30 02:29:05",
+ "aski_uyari": null,
+ "aramalar": [],
+ "merdiven": {
+  "deneme": 0,
+  "gecerli": 0,
+  "gerekli": 4,
+  "gunler": [],
+  "son": null,
+  "sonraki": "2026-09-30 17:54:05",
+  "tamam": false,
+  "eksik": "4 arama daha gerekli (0/4)",
+  "sms_eksik": 0,
+  "ulasildi": false,
+  "ata_havuzu": false
+ }
+}

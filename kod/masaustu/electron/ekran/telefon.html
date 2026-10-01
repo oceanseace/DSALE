@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:" />
+  <title>Telefonla bağlan</title>
+  <link rel="stylesheet" href="ortak.css" />
+  <link rel="stylesheet" href="telefon.css" />
+</head>
+<body>
+  <main class="icerik">
+    <div class="ust"><div class="marka kucuk" aria-hidden="true">S</div><b>Telefonla bağlan</b></div>
+
+    <section id="hazir" class="gizli">
+      <div class="qr" id="qr" role="img" aria-label="Telefon adresinin karekodu"></div>
+      <div class="adres" id="adres"></div>
+      <div class="dugmeler orta"><button class="dugme" id="kopyala">Adresi kopyala</button></div>
+      <ol class="adimlar">
+        <li>Telefon <b>ofis Wi‑Fi'sine</b> bağlı olsun.</li>
+        <li>Kamerayı karekoda tutun ya da adresi tarayıcıya yazın.</li>
+        <li>Açılan sayfada paylaş menüsü → <b>Ana Ekrana Ekle</b>. Artık uygulama gibi açılır.</li>
+      </ol>
+      <p class="kucuk-not" id="digerleri"></p>
+      <p class="kucuk-not">Bağlantı ofis ağı içindir (şifresiz http). Ofis dışına açmayın.</p>
+    </section>
+
+    <section id="kapali" class="gizli">
+      <h1>Ağ erişimi kapalı</h1>
+      <p>Sunucu şu an yalnız bu bilgisayardan açılıyor; telefonlar bağlanamaz.</p>
+      <div class="dugmeler"><button class="dugme birincil" id="agiAc">Ofis ağına aç</button></div>
+      <p class="kucuk-not">Windows ilk seferde "erişime izin ver" diye sorarsa <b>Özel ağlar</b> işaretliyken İzin ver'e basın.</p>
+    </section>
+
+    <section id="durmus" class="gizli">
+      <h1>Sunucu çalışmıyor</h1>
+      <p>Telefonların bağlanabilmesi için önce sunucuyu başlatın.</p>
+      <div class="dugmeler"><button class="dugme birincil" id="baslat">Sunucuyu başlat</button></div>
+    </section>
+
+    <section id="agYok" class="gizli">
+      <h1>Ağ bağlantısı bulunamadı</h1>
+      <p>Bu bilgisayar bir ağa bağlı görünmüyor. Kablo ya da Wi‑Fi bağlantısını denetleyin.</p>
+    </section>
+  </main>
+  <script src="telefon.js"></script>
+</body>
+</html>

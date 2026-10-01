@@ -1,0 +1,4 @@
+# Lisans doğrulama (uygulama) ve lisans üretme (sahip) — Ed25519
+#   .venv/Scripts/python.exe -m pip install -r lisans/gereksinimler.txt
+cryptography>=42
+# lisans/sunucu.py (FastAPI bağlantısı) saha/gereksinimler.txt'teki fastapi'yi kullanır

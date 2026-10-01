@@ -1,0 +1,29 @@
+{
+ "aktarim_id": 42,
+ "fark": {
+  "yeni": 12,
+  "degisen": 30,
+  "kaybolan": 30,
+  "yeniden_acilan": 3,
+  "degismeyen": 392
+ },
+ "cikarilan": {
+  "kurulum": 1072,
+  "ikinci_donanim": 119,
+  "istisna_tutulan": 2,
+  "satir": 1628,
+  "adlar": {
+   "Kurulum": 1072,
+   "2. Donanım": 119
+  }
+ },
+ "kontrol": 3,
+ "boss_atamasi": 5,
+ "sure_sn": 1.4,
+ "yedek": "saha-aktarim-20260930-113812.db",
+ "tam_kapsam": true,
+ "aski": {
+  "acilan": 4,
+  "kapanan": 2
+ }
+}

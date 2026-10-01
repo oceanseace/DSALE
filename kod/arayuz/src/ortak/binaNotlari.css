@@ -1,0 +1,268 @@
+/* Bina kartı: veri notları + ticket özeti — satışçı ve yönetici ekranlarında ortak.
+   Ölçüler em cinsinden: satışçıda 17 px, yönetici penceresinde 15 px tabana uyar. */
+
+.bn-kart {
+  margin-top: 14px;
+  border: 1px solid var(--cizgi);
+  border-radius: 16px;
+  background: var(--kart);
+  padding: 12px 12px 10px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.bn-baslik {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--metin-2);
+  padding: 2px 4px 0;
+  min-height: 30px;
+}
+
+.bn-sayi {
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+  font-size: 12px;
+  letter-spacing: 0;
+  display: inline-grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.bn-ticket-ac {
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--birincil);
+  color: var(--dolgu-yazi);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bn-ticket-ac span {
+  font-size: 18px;
+  line-height: 1;
+}
+.bn-ticket-ac:hover {
+  background: var(--birincil-bas);
+}
+
+.bn-notlar,
+.bn-ticketlar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.bn-not {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 8px 10px;
+  border-radius: 11px;
+  background: var(--kart-bas);
+  font-size: 0.875em;
+  line-height: 1.38;
+  color: var(--metin);
+}
+/* s- öneki: temel.css'teki genel .bilgi (satışçı bilgi kutusu) sınıfıyla çakışmasın. */
+.bn-not.s-uyari {
+  background: var(--amber-yumusak);
+}
+.bn-nokta {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  margin-top: 0.42em;
+  background: var(--gri);
+}
+.bn-not.s-uyari .bn-nokta {
+  background: var(--amber);
+}
+.bn-not-metin {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bn-duzeltme {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.93em;
+  font-weight: 600;
+  color: var(--yesil);
+}
+.bn-duzeltme s {
+  color: var(--metin-2);
+  font-weight: 600;
+}
+
+.bn-daha {
+  justify-self: start;
+  min-height: 34px;
+  padding: 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--birincil-yazi);
+}
+
+.bn-bos {
+  margin: 0;
+  padding: 2px 4px 4px;
+  font-size: 0.9em;
+  color: var(--metin-2);
+}
+
+.bn-ozet {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 0.875em;
+  font-weight: 600;
+  color: var(--metin-2);
+}
+.bn-ozet.acik {
+  color: var(--amber);
+}
+
+.bn-ticket {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 11px;
+  border: 1px solid var(--cizgi);
+  background: transparent;
+  text-align: left;
+  color: var(--metin);
+  font: inherit;
+}
+button.bn-ticket:hover {
+  background: var(--kart-bas);
+}
+.bn-ticket-metin {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 1px;
+  font-size: 0.9em;
+}
+.bn-ticket-metin b {
+  font-weight: 600;
+}
+.bn-ticket-alt {
+  font-size: 0.9em;
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.bn-ok {
+  font-size: 22px;
+  color: var(--metin-3);
+  line-height: 1;
+}
+
+/* ---------------- Ticket durum çipi (yönetici defteri de kullanır) ---------------- */
+
+.tk-cip {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.tk-cip.kucuk {
+  min-height: 22px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.tk-d-mavi {
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+}
+.tk-d-kirmizi {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+}
+.tk-d-mor {
+  background: var(--mor-yumusak);
+  color: var(--mor);
+}
+.tk-d-yesil {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+.tk-d-gri {
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+}
+
+/* ---------------- Satışçı: "Ticket aç" çekmecesi ---------------- */
+
+.bn-etiket {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.bn-konular .bn-secim.secili {
+  background: var(--birincil);
+  border-color: var(--birincil);
+  color: var(--dolgu-yazi);
+}
+.bn-metin {
+  margin: 4px 0 0;
+  max-height: 150px;
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--kart-bas);
+  border: 1px solid var(--cizgi);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 2;
+  color: var(--metin);
+  user-select: all;
+}
+.bn-ipucu {
+  margin: 8px 2px 0;
+  font-size: 14px;
+  color: var(--metin-2);
+}
+.bn-ipucu.uyari {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--amber-yumusak);
+  color: var(--metin);
+  font-weight: 600;
+}
+.bn-ipucu.hata {
+  color: var(--kirmizi);
+  font-weight: 600;
+}

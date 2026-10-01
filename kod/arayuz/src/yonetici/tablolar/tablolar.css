@@ -1,0 +1,354 @@
+/* =========================================================================
+   Tablolar (EK-8) ve ticket fotoğrafları — yalnız tokenlar (stil/temel.css).
+   Izgara, arama ve telefon kartları ortak Tablo'dadır (ortak/bilesen.css);
+   burada yalnız sekmeler, altyapı paneli, PS26 aktarımı ve fotoğraf yeri var.
+   ========================================================================= */
+
+/* ---------------- Sekmeler ---------------- */
+
+.tb-ayrinti {
+  color: var(--metin-2);
+  font-size: 14px;
+}
+
+.tb-sekmeler {
+  margin: 4px 0 12px;
+  min-width: 0;
+}
+.tb-kisa {
+  display: none;
+}
+.tb-tablo {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  /* Telefonda sekme adları kısalır ("Altyapı"); segment gerekirse kendi içinde kayar. */
+  .tb-uzun {
+    display: none;
+  }
+  .tb-kisa {
+    display: inline;
+  }
+  .tb-sekmeler {
+    margin: 0 0 10px;
+  }
+}
+
+/* ---------------- Altyapı bekleyen: panel formu ---------------- */
+
+.tb-form {
+  display: grid;
+  gap: 14px;
+}
+.tb-form label,
+.tb-form > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.tb-form .yon-etiket {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--metin-2);
+}
+.tb-ikili {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.tb-bilgi {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--yaricap-k);
+  background: var(--kart-bas);
+  border: 1px solid var(--cizgi);
+  font-size: 14px;
+}
+.tb-bilgi dt {
+  color: var(--metin-2);
+}
+.tb-bilgi dd {
+  margin: 0;
+  color: var(--metin);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .tb-form .yon-alan {
+    min-height: 44px;
+    font-size: 16px; /* iOS odaklanınca yakınlaştırmasın */
+  }
+}
+
+/* ---------------- PS26'dan aktar ---------------- */
+
+.tb-kaynak {
+  margin: 0 0 12px;
+  color: var(--metin-2);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.tb-kaynak b {
+  color: var(--metin);
+  font-weight: 600;
+}
+.tb-onizleme {
+  display: grid;
+  gap: 12px;
+}
+.tb-notlar {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--metin-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.tb-notlar li + li {
+  margin-top: 4px;
+}
+.tb-esit {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--yaricap-k);
+  background: var(--yesil-yumusak);
+  border: 1px solid var(--yesil-cizgi);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.tb-esit b {
+  color: var(--yesil);
+  font-weight: 600;
+}
+.tb-esit span {
+  color: var(--metin);
+}
+
+/* ---------------- Ticket fotoğrafları ---------------- */
+
+.tf {
+  display: grid;
+  gap: 10px;
+  border-radius: var(--yaricap-k);
+  transition: background var(--hareket) ease;
+}
+.tf.surukleniyor {
+  background: var(--birincil-yumusak);
+  outline: 2px dashed var(--birincil-yazi);
+  outline-offset: 4px;
+}
+.tf-izgara {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+.tf-kucuk {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 44px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+  background: var(--gri-yumusak);
+  cursor: zoom-in;
+}
+.tf-kucuk img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tf-kucuk:hover {
+  border-color: var(--cizgi-koyu);
+}
+.tf-kucuk:focus-visible {
+  outline: 2px solid var(--birincil-yazi);
+  outline-offset: 2px;
+}
+.tf-iskelet {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--iskelet-a) 25%, var(--iskelet-b) 50%, var(--iskelet-a) 75%);
+  background-size: 200% 100%;
+  animation: o-parla 1.3s linear infinite;
+}
+.tf-kucuk .tf-iskelet {
+  border-radius: 0;
+}
+.tf-kirik {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--kirmizi);
+  font-weight: 600;
+}
+.tf-bos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: var(--metin-2);
+  font-size: 14px;
+}
+.tf-bos-metin {
+  margin: 0;
+  color: var(--metin-2);
+  font-size: 14px;
+}
+.tf-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.tf-ipucu {
+  color: var(--metin-3);
+  font-size: 13px;
+}
+
+/* Tam ekran gösterici (body'ye portal): panellerin (71) üstünde, menülerin (80) altında. */
+.tf-gosterici {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--zemin);
+  color: var(--metin);
+  outline: none;
+  animation: o-sol var(--hareket) ease both;
+}
+.tf-g-ust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(var(--ust-guvenli) + 8px) calc(var(--sag-guvenli) + 12px) 8px calc(var(--sol-guvenli) + 16px);
+  background: var(--ust-zemin);
+  border-bottom: 1px solid var(--cizgi);
+}
+.tf-g-ad {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tf-g-ad,
+.tf-g-ad small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tf-g-ad small {
+  color: var(--metin-2);
+  font-size: 13px;
+  font-weight: 400;
+}
+.tf-g-dugme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--cizgi);
+  border-radius: 11px;
+  background: var(--kart);
+  color: var(--metin);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tf-g-dugme.kapat {
+  padding: 0;
+}
+.tf-g-dugme:hover {
+  background: var(--kart-bas);
+}
+.tf-g-dugme:focus-visible,
+.tf-g-ok:focus-visible {
+  outline: 2px solid var(--birincil-yazi);
+  outline-offset: 2px;
+}
+.tf-g-resim {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 12px 72px calc(var(--alt-guvenli) + 16px);
+}
+.tf-g-resim img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: var(--golge-orta);
+}
+.tf-g-bekle {
+  color: var(--metin-2);
+  font-size: 15px;
+}
+.tf-g-ok {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  padding: 0 0 4px;
+  border: 1px solid var(--cizgi);
+  border-radius: 50%;
+  background: var(--kart);
+  color: var(--metin);
+  box-shadow: var(--golge-orta);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tf-g-ok.sol {
+  left: calc(var(--sol-guvenli) + 12px);
+}
+.tf-g-ok.sag {
+  right: calc(var(--sag-guvenli) + 12px);
+}
+
+@media (max-width: 767px) {
+  .tf-izgara {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tf-g-resim {
+    padding: 8px 8px calc(var(--alt-guvenli) + 72px);
+  }
+  /* Telefonda oklar resmin üstüne değil altına, başparmak bölgesine. */
+  .tf-g-ok {
+    top: auto;
+    bottom: calc(var(--alt-guvenli) + 12px);
+    margin-top: 0;
+  }
+  .tf-g-ok.sol {
+    left: calc(50% - 60px);
+  }
+  .tf-g-ok.sag {
+    right: calc(50% - 60px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-iskelet,
+  .tf-gosterici {
+    animation: none;
+  }
+}

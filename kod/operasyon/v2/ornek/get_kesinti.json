@@ -1,0 +1,27 @@
+{
+ "kesintiler": [
+  {
+   "id": 1,
+   "no": "123456",
+   "tur": "GPON",
+   "durum": "devam",
+   "durum_metni": "Devam ediyor",
+   "baslama": "2026-09-30 16:19:05",
+   "baslama_saat": "09:40",
+   "bitis": null,
+   "etki_musteri": 420,
+   "ekleyen": "Selin Aksoy",
+   "ilceler": [
+    {
+     "il_k": "BURSA",
+     "ilce_k": "NILUFER",
+     "il": "Bursa",
+     "ilce": "Nilüfer"
+    }
+   ],
+   "ilce_metni": "Bursa/Nilüfer",
+   "ozet": "TCELL SOC - NT ARIZA · ARIZA Başladı 09.40 – BURSA-NİLÜFER GPON KESİNTİSİ ETKİ: 3 SWITCH – 420 MÜŞTERİ",
+   "askida_is": 1
+  }
+ ]
+}

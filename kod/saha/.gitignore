@@ -1,0 +1,15 @@
+# Saha Sistemi çalışma dosyaları — hiçbiri sürüm kontrolüne girmez
+saha.db
+saha.db-wal
+saha.db-shm
+gizli.key
+kayit/
+yedek/
+raporlar/
+__pycache__/
+.pytest_cache/
+
+# v2: ticket fotoğrafları (Ek-8), göç kilidi, geri yüklemede kenara konan dosyalar
+ek/
+*.goc.kilit
+saha-hatali-*.db*

@@ -1,0 +1,198 @@
+[
+ {
+  "il": "Bursa",
+  "ilce": "Büyükorhan",
+  "il_k": "BURSA",
+  "ilce_k": "BUYUKORHAN",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Gemlik",
+  "il_k": "BURSA",
+  "ilce_k": "GEMLIK",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Gürsu",
+  "il_k": "BURSA",
+  "ilce_k": "GURSU",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": {
+   "id": 8,
+   "ad": "Gürsu"
+  }
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Harmancık",
+  "il_k": "BURSA",
+  "ilce_k": "HARMANCIK",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "İnegöl",
+  "il_k": "BURSA",
+  "ilce_k": "INEGOL",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "İznik",
+  "il_k": "BURSA",
+  "ilce_k": "IZNIK",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Karacabey",
+  "il_k": "BURSA",
+  "ilce_k": "KARACABEY",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Keles",
+  "il_k": "BURSA",
+  "ilce_k": "KELES",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Kestel",
+  "il_k": "BURSA",
+  "ilce_k": "KESTEL",
+  "mahalle_sayisi": 12,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Mudanya",
+  "il_k": "BURSA",
+  "ilce_k": "MUDANYA",
+  "mahalle_sayisi": 12,
+  "tum_ilce_obek": {
+   "id": 6,
+   "ad": "Mudanya"
+  }
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Mustafakemalpaşa",
+  "il_k": "BURSA",
+  "ilce_k": "MUSTAFAKEMALPASA",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Nilüfer",
+  "il_k": "BURSA",
+  "ilce_k": "NILUFER",
+  "mahalle_sayisi": 84,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Orhaneli",
+  "il_k": "BURSA",
+  "ilce_k": "ORHANELI",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Orhangazi",
+  "il_k": "BURSA",
+  "ilce_k": "ORHANGAZI",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Osmangazi",
+  "il_k": "BURSA",
+  "ilce_k": "OSMANGAZI",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Yenişehir",
+  "il_k": "BURSA",
+  "ilce_k": "YENISEHIR",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Bursa",
+  "ilce": "Yıldırım",
+  "il_k": "BURSA",
+  "ilce_k": "YILDIRIM",
+  "mahalle_sayisi": 24,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Altınova",
+  "il_k": "YALOVA",
+  "ilce_k": "ALTINOVA",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Armutlu",
+  "il_k": "YALOVA",
+  "ilce_k": "ARMUTLU",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Çınarcık",
+  "il_k": "YALOVA",
+  "ilce_k": "CINARCIK",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Çiftlikköy",
+  "il_k": "YALOVA",
+  "ilce_k": "CIFTLIKKOY",
+  "mahalle_sayisi": 12,
+  "tum_ilce_obek": {
+   "id": 7,
+   "ad": "Yalova"
+  }
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Merkez",
+  "il_k": "YALOVA",
+  "ilce_k": "MERKEZ",
+  "mahalle_sayisi": 12,
+  "tum_ilce_obek": {
+   "id": 7,
+   "ad": "Yalova"
+  }
+ },
+ {
+  "il": "Yalova",
+  "ilce": "Termal",
+  "il_k": "YALOVA",
+  "ilce_k": "TERMAL",
+  "mahalle_sayisi": 0,
+  "tum_ilce_obek": null
+ }
+]

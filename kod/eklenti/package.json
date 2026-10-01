@@ -1,0 +1,16 @@
+{
+  "name": "dehanet-saha-eklenti",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Saha Sistemi tarayıcı eklentisi (Manifest V3; Brave, Chrome, Edge). Yalnız geliştirme betikleri; eklentinin kendisi paket gerektirmez.",
+  "scripts": {
+    "test": "node --test test/birim/",
+    "test:uctan": "node --test --test-concurrency=1 test/uctan/",
+    "sunucu": "node test/uctan/sahte_sunucu.js",
+    "paketle": "node araclar/paketle.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "playwright-core": "1.63.0"
+  }
+}
