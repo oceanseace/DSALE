@@ -7,7 +7,7 @@
     var g = localStorage.getItem('saha.gorunum');
     if (g === 'koyu' || g === 'acik') {
       document.documentElement.setAttribute('data-theme', g === 'koyu' ? 'dark' : 'light');
-      var renk = g === 'koyu' ? '#0F1319' : '#EFF1F5';
+      var renk = g === 'koyu' ? '#1F1F1F' : '#F5F5F5';
       var metalar = document.querySelectorAll('meta[name="theme-color"]');
       for (var i = 0; i < metalar.length; i++) metalar[i].setAttribute('content', renk);
     }

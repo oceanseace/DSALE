@@ -385,7 +385,7 @@ def dosya_metni(yuk: dict, imza: bytes, kimlik: str | None = None) -> str:
     sirali.update({k: v for k, v in yuk.items() if k not in sirali})
     govde = {
         "bicim": BICIM,
-        "aciklama": "Saha Sistemi lisansı. İçerik okunabilir; tek bir harf bile değişirse imza "
+        "aciklama": "Turkcell lisansı. İçerik okunabilir; tek bir harf bile değişirse imza "
                     "tutmaz ve lisans geçersiz sayılır. Ayrıntı: belgeler/LISANS.md",
         "lisans": sirali,
         "anahtar_kimligi": kimlik,
@@ -932,7 +932,7 @@ def _konsol():
 
 def main(argv: list[str] | None = None) -> int:
     _konsol()
-    ayrac = argparse.ArgumentParser(prog="python -m lisans.lisans", description="Saha Sistemi lisans denetimi")
+    ayrac = argparse.ArgumentParser(prog="python -m lisans.lisans", description="Turkcell lisans denetimi")
     alt = ayrac.add_subparsers(dest="komut", required=True)
     alt.add_parser("cihaz", help="bu bilgisayarın cihaz kimliği (lisans sahibine iletilir)")
     d = alt.add_parser("denetle", help="bir lisans dosyasının durumu")

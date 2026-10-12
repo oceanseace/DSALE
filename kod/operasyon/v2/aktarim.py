@@ -26,7 +26,9 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import pandas as pd
+from operasyon.tembel import tembel
+
+pd = tembel("pandas")  # ağır: ilk kullanımda yüklenir
 
 from operasyon import is_emri as ie
 
@@ -40,8 +42,9 @@ AKTARIM_YEDEK_SAKLA = 10
 
 BOLGE_IL_K = {"BURSA", "YALOVA"}
 ALTYAPI_KONULARI = ("SİNYAL", "EK SP", "GÜZERGAH", "ALTYAPI")
-TICKET_ACIK = ("AÇIK", "HATA", "TRANSFER")
-BOSS_DURUM = {"ACIK": "acik", "ASKIYA ALINDI": "askida", "BASLANDI": "basladi", "MERKEZE GONDERILDI": "merkeze",
+TICKET_ACIK = ("AÇIK", "HATA", "TRANSFER", "BÖLGE")
+BOSS_DURUM = {"ACIK": "acik", "RANDEVUSUZ": "acik", "RANDEVU ALINDI": "randevu", "ASKIYA ALINDI": "askida",
+              "ERTELENDI": "askida", "BASLANDI": "basladi", "MERKEZE GONDERILDI": "merkeze",
               "KONUM PAYLASILDI": "konum", "BITIRILDI": "bitti", "KAPALI": "bitti", "IPTAL": "bitti"}
 
 # BOSS sütunları (başlık metinleri birebir)
@@ -199,7 +202,7 @@ def triyaj_hesapla(conn, *, il, il_k, ilce_k, mahalle_k, mahalle_kaynak, obek_id
                     r[0] for r in conn.execute("SELECT esad_k FROM mahalle_esad WHERE il_k=? AND ilce_k=?", (il_k, ilce_k))}
             if mahalle_k not in bilinen and sozluk.benzerler(bilinen, mahalle_k):
                 return "mahalle_benzer"
-        return "obeksiz"
+        # Öbek ana akıştan çıktı (tek iş havuzu): öbeksiz iş Kontrol'e düşmez.
     return None
 
 
@@ -232,7 +235,7 @@ def hazirla(conn: sqlite3.Connection, df: pd.DataFrame) -> Hazirlik:
     asil = [sozluk.ilce_coz(ilce_h, a, b) for a, b in zip(df[K["il"]].fillna(""), df[K["ilce"]].fillna(""))]
     df[K["il"]] = [c[2] if c else a for c, a in zip(asil, df[K["il"]].fillna(""))]
     df[K["ilce"]] = [c[3] if c else b for c, b in zip(asil, df[K["ilce"]].fillna(""))]
-    sonuc = ie.hazirla(df, ie.Obekler(), szl, istisnalar=istisnalar, mahalle_cozucu=sozluk.mahalle_coz)
+    sonuc = ie.hazirla(df, ie.Obekler(), szl, istisnalar=istisnalar, mahalle_cozucu=sozluk.mahalle_coz, cikar=False)
     d = sonuc.isler
     anahtarlar = {ik: set(v) for ik, v in szl.mah.items()}
     isler: list[dict] = []
@@ -690,29 +693,41 @@ def _guncelle(b: _Baglam, x: dict, r: sqlite3.Row, yeniden: bool) -> None:
                       ilk_atama_zamani=r["ilk_atama_zamani"] or b.simdi)
             b.boss_atamasi += 1
             notlar.append("BOSS'ta atanmış")
-        # 1) ileri kuralı: yalnız atanmış işte, geri gitmez
+        # 1) BOSS durumu kesin kaynaktır (BOSS'un son statüsü iç durumu geçersiz kılar). Uygulamada ileri giden iş
+        #    (teknisyen "yoldayım" dedi, BOSS henüz eski statüde) ancak BOSS statüsü DEĞİŞİNCE geri alınır; askı ve
+        #    merkeze her eşitlemede uygulanır. Her uzlaştırma olay kaydına notla yazılır.
+        boss_degisti = ie.sade(x.get("boss_durum") or "") != ie.sade(r["boss_durum"] or "")
         if atanan is not None and durum in akis.ILERI_SIRA:
             hedef = {"konum": "yolda", "basladi": "sahada"}.get(kod)
-            if hedef and akis.ILERI_SIRA[hedef] > akis.ILERI_SIRA[durum]:
+            if hedef and (akis.ILERI_SIRA[hedef] > akis.ILERI_SIRA[durum] or (boss_degisti and hedef != durum)):
                 if hedef == "yolda" and not r["yolda_zamani"]:
                     ek["yolda_zamani"] = x.get("_konum_tarihi") or b.simdi
                 if hedef == "sahada":
                     ek.setdefault("yolda_zamani", r["yolda_zamani"] or x.get("_konum_tarihi"))
                     ek["sahada_zamani"] = r["sahada_zamani"] or x.get("_basla_tarihi") or b.simdi
+                if akis.ILERI_SIRA[hedef] < akis.ILERI_SIRA[durum]:
+                    notlar.append(f"BOSS'ta geri gitti ({x.get('boss_durum')})")
                 durum = hedef
-        # 2) istisnalar; bizde ulaşılamadı / altyapı / askı bilgisi korunur
-        if kod == "askida" and durum in ("triyaj", "bekliyor", "randevulu", "atandi"):
+        if kod == "askida" and durum not in ("cozuldu", "kapandi", "askida"):
             durum = "askida"
             ek["askida_neden"] = x.get("boss_aski_nedeni")
-            notlar.append("BOSS'ta askıya alındı")
-        elif kod == "merkeze" and durum not in ("cozuldu", "altyapi", "ulasilamadi", "askida", "merkeze"):
+            notlar.append(f"BOSS'ta {'ertelendi' if ie.sade(x.get('boss_aski_nedeni') or '') == 'ERTELENDI' else 'askıya alındı'}")
+        elif kod == "merkeze" and durum not in ("cozuldu", "kapandi", "merkeze", "askida", "altyapi"):
             durum = "merkeze"
             ek["askida_neden"] = x.get("_merkeze")
             notlar.append("BOSS'ta merkeze gönderildi")
-        elif kod != "askida" and durum == "askida" and _askiya_sistem_mi_aldi(b.conn, r["is_no"]):
-            durum = "bekliyor" if not triyaj else "triyaj"
+        elif kod in ("acik", "randevu", "konum", "basladi") and (
+                (durum == "askida" and (boss_degisti or _askiya_sistem_mi_aldi(b.conn, r["is_no"])))
+                or (durum == "merkeze" and boss_degisti)):
+            hedef = {"konum": "yolda", "basladi": "sahada"}.get(kod) if atanan is not None else None
+            durum = hedef or ("atandi" if atanan is not None else ("randevulu" if r["randevu_bas"] or kod == "randevu"
+                                                                  else ("triyaj" if triyaj else "bekliyor")))
             ek.update(askida_neden=None, uyanma=None)
-            notlar.append("BOSS'ta askıdan çıktı")
+            notlar.append(f"BOSS'ta {'askıdan çıktı' if r['durum'] == 'askida' else 'merkezden döndü'}")
+        elif kod in ("acik", "randevu") and durum in ("yolda", "sahada") and boss_degisti:
+            durum = "atandi" if atanan is not None else ("randevulu" if r["randevu_bas"] else "bekliyor")
+            ek.update(yolda_zamani=None, sahada_zamani=None)
+            notlar.append(f"BOSS'ta geri gitti ({x.get('boss_durum')})")
         # durum bekliyor ↔ triyaj (öbek/mahalle belli oldu ya da kayboldu)
         if durum == "bekliyor" and triyaj:
             durum = "triyaj"
@@ -968,6 +983,8 @@ def _isle(conn: sqlite3.Connection, aid: int, veri: bytes, dosya_zamani: str | N
         _hata_yaz(conn, aid, f"Yazılamadı: {type(e).__name__}")
         raise
     _sonrasi(conn)
+    from . import dagitim
+    dagitim_sonuc = dagitim.aktarim_sonrasi(conn, df, aid, tam_kapsam)   # bütün satırlar → dağıtım tablosu
     s = fark.sayilar()
     if not tam_kapsam:
         s["kaybolan"] = 0
@@ -977,7 +994,8 @@ def _isle(conn: sqlite3.Connection, aid: int, veri: bytes, dosya_zamani: str | N
                           "adlar": hz.ozet["cikarilan_adlar"]},
             "kontrol": sonuc["kontrol"], "boss_atamasi": sonuc["boss_atamasi"],
             "sure_sn": round(time.perf_counter() - t0, 3), "yazma_sn": sonuc["yazma_sn"], "yedek": yedek.name,
-            "tam_kapsam": tam_kapsam, "aski": sonuc["aski"], "lokasyon": hz.ozet["lokasyon"]}
+            "tam_kapsam": tam_kapsam, "aski": sonuc["aski"], "lokasyon": hz.ozet["lokasyon"],
+            "dagitim": dagitim_sonuc}
 
 
 def uygula(conn_fabrikasi, aktarim_id: int, mod: str, k: dict | None) -> dict:

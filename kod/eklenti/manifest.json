@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "name": "Dehanet BOSS Yardımcısı",
+  "version": "0.15.0",
+  "description": "BOSS Teknik Havuz'daki işleri sizin oturumunuzla okur ve Turkcell uygulamasına (bu bilgisayardaki) canlı aktarır; OneMap sekmesi açıkken bina listesini OneMap'le güncel tutar.",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "alarms",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://boss.turkcell.com.tr/*",
+    "https://onemap.turkcell.com.tr/*",
+    "https://arcgis.turkcell.com.tr/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "arka.js"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "action": {
+    "default_title": "BOSS Yardımcısı"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://boss.turkcell.com.tr/*"
+      ],
+      "js": [
+        "maske.js",
+        "kanca.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://boss.turkcell.com.tr/*"
+      ],
+      "js": [
+        "kopru.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://onemap.turkcell.com.tr/*",
+        "https://arcgis.turkcell.com.tr/*"
+      ],
+      "js": [
+        "onemap_sayfa.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://onemap.turkcell.com.tr/*",
+        "https://arcgis.turkcell.com.tr/*"
+      ],
+      "js": [
+        "onemap_kopru.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

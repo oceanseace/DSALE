@@ -13,17 +13,15 @@ from __future__ import annotations
 
 import json
 import sqlite3
-import tempfile
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, Header, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 
-from . import altlik, ayarlar, bolgeleme, db, geometri, sema_v2, ticket, tur_raporu, veri_kalitesi
-from .api import _baslik, baglanti, hata
-from .yetki import bina_gorebilir, bolge_kapsami, izin
+from . import altlik, ayarlar, bolgeleme, db, geometri, sema_v2, ticket, ticket_boss_not, tur_raporu, veri_kalitesi
+from .api_ortak import _baslik, erisim_yaz
+from .yetki import baglanti, bina_gorebilir, bolge_kapsami, hata, izin, izinli
 
 # Veri yönetimi (kalite, bölgeleme, tur raporu, OneMap, bina değişimi, altlık yazma): yalnız yönetici.
 veri_yonet = izin("veri.yonet")
@@ -307,6 +305,17 @@ class TicketGirdi(BaseModel):
     notu: str | None = Field(default=None, max_length=2000)
     onedesk_ekip: str | None = Field(default=None, max_length=80)   # Ek-5: TEAM-TAS1BRS
     kategori: str | None = Field(default=None, max_length=160)      # Ek-5: OneDesk başlığı
+    isler: list[str] | None = Field(default=None, max_length=500)   # seçicide işaretlenen Task No'lar
+
+
+class TicketIslerGirdi(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    isler: list[str] = Field(min_length=1, max_length=500)
+
+
+class TicketTemizlikGirdi(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    gun: int = Field(default=ticket.TEMIZLIK_GUN, ge=30, le=3650)
 
 
 class TicketGuncelleGirdi(BaseModel):
@@ -330,7 +339,7 @@ def ticket_liste(
     durum: str | None = None, konu: str | None = None, kanal: str | None = None, q: str | None = None,
     bina_serial: str | None = None, acik: bool | None = None, bolge: int | None = None,
     limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0),
-    k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti),
+    k: dict = Depends(izin("ticket.oku", "ticket.defter")), conn: sqlite3.Connection = Depends(baglanti),
 ):
     try:
         return ticket.liste(conn, durum, konu, kanal, q, bina_serial, acik, bolge, limit, offset)
@@ -351,6 +360,81 @@ def ticket_sablon(bina_serial: str, konu: str = "SİNYAL", ekip: str = "",
             "alanlar": {"bina_serial": b["bina_serial"], "tellcordia_id": b.get("tellcordia_id") or "",
                         "location_id": b.get("location_id") or "", "obek": b.get("obek") or "",
                         "site_adi": ticket.site_adi(b)}}
+
+
+@yonlendirici.get("/api/ticket/lokasyon")
+def ticket_lokasyon(loc: str | None = Query(default=None, max_length=40),
+                    bina_serial: str | None = Query(default=None, max_length=40),
+                    k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
+    """Yeni ticket: Loc ID (ya da Bina Serial) → site, ilçe/mahalle, açık işlerin müşteri no'ları, binadaki
+    açık ticket'lar. ``/api/ticket/{ticket_id}``'den ÖNCE durmalı (yoksa o yakalar, 422).
+    Bina Serial verilirse bina kapsamı denetlenir; müşteri no'ları yalnız ``is.musteri`` izniyle (KVKK kaydıyla)."""
+    if not ((loc or "").strip() or (bina_serial or "").strip()):
+        raise hata(400, "Loc ID yazın.", "gecersiz_veri")
+    bs = (bina_serial or "").strip()
+    if bs and not bina_gorebilir(conn, k, bs):        # bilinmeyen bina: aşağıda "bulunamadı" döner (403 değil)
+        if conn.execute("SELECT 1 FROM bina WHERE bina_serial=?", (bs,)).fetchone():
+            raise hata(403, "Bu bina sizin bölgenizde değil.", "baska_bolge")
+    bilgi = ticket.lokasyon_bilgisi(conn, loc, bina_serial)
+    if not izinli(k, "is.musteri"):
+        bilgi["musteriler"] = []
+    erisim_yaz(conn, k, "ticket_lokasyon", len(bilgi["musteriler"]))
+    return bilgi
+
+
+@yonlendirici.get("/api/ticket/musteri")
+def ticket_musteri(no: str = Query(..., min_length=1, max_length=400),
+                   k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
+    """Yeni ticket satırı (Excel gibi): Müşteri No → müşterinin açık işinden Loc ID, bina/site adı, Task adı,
+    Task No. Virgülle birden çok no (en çok 20). ``ticket.defter`` + ``is.musteri`` (KVKK kaydıyla);
+    ``/api/ticket/{ticket_id}``'den ÖNCE durmalı."""
+    if not izinli(k, "is.musteri"):
+        raise hata(403, "Müşteri numarasıyla arama için müşteri bilgisi izni gerekir.", "yasak")
+    nolar = ticket.musteri_nolari(no)[:20]
+    if not nolar:
+        raise hata(400, "Müşteri no yazın.", "gecersiz_veri")
+    sonuclar = [ticket.musteri_bilgisi(conn, n) for n in nolar]
+    erisim_yaz(conn, k, "ticket_musteri", sum(1 for x in sonuclar if x["bulundu"]))
+    ilk = next((x for x in sonuclar if x["bulundu"]), sonuclar[0])
+    return {**ilk, "sonuclar": sonuclar}
+
+
+@yonlendirici.get("/api/ticket/isler")
+def ticket_is_secenekleri(musteri: str | None = Query(default=None, max_length=1000),
+                          loc: str | None = Query(default=None, max_length=40),
+                          haric: int | None = None,
+                          k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
+    """İş seçicisi (yeni ticket satırı · "+ abone ekle"): müşteri no'ların ve/veya Loc ID'nin AÇIK işleri + aynı
+    lokasyonda son 180 günün ticket'ları (``benzer``; engellemeyen uyarı). Müşteri no ile arama ``is.musteri`` ister;
+    izin yoksa adres ve müşteri no boş döner. ``/api/ticket/{ticket_id}``'den ÖNCE durmalı."""
+    kisisel = izinli(k, "is.musteri")
+    if (musteri or "").strip() and not kisisel:
+        raise hata(403, "Müşteri numarasıyla arama için müşteri bilgisi izni gerekir.", "yasak")
+    if not ((musteri or "").strip() or (loc or "").strip()):
+        raise hata(400, "Müşteri No ya da Loc ID yazın.", "gecersiz_veri")
+    sonuc = ticket.is_secenekleri(conn, musteri, loc, kisisel=kisisel)
+    if haric is not None:
+        sonuc["benzer"] = [t for t in sonuc["benzer"] if t["id"] != haric]
+    erisim_yaz(conn, k, "ticket_isler", len(sonuc["isler"]))
+    return sonuc
+
+
+@yonlendirici.get("/api/ticket/temizlik")
+def ticket_temizlik_onizle(gun: int = Query(default=ticket.TEMIZLIK_GUN, ge=30, le=3650),
+                           k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
+    """Toplu temizlik önizlemesi: kaç ÇÖZÜLDÜ ticket ``gun`` günden eski (silinmeden önce onay için)."""
+    return {"gun": gun, "sayi": len(ticket.eski_cozulenler(conn, gun))}
+
+
+@yonlendirici.post("/api/ticket/temizlik")
+def ticket_temizlik(girdi: TicketTemizlikGirdi, k: dict = Depends(izin("ticket.defter")),
+                    conn: sqlite3.Connection = Depends(baglanti)):
+    """"Çözüldü, 3 aydan eski" toplu temizlik: KALICI silme, tek işlem (``ticket.toplu_sil``); iz bırakmaz."""
+    idler = ticket.eski_cozulenler(conn, girdi.gun)
+    sonuc = ticket.toplu_sil(conn, idler, k)
+    conn.commit()
+    return {"silinen": sonuc["silinen"], "ayrilan_is": len(sonuc["ayrilan_is"]),
+            "mesaj": f"{sonuc['silinen']} ticket temizlendi."}
 
 
 def _ayar_metni(conn: sqlite3.Connection, anahtar: str) -> str | None:
@@ -397,7 +481,7 @@ def ticket_kategorileri(k: dict = Depends(izin("ticket.sablon")), conn: sqlite3.
 
 
 @yonlendirici.get("/api/ticket/harita")
-def ticket_harita(k: dict = Depends(izin("ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
+def ticket_harita(k: dict = Depends(izin("ticket.oku", "ticket.defter")), conn: sqlite3.Connection = Depends(baglanti)):
     return ticket.harita_sayilari(conn)
 
 
@@ -420,57 +504,6 @@ def _ticket_degisti(conn: sqlite3.Connection, ticket_idler, k: dict | None) -> l
     return donen
 
 
-@yonlendirici.post("/api/ticket/aktar")
-async def ticket_aktar_ucu(istek: Request, kuru: bool = False, k: dict = Depends(izin("ticket.defter")),
-                           conn: sqlite3.Connection = Depends(baglanti)):
-    """Excel'deki TICKET sayfasını aktarır (spec §5.3.8): önce yedek, aynı kurallar, sonra iş denetimi."""
-    icerik, ad = await _dosya_oku(istek)
-    return await run_in_threadpool(_ticket_aktar, conn, icerik, ad, kuru, k)
-
-
-def _ticket_aktar(conn: sqlite3.Connection, icerik: bytes, ad: str, kuru: bool, k: dict) -> dict:
-    from . import ticket_aktar, yedekle
-
-    if not icerik:
-        raise hata(400, "Dosya boş.", "dosya_yok")
-    with tempfile.TemporaryDirectory(prefix="saha-ticket-") as dizin:
-        yol = Path(dizin) / "ticket.xlsx"
-        yol.write_bytes(icerik)
-        try:
-            satirlar = ticket_aktar.satirlari_oku(yol)
-        except Exception as exc:  # openpyxl/pandas: bozuk dosya ya da sayfa yok
-            raise hata(422, "Bu dosyada TICKET sayfası okunamadı. data.xlsx'i seçin.", "rapor_tanimadi") from exc
-    yedek = None
-    if not kuru:
-        try:
-            yedek = str(yedekle.aktarim_yedegi(db.db_yolu()))
-        except yedekle.YedekHatasi as exc:
-            raise hata(503, "Güvenlik yedeği alınamadı; hiçbir şey değiştirilmedi. Diskte yer var mı?",
-                       "yedek_alinamadi") from exc
-    once = {r[0] for r in conn.execute("SELECT id FROM ticket WHERE durum IN ('ÇÖZÜLDÜ','KAPATILDI','İPTAL')")}
-    sonuc = ticket_aktar.aktar(conn, satirlar, kuru=kuru)
-    donen: list[str] = []
-    if not kuru:
-        db.yonetim_kaydi(conn, k, "ticket_aktar", None,
-                         {a: sonuc.get(a, 0) for a in ("okunan", "eklenen", "zaten_var", "guncellenen")})
-        conn.commit()
-        kapanan = [r[0] for r in conn.execute(
-            "SELECT id FROM ticket WHERE durum IN ('ÇÖZÜLDÜ','KAPATILDI','İPTAL')") if r[0] not in once]
-        donen = _ticket_degisti(conn, kapanan, k)
-    return {
-        "okunan": sonuc.get("okunan", 0),
-        "eklenen": sonuc.get("eklenen", sonuc.get("eklenecek", 0)),
-        "zaten_var": sonuc.get("zaten_var", 0),
-        "guncellenen": sonuc.get("guncellenen", 0),
-        "binaya_baglanan": sonuc.get("binaya_baglanan", 0),
-        "binasiz": sonuc.get("binasiz", 0),
-        # Kişisel veri yok: yalnız satır numarası ve lokasyonun olup olmadığı.
-        "baglanamayan": [{"satir": b.get("satir"), "lokasyon_var": bool(b.get("lokasyon"))}
-                         for b in sonuc.get("baglanamayan", [])],
-        "kuru": kuru, "yedek": yedek, "bekliyora_donen_is": len(donen),
-    }
-
-
 @yonlendirici.post("/api/ticket", status_code=201)
 def ticket_olustur(girdi: TicketGirdi, k: dict = Depends(izin("ticket.defter")),
                    conn: sqlite3.Connection = Depends(baglanti)):
@@ -485,12 +518,14 @@ def ticket_olustur(girdi: TicketGirdi, k: dict = Depends(izin("ticket.defter")),
     except LookupError as exc:
         raise hata(404, str(exc), "bina_yok")
     conn.commit()
+    ticket_boss_not.esitle(conn, tid, k)           # numara varsa işlere BOSS notu (yoksa numara girilince)
+    conn.commit()
     return {"ticket": ticket.getir(conn, tid), "sablon_taslak": bilgi.get("sablon_taslak", False),
-            "mesaj": "Ticket kaydedildi."}
+            "bulunmayan_is": (bilgi.get("isler") or {}).get("bulunmayan", []), "mesaj": "Ticket kaydedildi."}
 
 
 @yonlendirici.get("/api/ticket/{ticket_id}")
-def ticket_getir(ticket_id: int, k: dict = Depends(izin("ticket.defter")),
+def ticket_getir(ticket_id: int, k: dict = Depends(izin("ticket.oku", "ticket.defter")),
                  conn: sqlite3.Connection = Depends(baglanti)):
     t = ticket.getir(conn, ticket_id)
     if not t:
@@ -509,12 +544,54 @@ def ticket_guncelle(ticket_id: int, girdi: TicketGuncelleGirdi, k: dict = Depend
         raise hata(404, str(exc), "ticket_yok")
     conn.commit()
     # Ticket çözülünce/kapanınca bağlı "Altyapı bekliyor" işleri teyitli ziyarete döner (geçiş 17).
-    donen = []
+    # Seçilen (ticket_is) işler de aynı kuralla "Aranacak" olur; arayüz task no'larıyla bildirim gösterir.
+    donen: list[str] = []
     if sonuc.get("degisti") and "durum" in sonuc.get("alanlar", []) \
             and (ticket.getir(conn, ticket_id) or {}).get("durum") in ticket.KAPALI_DURUMLAR:
         donen = _ticket_degisti(conn, [ticket_id], k)
+        donen += [n for n in ticket.secilen_isler_aranacak(conn, ticket_id, k) if n not in donen]
+        conn.commit()
+    ticket_boss_not.esitle(conn, ticket_id, k)     # numara yeni girildiyse / HATA olduysa işlere BOSS notu
+    conn.commit()
     return {**sonuc, "ticket": ticket.getir(conn, ticket_id), "gecmis": ticket.gecmis(conn, ticket_id),
-            "bekliyora_donen_is": len(donen)}
+            "bekliyora_donen_is": len(donen), "donen_tasklar": ticket.task_nolari(conn, donen)}
+
+
+@yonlendirici.post("/api/ticket/{ticket_id}/sil")
+def ticket_sil(ticket_id: int, k: dict = Depends(izin("ticket.defter")),
+               conn: sqlite3.Connection = Depends(baglanti)):
+    """KALICI silme (``ticket.sil``): ticket ve bütün satırları/fotoğrafları silinir, bağlı işler yalnız ayrılır."""
+    try:
+        sonuc = ticket.sil(conn, ticket_id, k)
+    except LookupError as exc:
+        raise hata(404, str(exc), "ticket_yok")
+    conn.commit()
+    return {"silindi": sonuc["silindi"], "ayrilan_is": len(sonuc["ayrilan_is"]), "mesaj": "Ticket silindi."}
+
+
+@yonlendirici.post("/api/ticket/{ticket_id}/isler")
+def ticket_is_ekle(ticket_id: int, girdi: TicketIslerGirdi, k: dict = Depends(izin("ticket.defter")),
+                   conn: sqlite3.Connection = Depends(baglanti)):
+    """"+ abone ekle": ticket'a iş(ler) ekler (işin kendisine dokunmaz). Müşteri no'lar Müşteri No'ya eklenir."""
+    try:
+        sonuc = ticket.isleri_ekle(conn, ticket_id, girdi.isler, k["id"])
+    except LookupError as exc:
+        raise hata(404, str(exc), "ticket_yok")
+    conn.commit()
+    ticket_boss_not.esitle(conn, ticket_id, k)     # eklenen işlere (ve perakende müşterinin açık işlerine) not
+    conn.commit()
+    return {**sonuc, "ticket": ticket.getir(conn, ticket_id)}
+
+
+@yonlendirici.post("/api/ticket/{ticket_id}/isler/cikar")
+def ticket_is_cikar(ticket_id: int, girdi: TicketIslerGirdi, k: dict = Depends(izin("ticket.defter")),
+                    conn: sqlite3.Connection = Depends(baglanti)):
+    """Seçilen işi ticket'tan çıkarır (yalnız ticket_is)."""
+    if not conn.execute("SELECT 1 FROM ticket WHERE id=?", (ticket_id,)).fetchone():
+        raise hata(404, "Ticket bulunamadı.", "ticket_yok")
+    cikti = sum(ticket.is_cikar(conn, ticket_id, n, k["id"]) for n in girdi.isler)
+    conn.commit()
+    return {"cikarildi": cikti, "ticket": ticket.getir(conn, ticket_id)}
 
 
 def _bina_yetkili(conn: sqlite3.Connection, k: dict, bina_serial: str) -> dict:

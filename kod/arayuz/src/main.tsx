@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import './stil/temel.css';
+import './cekirdek/stil/temel.css';
 
 const kok = document.getElementById('kok');
 if (!kok) throw new Error('#kok bulunamadı');

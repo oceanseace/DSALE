@@ -5,7 +5,7 @@ Adlar uydurmadır.
 """
 from __future__ import annotations
 
-from saha import api, sema_v2
+from saha import ekip_uclari, sema_v2
 
 REHBER = """Çalışanlar
 AY
@@ -27,7 +27,7 @@ Hizmet Danışmanı
 
 
 def test_satirlari_ciftlere_ayirir():
-    kisiler, okunamayan = api.rehber_coz(REHBER, sema_v2.UNVAN_GOREV_ESLEME)
+    kisiler, okunamayan = ekip_uclari.rehber_coz(REHBER, sema_v2.UNVAN_GOREV_ESLEME)
     assert [k["ad"] for k in kisiler] == ["Ahmet Yılmaztepe", "Burcu Kalemoğlu", "Cem Doğrusöz", "Deniz Ağaçlı",
                                           "Ece Tunalıoğlu", "Ferhat Işıkçı", "Gül Özbağ"]
     assert kisiler[3]["unvan"] == "Teknik - Müdür"
@@ -36,13 +36,13 @@ def test_satirlari_ciftlere_ayirir():
 
 def test_unvan_gorev_eslemesi():
     e = sema_v2.UNVAN_GOREV_ESLEME
-    assert api._unvan_gorevleri(e, "Teknik - Müdür") == ["teknik", "yonetici"]
-    assert api._unvan_gorevleri(e, "TEKNİK - SORUMLU") == ["teknik"]
-    assert api._unvan_gorevleri(e, "Satış Destek - Takım Lideri") == ["operasyon", "yonetici"]
-    assert api._unvan_gorevleri(e, "Yeni Müşteri - Sorumlu") == ["satisci"]
-    assert api._unvan_gorevleri(e, "Genel Koordinatör") == ["yonetici"]
-    assert api._unvan_gorevleri(e, "Stok Sorumlusu") is None
-    assert api._unvan_gorevleri(e, "Fiber Yayılım Uzmanı") is None
+    assert ekip_uclari._unvan_gorevleri(e, "Teknik - Müdür") == ["teknik", "yonetici"]
+    assert ekip_uclari._unvan_gorevleri(e, "TEKNİK - SORUMLU") == ["teknik"]
+    assert ekip_uclari._unvan_gorevleri(e, "Satış Destek - Takım Lideri") == ["operasyon", "yonetici"]
+    assert ekip_uclari._unvan_gorevleri(e, "Yeni Müşteri - Sorumlu") == ["satisci"]
+    assert ekip_uclari._unvan_gorevleri(e, "Genel Koordinatör") == ["yonetici"]
+    assert ekip_uclari._unvan_gorevleri(e, "Stok Sorumlusu") is None
+    assert ekip_uclari._unvan_gorevleri(e, "Fiber Yayılım Uzmanı") is None
 
 
 def test_onizleme_yazmaz_uygula_yazar_ikinci_kez_etkisiz(istemci, yonetici, conn):

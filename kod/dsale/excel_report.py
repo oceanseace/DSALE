@@ -1091,7 +1091,7 @@ class _Rapor:
                 "7. Denemelerden en derli toplu ve dengeli olan seçilir. Aynı veriyle her zaman aynı sonuç çıkar.",
             ]),
             ("Yeniden bölme", [
-                "Farklı satışçı sayısı için:   python bolge.py --n 10",
+                "Farklı satışçı sayısı için:   python kod/araclar/bolge.py --n 10",
                 "Ham veri güncellenince önce:   python -m dsale.enrich   (sonra yukarıdaki komut)",
                 "Bu dosyada elle düzeltme: BINA_ATAMA'da binanın “Bölge” numarasını değiştirin; OZET kendiliğinden güncellenir.",
             ]),
@@ -1214,7 +1214,7 @@ class _Rapor:
         sapmalar = self._denge()[:2]
         m = config.MASTER_CSV
         haric = s.parametreler.get("haric_il") or []
-        komut = f"python bolge.py --n {n} --olcu {self.olcu}" + (" --haric-il " + " ".join(haric) if haric else "")
+        komut = f"python kod/araclar/bolge.py --n {n} --olcu {self.olcu}" + (" --haric-il " + " ".join(haric) if haric else "")
         satirlar: list[tuple[str, object, str | None]] = [
             ("Plan", self.cikti.name, None),
             ("Satışçı (bölge) sayısı", n, "0"),

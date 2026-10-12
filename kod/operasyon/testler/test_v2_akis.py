@@ -117,18 +117,41 @@ def test_teknisyensiz_randevu(v2db, conn, kim):
     assert a["durum"] == "bekliyor" and a["randevu"] is None
 
 
-def test_evde_yok_teyit_zorunlu(v2db, conn, kisi, kim):
+def test_evde_yok_sonra_teyitsiz_de_atanir(v2db, conn, kisi, kim):
+    """BOSS kesin kaynak (2026-10): ulaşılamayan iş teyitsiz de yeniden atanır; önceki durum olayda kalır."""
     no = _isler(v2db, conn, n=2)[0]
     op = kim("operasyon")
     akis.ata(conn, no, kisi["teknik1"], op)
     a = akis.gecis(conn, no, "ulasilamadi", kim("teknik1"), istemci_id="e1")
     assert a["durum"] == "ulasilamadi" and a["evde_yok_sayisi"] == 1
-    with pytest.raises(V2Hata) as e:
-        akis.ata(conn, no, kisi["teknik1"], op)
-    assert e.value.kod == "teyit_gerekli"
+    a = akis.ata(conn, no, kisi["teknik1"], op)
+    assert a["durum"] == "atandi"
+    notu = conn.execute("SELECT notu FROM is_emri_olay WHERE is_no=? AND tur='atama' ORDER BY id DESC LIMIT 1",
+                        (no,)).fetchone()[0]
+    assert "Önceki durum: Ulaşılamadı" in notu
     a = akis.ata(conn, no, kisi["teknik1"], op,
                  randevu={"bas": "2026-10-01 10:00:00", "bit": "2026-10-01 12:00:00", "teyitli": True})
     assert a["durum"] == "atandi" and a["randevu"]["teyitli"]
+
+
+@pytest.mark.parametrize("ara", ["sahada", "yolda", "askida", "merkeze"])
+def test_her_acik_durumdan_atanir(v2db, conn, kisi, kim, ara):
+    """Sahada / Yolda / Askıda / Merkeze gönderildi → Atandı (aynı ekibe de); BOSS'a atama kaydı yine düşer."""
+    no = _isler(v2db, conn, n=2)[0]
+    op = kim("operasyon")
+    akis.ata(conn, no, kisi["teknik1"], op)
+    t1 = kim("teknik1")
+    if ara in ("yolda", "sahada"):
+        akis.gecis(conn, no, "yolda", t1, istemci_id="y1")
+    if ara == "sahada":
+        akis.gecis(conn, no, "sahada", t1, istemci_id="s1")
+    if ara in ("askida", "merkeze"):
+        akis.gecis(conn, no, ara, op, neden="Abone isteği", uyanma="2026-10-03 09:00:00")
+    assert akis.is_getir(conn, no)["durum"] == ara
+    a = akis.ata(conn, no, kisi["teknik1"], op)
+    assert a["durum"] == "atandi" and a["atanan"]["id"] == kisi["teknik1"]
+    a = akis.gecis(conn, no, "atandi", op, teknik_id=kisi["teknik2"])
+    assert a["durum"] == "atandi" and a["atanan"]["id"] == kisi["teknik2"]
 
 
 def _ticket(conn, bina, durum="AÇIK", konu="SİNYAL"):
@@ -138,6 +161,7 @@ def _ticket(conn, bina, durum="AÇIK", konu="SİNYAL"):
     return cur.lastrowid
 
 
+@pytest.mark.skip(reason="Tek iş havuzu (2026-10): kurulum/2. donanım çıkarma ve öbeksiz→Kontrol kuralı kaldırıldı")
 def test_ticket_bagla_altyapi_cozulunce_doner(v2db, conn, kim):
     from saha import ticket as ticket_mod
     nolar = _isler(v2db, conn, satirlar=[y.satir(i, mahalle="Görükle") for i in (1, 2)])   # ikisi de öbekte
@@ -267,7 +291,9 @@ def test_boss_ileri_kurali(v2db, conn, kisi):
     assert conn.execute("SELECT durum FROM is_emri").fetchone()[0] == "yolda"
     satirlar[0]["Task Durumu"] = "Açık"
     y.aktar(v2db, satirlar)
-    assert conn.execute("SELECT durum FROM is_emri").fetchone()[0] == "yolda"          # geri gitmez
+    assert conn.execute("SELECT durum FROM is_emri").fetchone()[0] == "atandi"         # BOSS geri gitti: kesin kaynak
+    y.aktar(v2db, satirlar)
+    assert conn.execute("SELECT durum FROM is_emri").fetchone()[0] == "atandi"
     satirlar[0]["Task Durumu"] = "Başlandı"
     y.aktar(v2db, satirlar)
     assert conn.execute("SELECT durum FROM is_emri").fetchone()[0] == "sahada"
@@ -366,10 +392,7 @@ def test_istemci_id_idempotent(v2db, conn, kisi, kim):
     a = akis.gecis(conn, no, "yolda", tek, istemci_id="gec-gelen")     # çevrimdışı kuyruktan geç gelen
     assert a["durum"] == "sahada"                                       # durum geri gitmez, yalnız olay
     assert conn.execute("SELECT COUNT(*) FROM is_emri_olay WHERE istemci_id='gec-gelen'").fetchone()[0] == 1
-    # sahadaki iş aynı tekniğe "yeniden atanamaz" (geri gitmek olurdu); başkasına verilebilir
-    with pytest.raises(V2Hata) as e:
-        akis.ata(conn, no, kisi["teknik1"], kim("operasyon"))
-    assert e.value.kod == "gecersiz_gecis"
+    # sahadaki iş başkasına verilebilir (aynı tekniğe yeniden atama da artık serbest: test_her_acik_durumdan_atanir)
     a = akis.ata(conn, no, kisi["teknik2"], kim("operasyon"))
     assert a["durum"] == "atandi" and a["atanan"]["id"] == kisi["teknik2"]
     r = conn.execute("SELECT yolda_zamani, sahada_zamani FROM is_emri WHERE is_no=?", (no,)).fetchone()
@@ -420,8 +443,6 @@ def test_teshis_merdiveni(v2db, conn, kisi, kim, saat):
     op = kim("operasyon")
     akis.ata(conn, no, kisi["teknik1"], op)
     akis.gecis(conn, no, "ulasilamadi", kim("teknik1"), istemci_id="u1")
-    bantlar = {b["bant"]: [x["is_no"] for x in b["isler"]] for b in gorunum.aranacak_bantlari(conn, saat.an, op)}
-    assert no in bantlar["ulasilamadi"]
     # EK-12.4 merdiveni (KARMA-2'nin +2 s / 17:30 bantlarının yerine): A1 → ≥3 s → A2 → ertesi gün A3 …
     a = akis.teshis(conn, no, op, "cevapsiz")
     assert a["uyanma"] == "2026-09-30 13:00:00"                         # A1 10:00 → A2 en erken 13:00
@@ -447,3 +468,50 @@ def test_trigger_listesi_akis_ile_ayni(v2db, conn):
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("UPDATE is_emri SET durum='hacker'")
     assert set(akis.KOVALAR) == set(akis.DURUMLAR)
+
+
+def test_atamayi_kaldir_teknikten_havuza(v2db, conn, kisi, kim):
+    no = _isler(v2db, conn, n=1)[0]
+    op, tek = kim("operasyon"), kim("teknik1")
+    a = akis.ata(conn, no, kisi["teknik1"], op, surum=_surum(conn, no))
+    a = akis.gecis(conn, no, "yolda", tek, istemci_id="k1")
+    assert "bekliyor" not in a["izinler"]["durumlar"]                     # teknik kaldıramaz
+    with pytest.raises(V2Hata) as e:
+        akis.gecis(conn, no, "bekliyor", tek, istemci_id="k2", neden="x")
+    assert e.value.kod == "gecersiz_gecis" or e.value.durum == 409
+    ofis = gorunum.ayrinti(conn, no, op)
+    assert "bekliyor" in ofis["izinler"]["durumlar"]
+    with pytest.raises(V2Hata) as e:
+        akis.gecis(conn, no, "bekliyor", op, surum=_surum(conn, no))       # neden zorunlu
+    assert e.value.kod == "alan_eksik"
+    a = akis.gecis(conn, no, "bekliyor", op, surum=_surum(conn, no), neden="Teknisyen hastalandı")
+    assert a["durum"] == "bekliyor" and a["atanan"] is None and a["kova"] == "atanmadi"
+    r = conn.execute("SELECT yolda_zamani, randevu_bas FROM is_emri WHERE is_no=?", (no,)).fetchone()
+    assert r["yolda_zamani"] is None and r["randevu_bas"] is None
+
+
+def test_teknik_sahadan_baska_gun(v2db, conn, kisi, kim):
+    no = _isler(v2db, conn, n=1)[0]
+    op, tek = kim("operasyon"), kim("teknik1")
+    akis.ata(conn, no, kisi["teknik1"], op, surum=_surum(conn, no))
+    akis.gecis(conn, no, "yolda", tek, istemci_id="b1")
+    a = akis.gecis(conn, no, "sahada", tek, istemci_id="b2")
+    assert "atandi" in a["izinler"]["durumlar"]
+    with pytest.raises(V2Hata) as e:
+        akis.gecis(conn, no, "atandi", tek, istemci_id="b3")               # randevu zorunlu
+    assert e.value.kod == "randevu_gecersiz"
+    a = akis.gecis(conn, no, "atandi", tek, istemci_id="b4",
+                   randevu={"bas": "2026-10-01 10:00:00", "bit": "2026-10-01 12:00:00"})
+    assert a["durum"] == "atandi" and a["atanan"]["id"] == kisi["teknik1"]
+    assert a["randevu"]["bas"] == "2026-10-01 10:00:00"
+    r = conn.execute("SELECT sahada_zamani, yolda_zamani FROM is_emri WHERE is_no=?", (no,)).fetchone()
+    assert r["sahada_zamani"] is None and r["yolda_zamani"] is None
+
+
+def test_yeni_ticket_bayragi_ticket_defter_izniyle(v2db, conn, kim):
+    """İş çekmecesindeki "Yeni ticket aç" yalnız ticket.defter izniyle (POST /api/ticket ve Loc ID sorgusu ister)."""
+    no = _isler(v2db, conn, n=1)[0]
+    op = kim("operasyon")
+    assert gorunum.ayrinti(conn, no, op)["izinler"]["ticket"]
+    izinsiz = {**op, "izinler": {"is.liste", "is.ata", "is.duzenle", "is.randevu"}}   # ör. Hizmet Danışmanı
+    assert not gorunum.ayrinti(conn, no, izinsiz)["izinler"]["ticket"]

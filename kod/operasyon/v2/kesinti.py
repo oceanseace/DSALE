@@ -127,7 +127,7 @@ def _etkilenen_isler(conn, ilceler: list[dict], kural: list[str]) -> list[sqlite
 
 
 def bitir(conn: sqlite3.Connection, kesinti_id: int, k: dict | None) -> dict:
-    """Bülten bitti: kaydı kapatır, o bülten yüzünden askıdaki işleri uyandırır (Aranacaklar'da "uyanan")."""
+    """Bülten bitti: kaydı kapatır, o bülten yüzünden askıdaki işleri uyandırır."""
     from . import akis
     simdi = zaman.metin()
     with islem(conn):

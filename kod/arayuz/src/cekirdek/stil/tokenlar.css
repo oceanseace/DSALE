@@ -1,0 +1,319 @@
+/* =========================================================================
+   TASARIM TOKENLARI — TEK KAYNAK (Fluent 2 temelli).
+   Renk kodu YALNIZ bu dosyada yazılır; ekran stilleri tokenları kullanır.
+
+   Kurallar (kullanıcı onaylı):
+   - Renk: nötr griler + tek vurgu Turkcell laciverti (#154095).
+     Sarı #FEC600 YALNIZ ekranın tek birincil eylemi ve marka işareti.
+     Durum renkleri YALNIZ durum: yeşil = tamam, kırmızı = hata/dur,
+     amber = dikkat.
+   - Boşluk: yalnız 4'ün katları (--b1 … --b8).
+   - Yazı: tek aile (Segoe UI Variable / sistem), 4 boy: 12 · 14 · 16 · 20;
+     kalınlık 400 / 600.
+   - Bölge ayrımı çizgiyle değil, hafif zemin farkıyla. Gölge yalnız üstte
+     yüzen şeyde (menü, pencere). Işıma, degrade, cam yok.
+   - Hareket: ≤ 150 ms, ease-out; nabız / zıplama yok.
+   Koyu mod: nötr koyu gri (doygun lacivert zemin YOK). İki koyu blok
+   (sistem tercihi + elle seçilen) BİREBİR aynıdır.
+   ========================================================================= */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- Yazı ---- */
+  --yazi: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --yazi-baslik: var(--yazi);
+  --yazi-es: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  --boy-k: 12px; /* yardımcı, rozet, durum çubuğu */
+  --boy-o: 14px; /* gövde (masaüstü) */
+  --boy-b: 16px; /* telefon gövdesi, alt başlık */
+  --boy-bb: 20px; /* ekran başlığı, büyük sayı */
+  --satir-k: 16px;
+  --satir-o: 20px;
+  --satir-b: 22px;
+  --satir-bb: 28px;
+  --kalin: 600;
+
+  /* ---- Boşluk (4'ün katları) ---- */
+  --b1: 4px;
+  --b2: 8px;
+  --b3: 12px;
+  --b4: 16px;
+  --b5: 20px;
+  --b6: 24px;
+  --b8: 32px;
+  --bosluk: 16px;
+
+  /* ---- Ölçü ---- */
+  --yaricap-k: 4px; /* düğme, girdi, hücre içi */
+  --yaricap: 8px; /* kart, menü, pencere */
+  --kontrol: 32px; /* masaüstü düğme/girdi yüksekliği */
+  --kontrol-k: 24px;
+  --hedef: 56px; /* telefon dokunma hedefi */
+  --kenar-genislik: 216px;
+  --ust-cubuk: 48px;
+  --durum-cubuk: 24px;
+
+  /* ---- Hareket ---- */
+  --egri: cubic-bezier(0, 0, 0, 1); /* ease-out (Fluent decelerateMid) */
+  --sure-k: 100ms;
+  --sure: 150ms;
+  --hareket: 150ms;
+  --yay-hizli: var(--egri);
+  --yay-yumusak: var(--egri);
+
+  /* ---- Güvenli alan ---- */
+  --ust-guvenli: env(safe-area-inset-top, 0px);
+  --alt-guvenli: env(safe-area-inset-bottom, 0px);
+  --sol-guvenli: env(safe-area-inset-left, 0px);
+  --sag-guvenli: env(safe-area-inset-right, 0px);
+
+  /* ======================= AÇIK ======================= */
+  /* Yüzeyler: kenar menü < zemin < kart. Ayrım zemin farkıyla. */
+  --zemin: #f5f5f5;
+  --kenar-zemin: #ebebeb;
+  --ust-zemin: #f5f5f5;
+  --durum-zemin: #ebebeb;
+  --kart: #ffffff;
+  --kart-bas: #f5f5f5;
+  --ikincil-zemin: #ebebeb;
+  --uzerinde: rgba(0, 0, 0, 0.05); /* üzerine gelince */
+  --basili: rgba(0, 0, 0, 0.09);
+  --perde: rgba(0, 0, 0, 0.4);
+
+  /* Çizgi: yalnız girdi kenarı, tablo ızgarası, gerektiğinde ayraç. */
+  --cizgi: #e0e0e0;
+  --cizgi-koyu: #d1d1d1;
+  --sac-koyu: #d1d1d1;
+  --girdi-kenar: #d1d1d1;
+  --girdi-alt: #616161;
+
+  /* Metin */
+  --metin: #242424;
+  --metin-2: #616161;
+  --metin-3: #707070;
+  --pasif-zemin: #f0f0f0;
+  --pasif-yazi: #a0a0a0;
+
+  /* Vurgu: lacivert (seçili, odak, bağlantı, etkin gösterge) */
+  --vurgu: #154095;
+  --vurgu-bas: #0f3277;
+  --vurgu-ust: #ffffff;
+  --vurgu-yazi: #154095;
+  --vurgu-yumusak: #ebf0f9;
+  --lacivert: var(--vurgu);
+  --lacivert-ust: #ffffff;
+  --mor: var(--vurgu-yazi);
+  --mor-yumusak: var(--vurgu-yumusak);
+  --mor-dolgu: var(--vurgu);
+  --odak: #154095;
+  --marka: #154095;
+
+  /* Birincil eylem (sarı) — ekranda TEK. Üstündeki yazı koyu. */
+  --birincil: #fec600;
+  --birincil-bas: #e8b500;
+  --birincil-ust: #242424;
+  --birincil-yazi: var(--vurgu-yazi); /* bağlantı/yazı: sarı yazı okunmaz */
+  --birincil-yumusak: var(--vurgu-yumusak);
+  --sari: #fec600;
+
+  /* Durum: yazı / yumuşak zemin / dolgu / çizgi */
+  --yesil: #0e700e;
+  --yesil-yumusak: #f1faf1;
+  --yesil-dolgu: #107c10;
+  --yesil-cizgi: #9fd89f;
+  --yesil-acik: #107c10;
+  --amber: #a64300;
+  --amber-yumusak: #fff9f5;
+  --amber-dolgu: #bc4b09;
+  --amber-cizgi: #fdcfb4;
+  --kirmizi: #b10e1c;
+  --kirmizi-yumusak: #fdf3f4;
+  --kirmizi-dolgu: #c50f1f;
+  --kirmizi-cizgi: #eeacb2;
+  --gri: #616161;
+  --gri-yumusak: #f0f0f0;
+  --gri-dolgu: #616161;
+  --dolgu-yazi: #ffffff;
+
+  /* Bildirim (toast): ters renk */
+  --bildirim-zemin: #2b2b2b;
+  --bildirim-yazi: #ffffff;
+
+  /* Yükleniyor yer tutucusu: düz, parıltısız */
+  --iskelet-a: #ebebeb;
+  --iskelet-b: #ebebeb;
+
+  /* Öbek paleti — YALNIZ haritada/listede 8 px veri noktası (kategori). */
+  --obek-1: #0f6cbd;
+  --obek-2: #107c10;
+  --obek-3: #a64300;
+  --obek-4: #b10e1c;
+  --obek-5: #5c2e91;
+  --obek-6: #0e7490;
+  --obek-7: #9d174d;
+  --obek-8: #4d7c0f;
+
+  /* Kişi baş harfi: nötr (renkli avatar yok). */
+  --kisi: #616161;
+
+  /* Gölge: yalnız yüzen katman. Kart/düğmede gölge yok. */
+  --golge-menu: 0 0 2px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.14);
+  --golge-pencere: 0 0 8px rgba(0, 0, 0, 0.12), 0 14px 28px rgba(0, 0, 0, 0.14);
+  --golge-yuzen: 0 0 #0000;
+  --golge-ufak: 0 0 2px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
+  --golge-orta: var(--golge-menu);
+  --golge-yuksek: var(--golge-menu);
+  --golge-cekmece: var(--golge-pencere);
+  --golge-birincil: 0 0 #0000;
+  --golge-yesil: 0 0 #0000;
+}
+
+/* ======================= KOYU (nötr gri) ======================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --zemin: #1f1f1f;
+    --kenar-zemin: #181818;
+    --ust-zemin: #1f1f1f;
+    --durum-zemin: #181818;
+    --kart: #292929;
+    --kart-bas: #333333;
+    --ikincil-zemin: #2e2e2e;
+    --uzerinde: rgba(255, 255, 255, 0.06);
+    --basili: rgba(255, 255, 255, 0.1);
+    --perde: rgba(0, 0, 0, 0.5);
+    --cizgi: #3d3d3d;
+    --cizgi-koyu: #525252;
+    --sac-koyu: #525252;
+    --girdi-kenar: #525252;
+    --girdi-alt: #adadad;
+    --metin: #ffffff;
+    --metin-2: #c2c2c2;
+    --metin-3: #adadad;
+    --pasif-zemin: #333333;
+    --pasif-yazi: #6e6e6e;
+    --vurgu: #2f5bb7;
+    --vurgu-bas: #3a6acc;
+    --vurgu-yazi: #8fb0f0;
+    --vurgu-yumusak: #24324d;
+    --odak: #8fb0f0;
+    --birincil-bas: #ffd22e;
+    --yesil: #54b054;
+    --yesil-yumusak: #0d260d;
+    --yesil-dolgu: #107c10;
+    --yesil-cizgi: #218c21;
+    --yesil-acik: #54b054;
+    --amber: #faa06b;
+    --amber-yumusak: #3a1a05;
+    --amber-dolgu: #bc4b09;
+    --amber-cizgi: #8a3707;
+    --kirmizi: #e37d80;
+    --kirmizi-yumusak: #3b0a0e;
+    --kirmizi-dolgu: #c50f1f;
+    --kirmizi-cizgi: #8c0d1a;
+    --gri: #adadad;
+    --gri-yumusak: #333333;
+    --gri-dolgu: #525252;
+    --bildirim-zemin: #f0f0f0;
+    --bildirim-yazi: #242424;
+    --iskelet-a: #333333;
+    --iskelet-b: #333333;
+    --obek-1: #62abf5;
+    --obek-2: #54b054;
+    --obek-3: #faa06b;
+    --obek-4: #e37d80;
+    --obek-5: #b696e0;
+    --obek-6: #5ed3f3;
+    --obek-7: #f472b6;
+    --obek-8: #a3e635;
+    --kisi: #525252;
+    --golge-menu: 0 0 2px rgba(0, 0, 0, 0.24), 0 8px 16px rgba(0, 0, 0, 0.28);
+    --golge-pencere: 0 0 8px rgba(0, 0, 0, 0.24), 0 14px 28px rgba(0, 0, 0, 0.28);
+    --golge-ufak: 0 0 2px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.28);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --zemin: #1f1f1f;
+  --kenar-zemin: #181818;
+  --ust-zemin: #1f1f1f;
+  --durum-zemin: #181818;
+  --kart: #292929;
+  --kart-bas: #333333;
+  --ikincil-zemin: #2e2e2e;
+  --uzerinde: rgba(255, 255, 255, 0.06);
+  --basili: rgba(255, 255, 255, 0.1);
+  --perde: rgba(0, 0, 0, 0.5);
+  --cizgi: #3d3d3d;
+  --cizgi-koyu: #525252;
+  --sac-koyu: #525252;
+  --girdi-kenar: #525252;
+  --girdi-alt: #adadad;
+  --metin: #ffffff;
+  --metin-2: #c2c2c2;
+  --metin-3: #adadad;
+  --pasif-zemin: #333333;
+  --pasif-yazi: #6e6e6e;
+  --vurgu: #2f5bb7;
+  --vurgu-bas: #3a6acc;
+  --vurgu-yazi: #8fb0f0;
+  --vurgu-yumusak: #24324d;
+  --odak: #8fb0f0;
+  --birincil-bas: #ffd22e;
+  --yesil: #54b054;
+  --yesil-yumusak: #0d260d;
+  --yesil-dolgu: #107c10;
+  --yesil-cizgi: #218c21;
+  --yesil-acik: #54b054;
+  --amber: #faa06b;
+  --amber-yumusak: #3a1a05;
+  --amber-dolgu: #bc4b09;
+  --amber-cizgi: #8a3707;
+  --kirmizi: #e37d80;
+  --kirmizi-yumusak: #3b0a0e;
+  --kirmizi-dolgu: #c50f1f;
+  --kirmizi-cizgi: #8c0d1a;
+  --gri: #adadad;
+  --gri-yumusak: #333333;
+  --gri-dolgu: #525252;
+  --bildirim-zemin: #f0f0f0;
+  --bildirim-yazi: #242424;
+  --iskelet-a: #333333;
+  --iskelet-b: #333333;
+  --obek-1: #62abf5;
+  --obek-2: #54b054;
+  --obek-3: #faa06b;
+  --obek-4: #e37d80;
+  --obek-5: #b696e0;
+  --obek-6: #5ed3f3;
+  --obek-7: #f472b6;
+  --obek-8: #a3e635;
+  --kisi: #525252;
+  --golge-menu: 0 0 2px rgba(0, 0, 0, 0.24), 0 8px 16px rgba(0, 0, 0, 0.28);
+  --golge-pencere: 0 0 8px rgba(0, 0, 0, 0.24), 0 14px 28px rgba(0, 0, 0, 0.28);
+  --golge-ufak: 0 0 2px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Hareket istemeyen kullanıcı: geçiş yok. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hareket: 0ms;
+    --sure-k: 0ms;
+    --sure: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

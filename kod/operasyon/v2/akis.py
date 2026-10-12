@@ -124,6 +124,10 @@ def _tablo() -> dict[tuple[str, str], GecisKurali]:
     # 7 (genişletme): yoldaki/sahadaki işi operasyon BAŞKA bir tekniğe verebilir (araç arızası, hastalık).
     # Aynı tekniğe "yeniden ata" geri gitmek olurdu: ``ata`` bunu 409 ile reddeder. Ekip "iş aktar" da bu yolu kullanır.
     ekle("yolda sahada", "atandi", _kural("operasyon", ("teknik_id",), notu="7: başka tekniğe ver (yolda/sahada)"))
+    # 7 (teknik, yolda/sahada): müşteri başka gün istedi → kendi işinde teyitli yeni randevuyla "Atandı"ya döner.
+    ekle("yolda sahada", "atandi", _kural("teknik", ("randevu",), kendi=True, notu="7: müşteri başka gün istedi"))
+    # Atamayı kaldır: teknikteki iş havuza (Atanmadı) döner; neden zorunlu.
+    ekle("atandi yolda sahada", "bekliyor", _kural("operasyon", ("neden",), notu="atamayı kaldır"))
     ekle("atandi", "yolda", _kural("operasyon teknik sistem", kendi=True, notu="8: yola çıktım"))
     ekle("atandi yolda", "sahada", _kural("operasyon teknik sistem", kendi=True, notu="9: işe başladım"))
     ekle("atandi yolda sahada", "cozuldu", _kural("operasyon teknik", kendi=True, notu="10/11: bitti · ofisten kapat"))
@@ -139,6 +143,9 @@ def _tablo() -> dict[tuple[str, str], GecisKurali]:
     ekle(acik, "merkeze", _kural("operasyon sistem", ("neden",), notu="18: merkeze gönderildi"))
     ekle("merkeze", "bekliyor", _kural("operasyon", notu="19: sahaya al"))
     ekle("cozuldu", "atandi", _kural("operasyon", ("teknik_id", "neden"), notu="20: yeniden aç"))
+    # 5b (2026-10): BOSS kesin kaynak — operasyon her AÇIK durumdan atar / yeniden atar (Sahada, Yolda, Askıda,
+    # Merkeze gönderildi, Altyapı, Ulaşılamadı …). Önceki durum olayda kalır; atama BOSS'a yine yazılır.
+    ekle(acik, "atandi", _kural("operasyon", ("teknik_id",), notu="5b: her açık durumdan ata (BOSS kesin kaynak)"))
     ekle(" ".join(DURUMLAR), "kapandi", _kural("sistem", notu="21: listeden düştü"))
     # Bağlanmamış bayi işi raporda hiç görünmez: ofisten kapatılınca doğrudan kapanır (11).
     ekle(acik, "kapandi", _kural("operasyon", ("neden",), notu="11: bayi işi ofisten kapandı"))
@@ -172,7 +179,7 @@ def trigger_sql() -> list[str]:
 # ============================================================================= yardımcılar
 GERI_AL_DK = 10
 _ALTYAPI_KONU = ("SİNYAL", "EK SP", "GÜZERGAH", "ALTYAPI")
-_TICKET_ACIK = ("AÇIK", "HATA", "TRANSFER")
+_TICKET_ACIK = ("AÇIK", "HATA", "TRANSFER", "BÖLGE")
 _TICKET_KAPALI = ("ÇÖZÜLDÜ", "KAPATILDI", "İPTAL")
 # Geri al ile geri yazılabilen alanlar (kişisel veri alanı yok)
 _GERI_ALINABILIR = {"durum", "atanan_id", "atama_kaynagi", "randevu_bas", "randevu_bit", "randevu_teyitli",
@@ -215,7 +222,8 @@ def olay_yaz(conn, is_no, tur, k, *, eski=None, yeni=None, notu=None, aktarim_id
 
 def _guncel_degil(conn, k, is_no):
     from . import gorunum
-    son = conn.execute("SELECT * FROM is_emri_olay WHERE is_no=? ORDER BY id DESC LIMIT 1", (is_no,)).fetchone()
+    son = conn.execute("SELECT * FROM is_emri_olay WHERE is_no=? AND tur <> 'isaret' ORDER BY id DESC LIMIT 1",
+                       (is_no,)).fetchone()
     kim = (son["kullanici_ad"] or "Sistem") if son else "Sistem"
     ne = gorunum.olay_ozeti(dict(son)) if son else "değiştirdi"
     saat = zaman.saat_dk(son["kayit_zamani"]) if son else ""
@@ -309,6 +317,8 @@ def _boss_bekleyen_hesapla(conn, r, atanan_id, randevu_bas, randevu_bit, aski_ek
     """
     from . import kisi
     parca = []
+    if r["boss_task_no"] and _atama_otomatik(conn):
+        atanan_id = randevu_bas = None                  # atama + randevu BOSS'a kendiliğinden yazılır (boss_yazma)
     if atanan_id is not None:
         esl = kisi.boss_ekip_haritasi(conn).get(ie.anahtar(r["boss_ekip"] or "")) if r["boss_ekip"] else None
         if esl != atanan_id:
@@ -321,6 +331,14 @@ def _boss_bekleyen_hesapla(conn, r, atanan_id, randevu_bas, randevu_bit, aski_ek
     if sms_ek or "sms" in bekleyen:
         parca.append("sms")
     return ",".join(dict.fromkeys(parca)) or None
+
+
+def _atama_otomatik(conn) -> bool:
+    from . import boss_yazma
+    try:
+        return boss_yazma.gonderilir(conn, "atama")
+    except sqlite3.Error:
+        return False
 
 
 def _uyanma_siniri(conn, r, neden_metni: str | None) -> dt.timedelta:
@@ -458,6 +476,7 @@ def gecis(conn: sqlite3.Connection, is_no: str, yeni: str, k: dict | None, *, su
         notu = alanlar.get("notu")
         tur = "durum"
         aski_ac: tuple | None = None
+        boss_randevu: tuple | None = None               # (teknik, bas, bit): yeni dilim BOSS'a yazılır
         onceki_askida = r["durum"] == "askida"
 
         if yeni == "cozuldu":
@@ -537,9 +556,13 @@ def gecis(conn: sqlite3.Connection, is_no: str, yeni: str, k: dict | None, *, su
             bas, bit = randevu_dogrula(rv.get("bas"), rv.get("bit"))
             a.update(randevu_bas=bas, randevu_bit=bit, randevu_teyitli=1, sira=None,
                      boss_bekleyen=_boss_bekleyen_hesapla(conn, r, r["atanan_id"], bas, bit), boss_islendi=None)
-            a.pop("durum_zamani")
+            if r["durum"] == "atandi":
+                a.pop("durum_zamani")
+            else:                                    # yolda/sahada → atandi: saha zamanları sıfırlanır
+                a.update(yolda_zamani=None, sahada_zamani=None)
             tur = "randevu"
             notu = notu or "Müşteriyle başka güne anlaşıldı"
+            boss_randevu = (r["atanan_id"], bas, bit)
         elif yeni == "yolda":
             a["yolda_zamani"] = r["yolda_zamani"] or ani
         elif yeni == "sahada":
@@ -570,6 +593,14 @@ def gecis(conn: sqlite3.Connection, is_no: str, yeni: str, k: dict | None, *, su
                 notu = notu or "Sahaya alındı"
             elif r["durum"] == "randevulu":
                 a.update(randevu_bas=None, randevu_bit=None, randevu_teyitli=0)
+            elif r["durum"] in TEKNIKTE:             # atamayı kaldır (operasyon)
+                neden = str(alanlar.get("neden") or "").strip()
+                if not neden:
+                    raise H.AlanEksik("Atamayı neden kaldırıyorsunuz?")
+                a.update(atanan_id=None, sira=None, randevu_bas=None, randevu_bit=None, randevu_teyitli=0,
+                         yolda_zamani=None, sahada_zamani=None, atama_kaynagi=None)
+                tur = "atama"
+                notu = notu or f"Atama kaldırıldı: {neden[:200]}"
         # askıdan çıkış: operatörün açtığı aralık kapanır
         if onceki_askida and a.get("durum") != "askida":
             aski_mod.kapat(conn, is_no, ani, kaynak="elle")
@@ -577,10 +608,24 @@ def gecis(conn: sqlite3.Connection, is_no: str, yeni: str, k: dict | None, *, su
         if aski_ac:
             aski_mod.ac(conn, is_no, aski_ac[0], aski_ac[1], "elle", durdurur=aski_ac[2])
         birakti = yol == "teknik" and a.get("atanan_id", r["atanan_id"]) != r["atanan_id"]
+    if aski_ac:
+        _boss_yaz(conn, "aski", is_no, k, neden=a["askida_neden"], uyanma=a["uyanma"], notu=alanlar.get("notu"),
+                  **{a_: alanlar[a_] for a_ in ("boss_neden_id", "boss_alt_neden_id", "boss_bitis", "boss_neden_ad", "boss_alt_ad")
+                     if alanlar.get(a_)})
+    if boss_randevu:
+        _boss_yaz(conn, "atama", is_no, k, teknik_id=boss_randevu[0], randevu_bas=boss_randevu[1],
+                  randevu_bit=boss_randevu[2])
     _sonra_oneri(conn, [is_no])
     # Teknik "Altyapı sorunu" deyince iş ondan çıkar: yanıt kapsam denetimsiz ama müşteri alanları ve
     # izinler kırpılmış hâlde döner (telefon işi listesinden düşürür; sonraki okumalar 404).
     return gorunum.ayrinti(conn, is_no, k, kapsam=not birakti)
+
+
+def _boss_yaz(conn, tur: str, is_no: str, k, **girdi) -> None:
+    """BOSS'a yazma kuyruğu (boss_yazma.py: not kendi anahtarıyla varsayılan açık; atama/askı genel anahtarla).
+    Hata eylemi bozmaz."""
+    from . import boss_yazma
+    boss_yazma.kuyruga_ekle(conn, tur, is_no, girdi, k)
 
 
 def _sonra_oneri(conn, is_nolar) -> None:
@@ -614,6 +659,7 @@ def ata(conn: sqlite3.Connection, is_no: str, teknik_id, k: dict | None, *, rand
     """Ata / başka tekniğe ver / yeniden ata / yeniden aç (geçiş 5, 6, 7, 20). Dönüş: IsAyrinti."""
     from . import gorunum, kisi, siralama
     H = _H()
+    kullanici_notu = notu
     with islem(conn):
         r = is_getir(conn, is_no)
         kapsam_denetle(conn, k, r)
@@ -621,14 +667,13 @@ def ata(conn: sqlite3.Connection, is_no: str, teknik_id, k: dict | None, *, rand
         if (r["durum"], "atandi") not in GECISLER:
             raise _gecersiz(r["durum"], "atandi")
         t = teknik_denetle(conn, teknik_id)
-        if r["durum"] in ("yolda", "sahada") and t["id"] == r["atanan_id"]:
-            raise _gecersiz(r["durum"], "atandi")        # aynı teknikte geri gitmek yok; yalnız başkasına verilir
         if r["durum"] == "cozuldu" and not yeniden_ac_nedeni:
             raise H.AlanEksik("Neden yeniden açıyorsunuz?")
         rv = dict(randevu or {})
-        if r["durum"] == "ulasilamadi" and not rv.get("teyitli"):
-            raise H.Gecersiz("Müşteriye ulaşılmadan aynı işe ikinci kez teknisyen gönderilmez. \"Saat teyitli\" "
-                             "işaretleyin.", kod="teyit_gerekli")
+        # BOSS kesin kaynak (2026-10): yoldaki/sahadaki işi aynı ekibe yeniden atamak, ulaşılamayan işi teyitsiz
+        # atamak artık reddedilmez; önceki durum olay notunda kalır.
+        onceki_not = (f"Önceki durum: {ETIKET.get(r['durum'], r['durum'])}"
+                      if r["durum"] not in ATANMADI and r["durum"] != "atandi" else None)
         if not yine_de and not r["ticket_id"]:
             tk = altyapi_ticketi(conn, r["bina_serial"])
             if tk is not None:
@@ -666,8 +711,11 @@ def ata(conn: sqlite3.Connection, is_no: str, teknik_id, k: dict | None, *, rand
             a.update(cozum_zamani=None, kapanis_nedeni=None, boss_kapanmadi=0, evde_miydi=None, sonuc_kodu=None)
             notu = notu or f"Yeniden açıldı: {yeniden_ac_nedeni}"
         ad = kisi.kisa_ad(t["ad"])
+        notu = notu or (f"{ad}'ya atandı" + (" (BOSS'taki ekip)" if kaynak == "boss" else ""))
         yaz(conn, r, a, k, "atama", toplu_id=toplu_id,
-            notu=notu or (f"{ad}'ya atandı" + (" (BOSS'taki ekip)" if kaynak == "boss" else "")))
+            notu=f"{notu} · {onceki_not}" if onceki_not and kaynak != "boss" else notu)
+    if kaynak != "boss":                                 # BOSS'taki ekipten gelen atama zaten BOSS'ta
+        _boss_yaz(conn, "atama", is_no, k, teknik_id=t["id"], randevu_bas=bas, randevu_bit=bit, notu=kullanici_notu)
     _sonra_oneri(conn, [is_no])
     return gorunum.ayrinti(conn, is_no, k)
 
@@ -683,6 +731,7 @@ def randevu(conn: sqlite3.Connection, is_no: str, k: dict | None, bas, bit, teyi
         _surum_denetle(conn, k, r, surum)
         if r["durum"] in ("cozuldu", "kapandi"):
             raise _gecersiz(r["durum"], "randevulu")
+        boss_randevu = None
         a: dict = {}
         if not bas:                                  # kaldır
             a.update(randevu_bas=None, randevu_bit=None, randevu_teyitli=0)
@@ -700,7 +749,11 @@ def randevu(conn: sqlite3.Connection, is_no: str, k: dict | None, bas, bit, teyi
             if r["atanan_id"] is not None:
                 a["boss_bekleyen"] = _boss_bekleyen_hesapla(conn, r, r["atanan_id"], b, s)
                 a["boss_islendi"] = None
+                boss_randevu = (r["atanan_id"], b, s)
             yaz(conn, r, a, k, "randevu", notu=notu)
+    if boss_randevu:                                 # atanmış işin yeni dilimi BOSS'a (atama + randevu şablonu)
+        _boss_yaz(conn, "atama", is_no, k, teknik_id=boss_randevu[0], randevu_bas=boss_randevu[1],
+                  randevu_bit=boss_randevu[2], notu=notu)
     _sonra_oneri(conn, [is_no])
     return gorunum.ayrinti(conn, is_no, k)
 
@@ -774,6 +827,109 @@ def arama_kaydet(conn: sqlite3.Connection, is_no: str, k: dict | None, sonuc: st
                      notu=f"ATA havuzu: {notu.strip()[:900]}")
     _sonra_oneri(conn, [is_no])
     return gorunum.ayrinti(conn, is_no, k)
+
+
+# ============================================================================= Bizim durum (İşler tablosu)
+BIZIM_DURUMLAR = ("Aranacak", "Randevulu", "Port yok", "Kıl yok", "Sinyal yok", "Güzergah yok", "Kuruldu", "İptal",
+                  "Askıda", "Ulaşılamadı")
+# Kurulum engeli ("kurulum neden olmadı?"): çözülebilen altyapı sorunları. Bizim durum bunlardan biri olunca iş
+# ertelenir (durum 'altyapi', teknisyen gönderilmez) ve aynı Loc ID + konu için açık altyapı ticket'ı açılır ya da
+# varsa ona bağlanır. Port yok ve Kıl yok aynı çözüme (ek kapasite) gider: aynı ticket'ta toplanır.
+ENGEL_KONU: dict[str, str] = {"Port yok": "EK SP", "Kıl yok": "EK SP", "Sinyal yok": "SİNYAL",
+                              "Güzergah yok": "GÜZERGAH"}
+BIZIM_IPTAL = "İptal"            # müşteri vazgeçti: engel takibinden çıkar (sayılmaz, çözülünce aranmaz;
+                                 # bekleyen iş sayısı: saha.ticket.bekleyen_isler)
+BIZIM_ARANACAK = "Aranacak"
+ENGEL_COZULDU_NOTU = "Altyapı çözüldü, yeniden aranacak"
+_ENGEL_COZEN = ("ÇÖZÜLDÜ", "KAPATILDI")     # ticket İPTAL olursa engel çözülmüş sayılmaz (etiket kalır)
+
+
+def bizim_durum_yaz(conn: sqlite3.Connection, is_no: str, k: dict | None, deger: str | None, *,
+                    surum: int | None = None) -> dict:
+    """Operasyonun kendi takip etiketi (Excel'deki "Bizim durum"); olay yazılır. ``deger`` None/boş → temizlenir.
+
+    Kurulum engeli (``ENGEL_KONU``): açık işte iş ertelenir ve altyapı ticket'ına bağlanır (``_engel_bagla``).
+    Diğer değerler iş akışını (``durum``) değiştirmez. Aynı değeri yeniden yazmak hiçbir şey değiştirmez.
+    """
+    from . import gorunum
+    H = _H()
+    d = (deger or "").strip() or None
+    if d is not None and d not in BIZIM_DURUMLAR:
+        raise H.Gecersiz("Tanınmayan durum.", kod="alan_eksik")
+    with islem(conn):
+        r = is_getir(conn, is_no)
+        kapsam_denetle(conn, k, r)
+        _surum_denetle(conn, k, r, surum)
+        eski = r["bizim_durum"]
+        if eski != d:
+            conn.execute("UPDATE is_emri SET bizim_durum=?, surum=surum+1, guncelleme=? WHERE is_no=?",
+                         (d, zaman.metin(), is_no))
+            olay_yaz(conn, is_no, "bizim_durum", k, eski={"bizim_durum": eski},
+                     yeni={"bizim_durum": d, "_surum": r["surum"] + 1}, notu=f"Bizim durum: {d or '—'}")
+        if d in ENGEL_KONU:
+            _engel_bagla(conn, is_getir(conn, is_no), d, k)
+    return gorunum.ayrinti(conn, is_no, k)
+
+
+def _engel_ticketi(conn: sqlite3.Connection, r: sqlite3.Row, konu: str) -> int | None:
+    """İşin bağlı olduğu açık ticket (aynı konu) · aynı Loc ID'de · (Loc ID yoksa) aynı binada aynı konuda açık
+    ticket · yoksa None. Açık ticket kaynağı TASKS uyarılarıyla aynıdır (``saha.ticket.acik_ticketlar``)."""
+    from saha import ticket as tk
+    if r["ticket_id"]:
+        t = conn.execute(f"SELECT id FROM ticket WHERE id=? AND konu=? AND durum IN ({','.join('?' * len(_TICKET_ACIK))})",
+                         (r["ticket_id"], konu, *_TICKET_ACIK)).fetchone()
+        if t:
+            return int(t[0])
+    loc = tk.lokasyon_anahtari(r["lokasyon"])
+    for t in tk.acik_ticketlar(conn):
+        if t["konu"] != konu:
+            continue
+        if loc and loc in (tk.lokasyon_anahtari(t["location_id"]), tk.lokasyon_anahtari(t["bina_location_id"])):
+            return int(t["id"])
+        if not loc and r["bina_serial"] and t["bina_serial"] == r["bina_serial"]:
+            return int(t["id"])
+    return None
+
+
+def _engel_bagla(conn: sqlite3.Connection, r: sqlite3.Row, engel: str, k: dict | None) -> int | None:
+    """Kurulum engeli: açık ticket'a bağla ya da yenisini aç (müşteri no + Loc ID + task), işi ertele ('altyapi').
+
+    Etkisiz: iş zaten aynı konudaki açık ticket'a bağlı ve ertelenmişse hiçbir şey yazılmaz. Kapanmış işte
+    yalnız etiket kalır. Dönüş: ticket id (kapanmış işte None). Çağıranın işlemi içinde koşar.
+    """
+    from saha import ticket as tk
+    if r["durum"] not in ACIK:
+        return None
+    konu = ENGEL_KONU[engel]
+    tid = _engel_ticketi(conn, r, konu)
+    if tid is not None and r["ticket_id"] == tid and r["durum"] == "altyapi":
+        return tid
+    musteri = str(r["musteri_no"] or "").strip()
+    task = " ".join(x for x in (str(r["boss_task_no"] or r["is_no"]), r["task_adi"] or "") if x)
+    yeni = tid is None
+    if yeni:
+        veri = {"konu": konu, "bina_serial": r["bina_serial"], "location_id": r["lokasyon"], "musteri": musteri,
+                "detay": f"Kurulum engeli: {engel} · Task {task}".strip(), "notu": f"İşten açıldı ({engel})"}
+        try:
+            tid, _ = tk.olustur(conn, veri, (k or {}).get("id"))
+        except LookupError:                          # işin binası bina tablosunda yok: yalnız Loc ID ile
+            tid, _ = tk.olustur(conn, {**veri, "bina_serial": None}, (k or {}).get("id"))
+    else:
+        t = conn.execute("SELECT musteri FROM ticket WHERE id=?", (tid,)).fetchone()
+        nolar = tk.musteri_nolari(t["musteri"])
+        if musteri and musteri not in nolar:         # aynı engelde bekleyen müşteriler ticket'ta birlikte görünür
+            tk.guncelle(conn, tid, {"musteri": ", ".join([*nolar, musteri]),
+                                    "notu": f"Bekleyen iş eklendi ({engel}): Task {task}"}, (k or {}).get("id"))
+    a: dict = {"ticket_id": int(tid)}
+    if r["durum"] != "altyapi":
+        a.update(durum="altyapi", durum_zamani=zaman.metin(), ilk_atama_zamani=r["ilk_atama_zamani"] or zaman.metin())
+        if r["durum"] == "askida":
+            aski_mod.kapat(conn, r["is_no"], zaman.metin(), kaynak="elle")
+    yaz(conn, r, a, k, "ticket", notu=f"Ertelendi (kurulum engeli: {engel}); altyapı ticket'ı #{tid} ({konu}) "
+                                      f"{'açıldı' if yeni else 'bağlandı'}; teknisyen gönderilmez")
+    from saha import ticket_boss_not             # ticket numaralıysa (ya da HATA) işe BOSS notu
+    ticket_boss_not.esitle(conn, int(tid), k)
+    return int(tid)
 
 
 # ============================================================================= BTK şikâyet sayacı ve TÇS (EK-12.2)
@@ -900,9 +1056,12 @@ def teshis(conn: sqlite3.Connection, is_no: str, k: dict | None, sonuc: str, *, 
         if r["atanan_id"] is not None:
             a["boss_bekleyen"] = _boss_bekleyen_hesapla(conn, r, r["atanan_id"], bas, bit)
         yaz(conn, r, a, k, "teshis", notu="Şimdi evde" if sonuc == "simdi_evde" else "Başka güne randevu")
+        atanan = r["atanan_id"]
         # müşteriyle konuşuldu: merdivene "ulaşıldı" yazılır (Webphone varsayılır)
         olay_yaz(conn, is_no, "arama", k, notu=ARAMA_METNI["ulasildi"],
                  yeni={"sonuc": "ulasildi", "sure_sn": None, "webphone": True, "sms": False, "yeni_numara": False})
+    if atanan is not None:                           # atanmış işin yeni dilimi BOSS'a
+        _boss_yaz(conn, "atama", is_no, k, teknik_id=atanan, randevu_bas=bas, randevu_bit=bit)
     _sonra_oneri(conn, [is_no])
     return gorunum.ayrinti(conn, is_no, k)
 
@@ -942,12 +1101,63 @@ def toplu_ata(conn: sqlite3.Connection, atamalar: list[dict], k: dict | None, pa
     def tek(oge, toplu_id):
         is_no, x = oge
         ata(conn, is_no, x.get("teknik_id"), k, randevu=x.get("randevu"), surum=x.get("surum"), toplu_id=toplu_id,
-            kaynak="toplu")
+            kaynak="toplu", yine_de=bool(x.get("yine_de")))
         if parca:
             with islem(conn):
                 conn.execute("UPDATE is_emri SET parca=?, parca_tarih=? WHERE is_no=?", (parca, zaman.metin()[:10], is_no))
 
     return _toplu(conn, [(x.get("is_no"), x) for x in atamalar or []], tek)
+
+
+TOPLU_ASKI_EN_COK_GUN = 7
+
+
+def toplu_aski(conn: sqlite3.Connection, is_nolar: list[str], k: dict | None, *, neden: str, alt: str | None,
+               bitis: str, aciklama: str | None) -> dict:
+    """TASKS/MAP "Askıya al…": seçili işler BOSS askı nedeni (üst neden kodu/adı + alt neden adı), bitiş (≤ 7 gün) ve
+    açıklamayla askıya alınır. Her iş kendi işleminde (kısmi başarı normal). BOSS'a her iş için ayrı task/suspend
+    kaydı (kimlikler işin kendi kataloğundan, ``boss_yazma.aski_kimlikleri``); iç uyanma zamanı nedenin üst sınırını
+    aşamaz, BOSS'a seçilen bitiş gider. İş zaten askıdaysa yalnız uyanma güncellenir ve BOSS'a yeniden yazılır."""
+    from . import boss_yazma
+    H = _H()
+    neden = str(neden or "").strip()[:120]
+    alt = (str(alt or "").strip()[:160]) or None
+    if not neden:
+        raise H.AlanEksik("Ana neden seçin.")
+    t = zaman.oku(bitis) if bitis else None
+    if t is None:
+        raise H.AlanEksik("Bitiş tarihi gerekli.")
+    simdi = zaman.simdi()
+    if t <= simdi:
+        raise H.Gecersiz("Bitiş ileride olmalı.", kod="uyanma_gecersiz")
+    if t > simdi + dt.timedelta(days=TOPLU_ASKI_EN_COK_GUN, minutes=1):
+        raise H.Gecersiz(f"Bitiş en çok {TOPLU_ASKI_EN_COK_GUN} gün sonrası olabilir.", kod="uyanma_gecersiz")
+    metin = f"{neden} / {alt}" if alt else neden
+    notu = (str(aciklama or "").strip()[:500]) or None
+
+    def tek(oge, toplu_id):
+        is_no = oge[0]
+        r = is_getir(conn, is_no)
+        b_neden = b_alt = None
+        if r["boss_task_no"]:
+            b_neden, b_alt, _eksik = boss_yazma.aski_kimlikleri(conn, r["boss_task_no"], neden, alt)
+        uyanma = min(t, simdi + _uyanma_siniri(conn, r, metin))
+        onceki = r["durum"] == "askida"
+        ek = {"boss_bitis": zaman.metin(t), "boss_neden_ad": neden}
+        if alt:
+            ek["boss_alt_ad"] = alt                  # alt kimlik henüz yoksa liste gelince çözülür
+        if b_neden:
+            ek["boss_neden_id"] = b_neden
+        if b_alt:
+            ek["boss_alt_neden_id"] = b_alt
+        gecis(conn, is_no, "askida", k, neden=metin, uyanma=zaman.metin(uyanma), notu=notu, **ek)
+        if onceki:                                   # askıdaki işte gecis BOSS'a yazmaz: burada yazılır
+            _boss_yaz(conn, "aski", is_no, k, neden=metin, uyanma=zaman.metin(uyanma), notu=notu, **ek)
+
+    sonuc = _toplu(conn, [(str(n), None) for n in (is_nolar or [])][:500], tek)
+    sonuc["boss"] = {"gonderilir": boss_yazma.gonderilir(conn, "aski"),
+                     "aciklama": boss_yazma.aski_alt_durumu(conn)["aciklama"]}
+    return sonuc
 
 
 def geri_al(conn: sqlite3.Connection, is_no: str, olay_id: int, k: dict | None) -> dict:
@@ -1037,6 +1247,8 @@ def ticket_bagla(conn: sqlite3.Connection, is_no: str, k: dict | None, *, ticket
                 aski_mod.kapat(conn, is_no, zaman.metin(), kaynak="elle")
         yaz(conn, r, a, k, "ticket", notu=f"Ticket #{t['id']} ({t['konu']}) bağlandı"
             + ("; teknisyen gönderilmez" if teknisyen_gonderme else ""))
+        from saha import ticket_boss_not         # ticket numaralıysa (ya da HATA) işe BOSS notu
+        ticket_boss_not.esitle(conn, int(ticket_id), k)
     return gorunum.ayrinti(conn, is_no, k)
 
 
@@ -1056,17 +1268,30 @@ def ticket_ayir(conn: sqlite3.Connection, is_no: str, k: dict | None, surum: int
 def ticket_degisti(conn: sqlite3.Connection, ticket_id: int, k: dict | None) -> list[str]:
     """Ticket ÇÖZÜLDÜ/KAPATILDI/İPTAL olunca bağlı 'altyapi' işler 'bekliyor'a döner (geçiş 17).
 
-    ``PATCH /api/ticket/{id}`` ve Excel'den ticket aktarımı sonrası (WP-A) çağrılır; her rapor aktarımında da.
-    Çağıranın işlemi açıksa onun içinde (SAVEPOINT) koşar.
+    ÇÖZÜLDÜ/KAPATILDI'da bağlı açık işlerin Bizim durumu da "Aranacak" olur (kurulum engeli çözüldü; olay
+    "Altyapı çözüldü, yeniden aranacak"). Bizim durumu "İptal" olan iş takip edilmez (etiketi değişmez).
+    ``PATCH /api/ticket/{id}`` sonrası ve her rapor aktarımında (``ticket_denetimi``) çağrılır; etkisizdir.
+    Çağıranın işlemi açıksa onun içinde (SAVEPOINT) koşar. Dönüş: değişen işler.
     """
     t = conn.execute("SELECT id, durum FROM ticket WHERE id=?", (ticket_id,)).fetchone()
     if t is None or t["durum"] not in _TICKET_KAPALI:
         return []
+    cozuldu = t["durum"] in _ENGEL_COZEN
     donen = []
     with islem(conn):
-        for r in conn.execute("SELECT * FROM is_emri WHERE ticket_id=? AND durum='altyapi'", (ticket_id,)).fetchall():
-            yaz(conn, r, {"durum": "triyaj" if r["triyaj_nedeni"] else "bekliyor", "durum_zamani": zaman.metin()},
-                k, "durum", notu="Ticket çözüldü; teyitli ziyarete döndü")
+        for r in conn.execute("SELECT * FROM is_emri WHERE ticket_id=? AND durum NOT IN ('cozuldu','kapandi') "
+                              "ORDER BY is_no", (ticket_id,)).fetchall():
+            a: dict = {}
+            if r["durum"] == "altyapi":
+                a.update(durum="triyaj" if r["triyaj_nedeni"] else "bekliyor", durum_zamani=zaman.metin())
+            aranacak = cozuldu and r["bizim_durum"] != BIZIM_IPTAL and (
+                r["bizim_durum"] in ENGEL_KONU or (r["durum"] == "altyapi" and not r["bizim_durum"]))
+            if aranacak:
+                a["bizim_durum"] = BIZIM_ARANACAK
+            if not a:
+                continue
+            notu = ENGEL_COZULDU_NOTU if aranacak else "Ticket çözüldü; teyitli ziyarete döndü"
+            yaz(conn, r, a, k, "durum" if "durum" in a else "bizim_durum", notu=notu)
             donen.append(r["is_no"])
     if not conn.in_transaction:
         _sonra_oneri(conn, donen)
@@ -1088,7 +1313,7 @@ def ticket_denetimi(conn: sqlite3.Connection) -> list[str]:
 
 
 def uyananlari_isle(conn: sqlite3.Connection, simdi: dt.datetime) -> list[str]:
-    """Uyanma zamanı gelen askıdaki işler 'bekliyor'a döner (geçiş 15; olay 'uyandi', Aranacaklar bant 3)."""
+    """Uyanma zamanı gelen askıdaki işler 'bekliyor'a döner (geçiş 15; olay 'uyandi')."""
     s = zaman.metin(simdi)
     satirlar = conn.execute("SELECT is_no FROM is_emri WHERE durum='askida' AND uyanma IS NOT NULL AND uyanma <= ?",
                             (s,)).fetchall()
@@ -1172,7 +1397,9 @@ def not_ekle(conn: sqlite3.Connection, is_no: str, metin: str, k: dict | None, i
         if istemci_id and _istemci_tekrar(conn, k, istemci_id):
             return conn.execute("SELECT id FROM is_emri_olay WHERE kullanici_id=? AND istemci_id=?",
                                 ((k or {}).get("id"), istemci_id)).fetchone()[0]
-        return olay_yaz(conn, is_no, "not", k, notu=metin, istemci_id=istemci_id)
+        olay_id = olay_yaz(conn, is_no, "not", k, notu=metin, istemci_id=istemci_id)
+    _boss_yaz(conn, "not", is_no, k, metin=metin, olay_id=olay_id)
+    return olay_id
 
 
 def iletisim(conn: sqlite3.Connection, is_no: str, musteri_tel: str | None, k: dict | None, surum: int | None) -> dict:
@@ -1380,7 +1607,7 @@ def is_aktar(conn: sqlite3.Connection, kaynak_id: int, hedef_id: int, k: dict | 
     def tek(oge, toplu_id):
         r = is_getir(conn, oge[0])
         # Ulaşılamadı işinde aynı işe habersiz ikinci gidiş yok (kural 8): teyitli randevusu yoksa aktarılmaz,
-        # Aranacaklar'da kalır (atlanan listesinde 'teyit_gerekli' görünür).
+        # ulaşılamadı olarak kalır (atlanan listesinde 'teyit_gerekli' görünür).
         rv = {"bas": r["randevu_bas"], "bit": r["randevu_bit"], "teyitli": bool(r["randevu_teyitli"])} \
             if r["durum"] == "ulasilamadi" and r["randevu_bas"] else None
         ata(conn, oge[0], hedef_id, k, toplu_id=toplu_id, kaynak="elle", yine_de=True, randevu=rv,

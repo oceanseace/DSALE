@@ -1,4 +1,4 @@
-"""Şema göçü: v0 → v8 (belgeler/OPERASYON_V2_SPEC.md §1.2–§1.14 + belgeler/OPERASYON_V2_EK.md).
+"""Şema göçü: v0 → v9 (belgeler/OPERASYON_V2_SPEC.md §1.2–§1.14 + belgeler/OPERASYON_V2_EK.md).
 
     .venv/Scripts/python.exe -m saha.goc --db <yol>          # göç (prova ve elle kullanım)
     .venv/Scripts/python.exe -m saha.goc --db <yol> --kuru   # yalnız bekleyen adımları yazar
@@ -454,6 +454,142 @@ def goc_8_ek(conn: sqlite3.Connection, baglam: dict) -> dict:
     return {"ticket_eklenen": eklenen}
 
 
+def unvan_tohumla(conn: sqlite3.Connection, zaman: str) -> dict:
+    """Unvan kataloğu: kullanıcının listesi AYNEN (yinelenen tek kayıt) + varsayılan yetkinlikleri, sonra
+    kişilerde yazılı olup katalogda olmayan farklı unvanlar (yetkinliksiz). İdempotent: var olana dokunmaz."""
+    from . import yetki
+
+    eklenen = 0
+    sira = int(conn.execute("SELECT COALESCE(MAX(sira), 0) FROM unvan").fetchone()[0])
+    for ad, paketler in sema_v2.UNVAN_TOHUM:
+        ad_k = yetki.unvan_anahtari(ad)
+        if conn.execute("SELECT 1 FROM unvan WHERE ad_k=?", (ad_k,)).fetchone():
+            continue
+        sira += 10
+        uid = conn.execute("INSERT INTO unvan (ad, ad_k, aktif, sira, olusturma) VALUES (?,?,1,?,?)",
+                           (ad, ad_k, sira, zaman)).lastrowid
+        conn.executemany("INSERT OR IGNORE INTO unvan_yetkinlik (unvan_id, yetkinlik) VALUES (?,?)",
+                         [(uid, p) for p in paketler if p in yetki.YETKINLIKLER])
+        eklenen += 1
+    kisiden = 0
+    for (ad,) in conn.execute("SELECT DISTINCT TRIM(unvan) FROM kullanici WHERE TRIM(COALESCE(unvan,''))<>'' "
+                              "ORDER BY 1").fetchall():
+        ad_k = yetki.unvan_anahtari(ad)
+        if not ad_k or conn.execute("SELECT 1 FROM unvan WHERE ad_k=?", (ad_k,)).fetchone():
+            continue
+        sira += 10
+        conn.execute("INSERT INTO unvan (ad, ad_k, aktif, sira, olusturma) VALUES (?,?,1,?,?)",
+                     (ad, ad_k, sira, zaman))
+        kisiden += 1
+    return {"unvan_tohum": eklenen, "unvan_kisiden": kisiden}
+
+
+_YONETICI_UNVAN_SOZCUKLERI = ("MUDUR", "KOORDINATOR")
+_UNVANSIZ_DUSEN = frozenset({"kisi_yonetimi", "veri_yonetimi"})
+
+
+def kisi_yetkinlik_gocu(conn: sqlite3.Connection) -> dict:
+    """Eski modeldeki (``yetki_modeli=0``) her kişiyi unvan + ek yetkinliğe taşır; ETKİN ERİŞİM KORUNUR.
+
+    ek = eski görev kümesinin paketleri − unvanın paketleri. TEK bilinçli değişiklik: yönetici görevli
+    müdür/koordinatörlerden ve UNVANSIZ (Administrator olmayan) yöneticilerden iş yetkinlikleri (saha, izleme/atama, randevu, planlama, teknik, ticket) düşer;
+    Pano kalır; kişi/veri yönetimi müdürde kalır, unvansızda düşer (Administrator UI'dan açıkça verir). Döner: yalnız sayılar + kişi id'si başına izin farkı.
+    """
+    from . import yetki
+
+    unvanlar = {r[1]: r[0] for r in conn.execute("SELECT id, ad_k FROM unvan").fetchall()}
+    adlar = [r[1] for r in conn.execute("PRAGMA table_info(kullanici)").fetchall()]
+    kisiler = [dict(zip(adlar, r)) for r in conn.execute(
+        "SELECT * FROM kullanici WHERE yetki_modeli=0 ORDER BY id").fetchall()]
+    fark: list[dict] = []
+    tasinan = dusen = lider = 0
+    for k in kisiler:
+        once_e = yetki.erisim(conn, k)                    # eski model (ya da Administrator)
+        once_kume = list(once_e["gorevler"])
+        ad_k = yetki.unvan_anahtari(k.get("unvan"))
+        unvan_id = unvanlar.get(ad_k) if ad_k else None
+        etiket = (k.get("etiket") or "").lower()
+        tl = 1 if ("TAKIMLIDERI" in ad_k or "lider" in etiket) else 0
+        unvandan = set(yetki.unvan_yetkinlikleri(conn, unvan_id))
+        aday = set(yetki.gorev_paketleri(once_kume))
+        yonetici = "yonetici" in once_kume and not once_e.get("administrator")
+        unvansiz = yonetici and not ad_k
+        mudur = yonetici and (unvansiz or any(s in ad_k for s in _YONETICI_UNVAN_SOZCUKLERI))
+        if mudur:
+            aday -= yetki.OPERASYONEL_YETKINLIKLER
+            if unvansiz:   # unvansız eski yönetici: kişi/veri yönetimi yalnız Administrator'ın açıkça vermesiyle
+                aday -= _UNVANSIZ_DUSEN
+            dusen += 1
+        ek = aday - unvandan
+        conn.execute("UPDATE kullanici SET unvan_id=?, takim_lideri=?, yetki_modeli=1 WHERE id=?",
+                     (unvan_id, tl, k["id"]))
+        conn.execute("DELETE FROM kullanici_yetkinlik WHERE kullanici_id=?", (k["id"],))
+        conn.executemany("INSERT INTO kullanici_yetkinlik (kullanici_id, yetkinlik) VALUES (?,?)",
+                         [(k["id"], y) for y in yetki.yetkinlik_sirala(ek)])
+        yetki.gorev_onbellegi_yaz(conn, k["id"])
+        k.update(unvan_id=unvan_id, takim_lideri=tl, yetki_modeli=1)
+        sonra_e = yetki.erisim(conn, k)
+        tasinan += 1
+        lider += tl
+        dusen_izin = sorted(once_e["izinler"] - sonra_e["izinler"])
+        eklenen_izin = sorted(sonra_e["izinler"] - once_e["izinler"])
+        if dusen_izin or eklenen_izin:
+            fark.append({"kullanici_id": k["id"], "dusen": dusen_izin, "eklenen": eklenen_izin,
+                         "mudur": mudur})
+    return {"tasinan": tasinan, "mudur_daraltilan": dusen, "takim_lideri": lider, "fark": fark}
+
+
+def goc_9_yetkinlik(conn: sqlite3.Connection, baglam: dict) -> dict:
+    """v9: kullanici'ya unvan_id/takim_lideri/yetki_modeli (yalnız ALTER ADD), unvan kataloğu, unvan↔yetkinlik
+    matrisi, kişi ek yetkinlikleri; herkes erişimi korunarak yetkinlik modeline taşınır (bkz. kisi_yetkinlik_gocu)."""
+    var = {r[1] for r in conn.execute("PRAGMA table_info(kullanici)").fetchall()}
+    for sutun, tanim in sema_v2.KULLANICI_V9_SUTUNLAR:
+        if sutun not in var:
+            conn.execute(f"ALTER TABLE kullanici ADD COLUMN {sutun} {tanim}")
+    _ifadeler(conn, sema_v2.V9)
+    sema_v2.ayar_varsayilanlari(conn, sema_v2.AYAR_V9)
+    ozet = unvan_tohumla(conn, baglam["zaman"])
+    kisi = kisi_yetkinlik_gocu(conn)
+    baglam["yetkinlik_farki"] = kisi["fark"]
+    ozet.update({"tasinan": kisi["tasinan"], "mudur_daraltilan": kisi["mudur_daraltilan"],
+                 "takim_lideri": kisi["takim_lideri"], "erisimi_degisen": len(kisi["fark"])})
+    return ozet
+
+
+def goc_10_bizim_durum(conn: sqlite3.Connection, baglam: dict) -> dict:
+    """v10: is_emri.bizim_durum (İşler tablosundaki "Bizim durum"; yalnız ALTER ADD, veri değişmez)."""
+    var = {r[1] for r in conn.execute("PRAGMA table_info(is_emri)").fetchall()}
+    eklenen = 0
+    for sutun, tanim in sema_v2.IS_EMRI_V10_SUTUNLAR:
+        if sutun not in var:
+            conn.execute(f"ALTER TABLE is_emri ADD COLUMN {sutun} {tanim}")
+            eklenen += 1
+    return {"eklenen_sutun": eklenen}
+
+
+def goc_11_ticket_salt_okunur(conn: sqlite3.Connection, baglam: dict) -> dict:
+    """v11: Satış Destek unvanlarında "Ticket defteri" (yazma) → "Ticket izleme" (salt okunur; kullanıcı isteği).
+    Yalnız unvan matrisi; kişiye ayrıca verilmiş ek yetkinliklere dokunulmaz. Etkilenen kişilerin görev önbelleği tazelenir."""
+    from . import yetki
+
+    try:
+        unvanlar = [int(r[0]) for r in conn.execute("SELECT id, ad_k FROM unvan").fetchall()
+                    if "SATISDESTEK" in str(r[1] or "")]
+    except sqlite3.OperationalError:
+        return {"unvan": 0}
+    degisen = 0
+    for uid in unvanlar:
+        if conn.execute("DELETE FROM unvan_yetkinlik WHERE unvan_id=? AND yetkinlik='ticket_defteri'",
+                        (uid,)).rowcount:
+            conn.execute("INSERT OR IGNORE INTO unvan_yetkinlik (unvan_id, yetkinlik) VALUES (?, 'ticket_izleme')",
+                         (uid,))
+            degisen += 1
+            for (kid,) in conn.execute("SELECT id FROM kullanici WHERE unvan_id=? AND yetki_modeli=1",
+                                       (uid,)).fetchall():
+                yetki.gorev_onbellegi_yaz(conn, int(kid))
+    return {"unvan": degisen}
+
+
 ADIMLAR = [   # (sürüm, ad, fonksiyon) — her fonksiyon _adim içinde kendi BEGIN IMMEDIATE…COMMIT'inde koşar
     (1, "kullanici_rol_dort", goc_1_rol),
     (2, "kullanici_ek_sutunlar", goc_2_ek_sutun),
@@ -463,6 +599,9 @@ ADIMLAR = [   # (sürüm, ad, fonksiyon) — her fonksiyon _adim içinde kendi B
     (6, "kullanici_gorev", goc_6_gorev),
     (7, "is_aski", goc_7_aski),
     (8, "ticket_ek_ve_ps26", goc_8_ek),
+    (9, "unvan_ve_yetkinlik", goc_9_yetkinlik),
+    (10, "is_bizim_durum", goc_10_bizim_durum),
+    (11, "ticket_salt_okunur", goc_11_ticket_salt_okunur),
 ]
 assert ADIMLAR[-1][0] == HEDEF, "ADIMLAR ile sema_v2.HEDEF uyuşmuyor"
 
@@ -678,6 +817,8 @@ def taze_kur(conn: sqlite3.Connection) -> None:
             conn.execute(ifade)
         sema_v2.ayar_varsayilanlari(conn, sema_v2.AYAR_V4)
         sema_v2.ayar_varsayilanlari(conn, sema_v2.AYAR_EK)
+        sema_v2.ayar_varsayilanlari(conn, sema_v2.AYAR_V9)
+        unvan_tohumla(conn, zaman)
         tohum = _tohum(conn, zaman)
         conn.execute("INSERT OR REPLACE INTO sema_goc VALUES (?,?,?,?,?,?)",
                      (HEDEF, "taze_kurulum", zaman, _zaman(), None,
@@ -714,15 +855,35 @@ def hata_metni(exc: GocHatasi) -> str:
     return _cerceve(satirlar)
 
 
-def _canli_mi(yol: Path) -> bool:
+def _calisma_db_mi(yol: Path) -> bool:
+    """Bu dosya sunucunun çalışma veritabanı mı (canlıda canli/veri/saha/saha.db, geliştirmede
+    gelistirme/veri/saha/saha.db)? Öyleyse sunucu açıkken ve yedeksiz güncellenmez."""
     try:
         return Path(yol).resolve() == (ayarlar.CALISMA / "saha.db").resolve()
     except OSError:
         return False
 
 
+def _sunucu_acik_mi(yol: Path) -> str | None:
+    """Çalışma veritabanını açık bir sunucu tutuyor mu → engel metni (yoksa None). Önce dosyanın kendisine bakılır
+    (hangi portta açılmış olursa olsun); sınanamazsa VERİYE uyan port: canlıda 8080, geliştirmede 8090–8099."""
+    from .sunucu import CANLI_ADRES, canli_veri_mi, dosya_kullanimda_mi, port_dolu_mu
+
+    canli = canli_veri_mi()
+    durdur = "DURDUR.bat, sonra BASLAT.bat" if canli else "kod\\saha\\DURDUR.bat, sonra GELISTIRME_BASLAT.bat"
+    kullanimda = dosya_kullanimda_mi(yol)
+    if kullanimda:
+        return f"Veritabanı başka bir süreçte açık (sunucu?). Sunucu açıkken güncellenmez. Önce {durdur}."
+    portlar = [CANLI_ADRES[1]] if canli else list(range(8090, 8100))
+    if kullanimda is None or canli:
+        for port in portlar:
+            if port_dolu_mu(port):
+                return f"Sunucu açık ({port}). Sunucu açıkken çalışma veritabanı güncellenmez. Önce {durdur}."
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi veritabanı göçü (v0 → v%d)" % HEDEF)
+    ayrac = argparse.ArgumentParser(description="Turkcell veritabanı göçü (v0 → v%d)" % HEDEF)
     ayrac.add_argument("--db", required=True, help="Veritabanı dosyası")
     ayrac.add_argument("--kuru", action="store_true", help="Yalnız bekleyen adımları yaz, dokunma")
     ayrac.add_argument("--yedeksiz", action="store_true", help="Göç yedeği alma (yalnız karalama kopyalarında)")
@@ -732,14 +893,13 @@ def main(argv: list[str] | None = None) -> int:
     if not yol.exists():
         print(f"Veritabanı bulunamadı: {yol}")
         return 1
-    if _canli_mi(yol):
-        from .sunucu import port_dolu_mu
-
-        if port_dolu_mu(8080):
-            print("Sunucu açıkken canlı veritabanı güncellenmez. Önce DURDUR.bat, sonra BASLAT.bat.")
+    if _calisma_db_mi(yol):
+        engel = _sunucu_acik_mi(yol)
+        if engel:
+            print(engel)
             return 2
         if a.yedeksiz:
-            print("Canlı veritabanı yedeksiz güncellenmez.")
+            print("Çalışma veritabanı yedeksiz güncellenmez.")
             return 2
     if a.kuru:
         conn = sqlite3.connect(Path(yol).resolve().as_uri() + "?mode=ro", uri=True)

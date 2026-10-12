@@ -31,6 +31,7 @@ IZINLER: dict[str, frozenset[str]] = {
     "ekip.teknikler": frozenset({"operasyon", "yonetici"}),
     "ekip.yonet": frozenset({"yonetici"}),
     "veri.yonet": frozenset({"yonetici"}),
+    "is.randevu": frozenset({"operasyon", "yonetici"}),
 }
 OFIS = frozenset({"operasyon", "yonetici"})
 
@@ -47,6 +48,8 @@ def gorevler(conn: sqlite3.Connection | None, k: dict | None) -> set[str]:
     """Kişinin görev kümesi (ana görev her zaman içindedir)."""
     if not k:
         return set()
+    if k.get("_turetildi"):          # saha/yetki.mevcut_kullanici: yetkinliklerden türetilmiş küme (rol eklenmez)
+        return set(k.get("gorevler") or ())
     if k.get("gorevler"):
         return set(k["gorevler"]) | ({k["rol"]} if k.get("rol") else set())
     kume = {k["rol"]} if k.get("rol") else set()
@@ -56,6 +59,8 @@ def gorevler(conn: sqlite3.Connection | None, k: dict | None) -> set[str]:
 
 
 def izinli(conn: sqlite3.Connection | None, k: dict | None, eylem: str) -> bool:
+    if k and "izinler" in k:         # saha/yetki.mevcut_kullanici etkin izinleri (Administrator, yetkinlikler)
+        return eylem in k["izinler"]
     return bool(gorevler(conn, k) & IZINLER.get(eylem, frozenset()))
 
 
@@ -108,7 +113,8 @@ def kisiler(conn: sqlite3.Connection, ids=None) -> dict[int, dict]:
             etiket = []
         out[d["id"]] = {"id": d["id"], "ad": d["ad"], "rol": d["rol"], "aktif": bool(d["aktif"]), "gorevler": kume,
                         "unvan": d.get("unvan"), "giris_var": bool(d.get("telefon")), "boss_ekip": d.get("boss_ekip"),
-                        "kapasite": d.get("kapasite"), "etiket": etiket if isinstance(etiket, list) else []}
+                        "kapasite": d.get("kapasite"), "etiket": etiket if isinstance(etiket, list) else [],
+                        "kaynak": d.get("kaynak")}
     return out
 
 
@@ -121,8 +127,54 @@ def ozet(kisi: dict | None) -> dict | None:
 
 
 def teknikler(conn: sqlite3.Connection, yalniz_aktif: bool = True) -> dict[int, dict]:
-    return {i: k for i, k in kisiler(conn).items()
-            if "teknik" in k["gorevler"] and (k["aktif"] or not yalniz_aktif)}
+    """Atanabilir teknisyenler. BOSS ekip listesi geldiyse YALNIZ BOSS ekipleri (``kaynak='boss'``; BOSS "Ekip
+    Tanımlama" sayfasındaki teknik ekipler) — uygulamada elle açılmış kişiler seçicide görünmez."""
+    hepsi = {i: k for i, k in kisiler(conn).items()
+             if "teknik" in k["gorevler"] and (k["aktif"] or not yalniz_aktif)}
+    boss = {i: k for i, k in hepsi.items() if k.get("kaynak") == "boss"}
+    return boss if boss or boss_ekip_var(conn) else hepsi
+
+
+def _boss_sutun(conn: sqlite3.Connection) -> None:
+    if "boss_ekip_id" not in sutunlar(conn, "kullanici"):
+        conn.execute("ALTER TABLE kullanici ADD COLUMN boss_ekip_id TEXT")
+
+
+def boss_ekip_var(conn: sqlite3.Connection) -> bool:
+    return conn.execute("SELECT 1 FROM kullanici WHERE kaynak='boss' LIMIT 1").fetchone() is not None
+
+
+def boss_ekipleri_esitle(conn: sqlite3.Connection, ekipler: list[dict]) -> dict:
+    """BOSS teknik ekip listesi ({id, ad, aktif}) → girişsiz teknik kişiler (``kaynak='boss'``, ``boss_ekip_id`` =
+    BOSS ekip kimliği; atama bu kişiye, dolayısıyla BOSS ekip id'sine yapılır). Listede olmayan BOSS ekibi pasife
+    alınır. Çağıran commit eder."""
+    import datetime as _dt
+    _boss_sutun(conn)
+    ekipler = [e for e in (ekipler or []) if isinstance(e, dict) and e.get("id") and str(e.get("ad") or "").strip()]
+    if not ekipler:
+        return {"eklenen": 0, "guncellenen": 0, "pasif": 0}
+    mevcut = {r[0]: r[1] for r in conn.execute(
+        "SELECT boss_ekip_id, id FROM kullanici WHERE kaynak='boss' AND boss_ekip_id IS NOT NULL")}
+    simdi = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    eklenen = guncellenen = 0
+    gorulen = set()
+    for e in ekipler:
+        bid, ad, aktif = str(e["id"]), str(e["ad"]).strip()[:200], 1 if e.get("aktif", True) else 0
+        gorulen.add(bid)
+        if bid in mevcut:
+            guncellenen += conn.execute("UPDATE kullanici SET ad=?, boss_ekip=?, aktif=? WHERE id=? AND "
+                                        "(ad<>? OR boss_ekip IS NOT ? OR aktif<>?)",
+                                        (ad, ad, aktif, mevcut[bid], ad, ad, aktif)).rowcount
+        else:
+            conn.execute("INSERT INTO kullanici (ad, telefon, pin_hash, davet_kodu, rol, bolge, aktif, olusturma, "
+                         "boss_ekip, kaynak, boss_ekip_id) VALUES (?,NULL,NULL,NULL,'teknik',NULL,?,?,?,'boss',?)",
+                         (ad, aktif, simdi, ad, bid))
+            eklenen += 1
+    pasif = 0
+    for bid, kid in mevcut.items():
+        if bid not in gorulen:
+            pasif += conn.execute("UPDATE kullanici SET aktif=0 WHERE id=? AND aktif=1", (kid,)).rowcount
+    return {"eklenen": eklenen, "guncellenen": guncellenen, "pasif": pasif}
 
 
 def kisa_ad(ad: str | None) -> str:

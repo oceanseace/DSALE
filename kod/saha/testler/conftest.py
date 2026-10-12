@@ -16,6 +16,8 @@ import yollar  # kod/ içe aktarma yolunda: kökteki pytest.ini (pythonpath = ko
 
 # Testler repodaki gizli anahtarı ne okur ne yazar.
 os.environ["SAHA_GIZLI"] = "test-icin-sabit-gizli-anahtar-0123456789"
+# Administrator testte yalnız açıkça verilir (monkeypatch.setenv); veri klasöründeki turkcell.json okunmaz.
+os.environ.setdefault("TURKCELL_ADMIN_TELEFON", "")
 
 # Öbek JSON'u ve operasyon veri klasörü: testler ASLA çalışma klasöründeki operasyon/obekler.json'a ya da
 # operasyon/veri/'ye dokunmaz. Taze kurulum (kur → goc.taze_kur) sentetik örnek dosyayı okur.
@@ -163,11 +165,11 @@ def _gecici_ciktilar(tmp_path: Path, monkeypatch):
     """
     monkeypatch.setenv("SAHA_GELEN", str(tmp_path / "gelen"))
     monkeypatch.setenv("SAHA_CIKTI", str(tmp_path / "cikti"))
-    from saha import altlik, api, geometri
+    from saha import altlik, geometri, satis_uclari
 
     altlik._csp_onbellek.clear()
-    api._harita_sabit.clear()
-    api._harita_onbellek.clear()
-    api._yol_onbellek.clear()
+    satis_uclari._harita_sabit.clear()
+    satis_uclari._harita_onbellek.clear()
+    satis_uclari._yol_onbellek.clear()
     geometri._onbellek.clear()
     yield

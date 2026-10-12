@@ -14,9 +14,6 @@ import datetime as dt
 import sqlite3
 from pathlib import Path
 
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
 
 from . import ayarlar, db
 
@@ -27,6 +24,9 @@ def rapor_dizini() -> Path:
     Sabit bir klasör kullanılınca test ya da gösterim koşusu üretim
     klasörünü kirletiyordu.
     """
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     return db.db_yolu().parent / "raporlar"
 
 LACIVERT = "1B2A41"
@@ -40,11 +40,17 @@ YESIL_Z = "DCFCE7"
 FMT_SAYI = "#,##0"
 FMT_YUZDE = "0.0%"
 
-_INCE = Side(style="thin", color=CIZGI)
-_KENAR = Border(left=_INCE, right=_INCE, top=_INCE, bottom=_INCE)
+def _kenar():
+    """İnce dört kenar (openpyxl tembel yüklenir)."""
+    from openpyxl.styles import Border, Side
+    ince = Side(style="thin", color=CIZGI)
+    return Border(left=ince, right=ince, top=ince, bottom=ince)
 
 
 def _baslik_bandi(ws, metin: str, alt: str, sutun_sayisi: int) -> int:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=sutun_sayisi)
     h = ws.cell(row=1, column=1, value=metin)
     h.font = Font(name="Calibri", size=16, bold=True, color="FFFFFF")
@@ -61,18 +67,24 @@ def _baslik_bandi(ws, metin: str, alt: str, sutun_sayisi: int) -> int:
 
 
 def _tablo_basligi(ws, satir: int, basliklar: list[str]) -> None:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     for i, b in enumerate(basliklar, start=1):
         h = ws.cell(row=satir, column=i, value=b)
         h.font = Font(name="Calibri", size=10, bold=True, color=LACIVERT)
         h.fill = PatternFill("solid", fgColor=VURGU)
         h.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        h.border = _KENAR
+        h.border = _kenar()
     ws.row_dimensions[satir].height = 26
     ws.freeze_panes = ws.cell(row=satir + 1, column=1)
 
 
 def _veri_satiri(ws, satir: int, degerler: list, bicimler: dict[int, str] | None = None,
                  vurgula: bool = False) -> None:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     bicimler = bicimler or {}
     zemin = PatternFill("solid", fgColor=ZEBRA) if satir % 2 == 0 else None
     if vurgula:
@@ -80,7 +92,7 @@ def _veri_satiri(ws, satir: int, degerler: list, bicimler: dict[int, str] | None
     for i, d in enumerate(degerler, start=1):
         h = ws.cell(row=satir, column=i, value=d)
         h.font = Font(name="Calibri", size=10, color=KOYU, bold=vurgula)
-        h.border = _KENAR
+        h.border = _kenar()
         if zemin:
             h.fill = zemin
         if i in bicimler:
@@ -91,6 +103,9 @@ def _veri_satiri(ws, satir: int, degerler: list, bicimler: dict[int, str] | None
 
 
 def _genislikler(ws, genislikler: list[int]) -> None:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     for i, g in enumerate(genislikler, start=1):
         ws.column_dimensions[get_column_letter(i)].width = g
 
@@ -147,6 +162,9 @@ def _sayfa_gun(wb: Workbook, conn: sqlite3.Connection, gun: str) -> None:
 
 
 def _sayfa_ziyaretler(wb: Workbook, conn: sqlite3.Connection, gun: str) -> None:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     ws = wb.create_sheet("ZIYARETLER")
     basliklar = ["Saat", "Satışçı", "Bölge", "Bina", "Mahalle", "Adres", "Daire",
                  "Boş kapı", "Sonuç", "Satış", "Not"]
@@ -182,6 +200,9 @@ def _sayfa_ziyaretler(wb: Workbook, conn: sqlite3.Connection, gun: str) -> None:
 
 
 def _sayfa_kapsama(wb: Workbook, conn: sqlite3.Connection, gun: str) -> None:
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     ws = wb.create_sheet("KAPSAMA")
     basliklar = ["Bölge", "Bina", "Gidilen", "Görüşülen", "Kalan", "Kapsama",
                  "Boş kapı", "Satılmamış kapı", "Satış"]
@@ -243,6 +264,9 @@ def _sayfa_kapsama(wb: Workbook, conn: sqlite3.Connection, gun: str) -> None:
 # ----------------------------------------------------------------------------- giriş
 def gunluk_rapor_yaz(conn: sqlite3.Connection, gun: dt.date | str, hedef: Path | None = None) -> Path:
     """Günlük raporu üretir ve dosya yolunu döndürür."""
+    from openpyxl import Workbook  # noqa: F401  (tembel: açılışı hızlandırır)
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side  # noqa: F401
+    from openpyxl.utils import get_column_letter  # noqa: F401
     tarih = gun.isoformat() if isinstance(gun, dt.date) else str(gun)[:10]
     wb = Workbook()
     _sayfa_gun(wb, conn, tarih)

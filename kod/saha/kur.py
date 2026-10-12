@@ -299,7 +299,7 @@ def kur(sifirla: bool = False, yol: Path | None = None, sessiz: bool = False,
 
 def _ozet_yaz(ozet: dict) -> None:
     b = lambda n: f"{n:,}".replace(",", ".")  # noqa: E731  → 19.706
-    print("Saha Sistemi veritabanı hazır.")
+    print("Turkcell veritabanı hazır.")
     print(f"  Dosya        : {ozet['veritabani']}")
     print(f"  Bina         : {b(ozet['bina'])}")
     print(f"  RES HP       : {b(ozet['res_hp'])}")
@@ -349,14 +349,14 @@ def _kullanici_sayisi(yol: Path) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi veritabanını kurar ve tohumlar.")
+    ayrac = argparse.ArgumentParser(description="Turkcell veritabanını kurar ve tohumlar.")
     ayrac.add_argument("--sifirla", action="store_true", help="Var olan veritabanını silip sıfırdan kurar.")
     ayrac.add_argument("--evet-gercek-kisileri-sil", action="store_true", dest="evet_gercek",
                        help="Gerçek kişileri olan veritabanını sıfırlamayı onaylar (önce yedek alınır).")
     ayrac.add_argument("--bina-tazele", action="store_true",
                        help="Kurulu veritabanında binaları CSV'den tazeler (önce yedek alınır).")
     ayrac.add_argument("--kodlar", action="store_true", help="Bekleyen davet kodlarını yazar, kurulum yapmaz.")
-    ayrac.add_argument("--db", default=None, help="Veritabanı dosya yolu (varsayılan: saha/saha.db)")
+    ayrac.add_argument("--db", default=None, help=ayarlar.db_yardim())
     a = ayrac.parse_args(argv)
     ayarlar.konsolu_hazirla()
     yol = Path(a.db) if a.db else None

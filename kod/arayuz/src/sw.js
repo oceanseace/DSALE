@@ -1,5 +1,5 @@
 /*
- * Saha Sistemi — servis çalışanı.
+ * Turkcell — servis çalışanı.
  * Tek amacı var: uygulama sinyal yokken de aynı şekilde açılsın.
  *  - Uygulama kabuğu (html/js/css/ikon) kurulumda önbelleğe alınır.
  *  - GET /api/... yanıtları "önce ağ, olmazsa önbellek" ile saklanır.
@@ -14,8 +14,8 @@
  */
 
 const SURUM = '__SAHA_SURUM__';
-const KABUK_ONBELLEK = `saha-kabuk-${SURUM}`;
-const API_ONBELLEK = `saha-api-${SURUM}`;
+const KABUK_ONBELLEK = `turkcell-kabuk-${SURUM}`;
+const API_ONBELLEK = `turkcell-api-${SURUM}`;
 const KABUK = __SAHA_KABUK__;
 /** İş kayıtlarının en uzun ömrü (ms): 24 saat. */
 const IS_OMRU_MS = 24 * 60 * 60 * 1000;
@@ -36,7 +36,7 @@ self.addEventListener('activate', (olay) => {
       const adlar = await caches.keys();
       await Promise.all(
         adlar
-          .filter((ad) => ad.startsWith('saha-') && ad !== KABUK_ONBELLEK && ad !== API_ONBELLEK)
+          .filter((ad) => (ad.startsWith('saha-') || ad.startsWith('turkcell-')) && ad !== KABUK_ONBELLEK && ad !== API_ONBELLEK)
           .map((ad) => caches.delete(ad)),
       );
       await self.clients.claim();
@@ -110,6 +110,9 @@ self.addEventListener('fetch', (olay) => {
 
   const adres = new URL(istek.url);
   if (adres.origin !== self.location.origin) return;
+
+  // BOSS ile giriş ara sayfası (sunucunun kendi HTML'i, BOSS'a yönlendirir): kabuğa karışmaz, önbelleğe girmez.
+  if (adres.pathname.startsWith('/boss-giris/')) return;
 
   // Sayfa gezinmeleri: kabuk önbellekten anında açılır, arka planda tazelenir.
   if (istek.mode === 'navigate') {

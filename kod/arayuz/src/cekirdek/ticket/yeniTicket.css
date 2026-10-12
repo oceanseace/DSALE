@@ -1,0 +1,20 @@
+/* Yeni ticket penceresi (YeniTicket.tsx): Loc ID'den otomatik dolan bilgiler. Diğer tk-* sınıfları konsol/ekran.css'te. */
+.tk-oto {
+  display: grid;
+  gap: 8px;
+  padding: 12px 12px;
+  border-radius: var(--yaricap);
+  background: var(--birincil-yumusak);
+}
+.tk-oto-satir {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px;
+  font-size: var(--boy-o);
+}
+.tk-oto-satir span {
+  color: var(--metin-2);
+}
+.tk-oto-satir b {
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,647 @@
+/*
+ * MAP ekranının kendi parçaları: arama kutusu ve sonuç listesi, seçim kartı, tarih süzgeci penceresi,
+ * "Gösterilen N iş" sayacı, Sığdır düğmesi. Üst şerit ve lejant (.ih-*) isler.css'te; arama kutusunun
+ * cam zemini (.hr-locgit-*) cekirdek/harita/harita.css'te. Yükleyen: IsHaritasiEkrani.tsx.
+ */
+
+/* ---------- Üst şerit: sol sütun (başlık + arama) · sağ (süzgeçler + lejant) ---------- */
+.ih-ust.mp-ust {
+  flex-wrap: nowrap;
+}
+.mp-sol {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  width: min(400px, 100%);
+  pointer-events: none;
+}
+.mp-sag {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  pointer-events: none;
+}
+/* Katman sırası: .ih-kutu kendi yığın bağlamını kurar; açılır pencereler (İş türü,
+   Geliş tarihi, Özel filtreler) kutunun içinde kalır ve sonraki kardeş (lejant) onları örterdi. Süzgeç kutusu
+   lejanttan hep üstte; pencere açıkken arama listesinin (.mp-ara z 8) de üstüne çıkar. */
+.mp-sag .ih-suzgec {
+  position: relative;
+  z-index: 3;
+}
+.mp-sag .ih-lejant {
+  position: relative;
+  z-index: 1;
+}
+.mp-sag .ih-suzgec:has(.ts-pencere, .xg-acilir),
+.mp-sag .ih-suzgec:focus-within {
+  z-index: 20;
+}
+.mp-sag .ts-pencere {
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+}
+@media (max-width: 760px) {
+  .ih-ust.mp-ust {
+    flex-wrap: wrap;
+  }
+  .mp-sol {
+    width: 100%;
+  }
+  /* Dar ekranda pencere çipe değil süzgeç kutusunun soluna dayanır; sağdan taşmaz. */
+  .mp-sag .ih-suzgec .ts-kok {
+    position: static;
+  }
+  .mp-sag .ts-pencere {
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* ---------- Başlık kutusu: sayaç ---------- */
+.mp-sol .ih-baslik {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.mp-sayac {
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  white-space: nowrap;
+}
+.mp-sayac b {
+  color: var(--metin);
+  font-variant-numeric: tabular-nums;
+}
+.mp-konumsuz {
+  color: var(--amber);
+  font-size: var(--boy-k);
+  white-space: nowrap;
+}
+
+/* ---------- Arama ---------- */
+.mp-ara {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  pointer-events: auto;
+  z-index: 8;
+}
+.mp-ara .mp-ara-kutu {
+  height: 44px;
+}
+.mp-ara .mp-ara-kutu input {
+  font-size: var(--boy-b);
+}
+.mp-ara .hr-locgit-sil {
+  width: var(--kontrol);
+  height: var(--kontrol);
+}
+.mp-ara.uyarili .mp-ara-kutu {
+  box-shadow: inset 0 0 0 1px var(--amber-dolgu);
+}
+
+.mp-sonuc,
+.mp-kart {
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  box-shadow: var(--golge-menu);
+  color: var(--metin);
+}
+
+.mp-sonuc {
+  max-height: min(40vh, 440px);
+  overflow-y: auto;
+  padding: 4px 8px 8px;
+}
+.mp-sonuc-ust {
+  position: sticky;
+  top: -4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 4px;
+  background: inherit;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+.mp-sonuc-not {
+  margin: 4px 8px 4px;
+  color: var(--amber);
+  font-size: var(--boy-k);
+}
+.mp-sonuc h3 {
+  margin: 8px 8px 4px;
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+}
+.mp-sonuc h3 b {
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+}
+.mp-sonuc ul,
+.mp-binada ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mp-sonuc li button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--yaricap);
+  background: transparent;
+  color: var(--metin);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mp-sonuc li button:hover {
+  background: var(--uzerinde);
+}
+.mp-sonuc li button.etkin {
+  background: var(--vurgu-yumusak);
+}
+.mp-sonuc li button.secili {
+  box-shadow: inset 0 0 0 2px var(--vurgu);
+}
+.mp-oge-ust {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.mp-oge-ad {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--boy-o);
+  font-weight: var(--kalin);
+}
+.mp-oge-alt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+.mp-oge-loc {
+  flex: 0 0 auto;
+  color: var(--metin-2);
+  font-family: var(--yazi-es);
+  font-size: var(--boy-k);
+}
+.mp-oge-rozet {
+  flex: 0 0 auto;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+.mp-oge-rozet.var {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+
+.mp-gizle,
+.mp-diger {
+  border: 0;
+  background: transparent;
+  color: var(--vurgu-yazi);
+  font: inherit;
+  cursor: pointer;
+}
+.mp-gizle {
+  padding: 4px 8px;
+  border-radius: var(--yaricap-k);
+  font-size: var(--boy-k);
+}
+.mp-gizle:hover,
+.mp-diger:hover {
+  background: var(--vurgu-yumusak);
+}
+.mp-diger {
+  align-self: flex-start;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--kart);
+  box-shadow: var(--golge-menu);
+  font-size: var(--boy-o);
+}
+
+/* ---------- Seçim kartı ---------- */
+.mp-kart {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+.mp-kart-ust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mp-kart-tur {
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+}
+.mp-kart-ad {
+  font-size: var(--boy-b);
+  line-height: 1.3;
+}
+.mp-kart-alt {
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  line-height: 1.4;
+}
+.mp-kart-not {
+  padding: 8px;
+  border-radius: var(--yaricap-k);
+  background: var(--amber-yumusak);
+  color: var(--metin);
+  font-size: var(--boy-k);
+}
+.mp-kart-dugme {
+  min-height: 44px;
+  font-size: var(--boy-o);
+}
+.mp-kimlik {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+}
+.mp-kimlik em {
+  color: var(--metin-3);
+}
+.mp-binada {
+  display: grid;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--cizgi);
+}
+.mp-binada-baslik {
+  font-size: var(--boy-o);
+}
+.mp-binada li button {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--yaricap-k);
+  background: transparent;
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-o);
+  text-align: left;
+  cursor: pointer;
+}
+.mp-binada li button:hover {
+  background: var(--uzerinde);
+}
+.mp-binada-durum {
+  flex: 0 0 auto;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+
+/* ---------- Tarih süzgeci penceresi ---------- */
+.mp-tarih {
+  width: min(340px, calc(100vw - 32px));
+  gap: 12px;
+}
+.mp-tarih-baslik {
+  font-size: var(--boy-o);
+  font-weight: var(--kalin);
+}
+.mp-hizli {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mp-hizli button {
+  min-height: var(--kontrol);
+  padding: 0 12px;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: 999px;
+  background: var(--kart);
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-o);
+  cursor: pointer;
+}
+.mp-hizli button:hover:not(.secili) {
+  background: var(--kart-bas);
+}
+.mp-hizli button.secili {
+  background: var(--vurgu-yumusak);
+  border-color: var(--vurgu);
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+.mp-tarih-kipler {
+  display: grid;
+  gap: 8px;
+}
+.mp-tarih-kipler label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: var(--boy-o);
+  cursor: pointer;
+}
+.mp-gun {
+  height: var(--kontrol);
+  margin-left: 28px;
+  font-size: var(--boy-o);
+}
+.mp-aralik {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 28px;
+}
+.mp-aralik .mp-gun {
+  min-width: 0;
+  flex: 1;
+  margin-left: 0;
+}
+.mp-tarih-not {
+  margin: 0;
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+
+/* ---------- Sığdır (altlık seçicinin yanında) ---------- */
+.ih-kok .ie-sigdir {
+  pointer-events: auto;
+  min-height: var(--kontrol);
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  box-shadow: var(--golge-menu);
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-o);
+  font-weight: var(--kalin);
+  cursor: pointer;
+}
+.ih-kok .ie-sigdir:hover {
+  background: var(--kart-bas);
+}
+
+@media (max-width: 760px) {
+  .mp-sonuc {
+    max-height: 36vh;
+  }
+}
+
+
+/* ---------- Toplu seçim: kement ve seçim çipi ---------- */
+.ih-kok .ie-sigdir.etkin {
+  background: var(--birincil);
+  color: var(--birincil-yazi);
+}
+.mp-kement {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+.mp-kement polygon {
+  fill: rgba(254, 198, 0, 0.12);
+  stroke: #fec600;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.mp-secim {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mp-secim b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Süzgeç şeridi (map/MapSuzgec.tsx): tek ince satır, haritayı örtmez ---------- */
+.mp-sag {
+  justify-content: flex-end;
+}
+.ih-kutu.mp-cubuk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 6px;
+}
+.mp-filtre-dugme {
+  min-height: var(--kontrol-k);
+  padding: 0 12px;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: 999px;
+  background: var(--kart);
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+  cursor: pointer;
+}
+.mp-filtre-dugme.etkin {
+  border-color: var(--vurgu);
+  color: var(--vurgu-yazi);
+}
+.mp-cubuk .xg-cip {
+  max-width: 240px;
+}
+.mp-arti,
+.mp-temizle {
+  min-height: var(--kontrol-k);
+  padding: 0 8px;
+  border-radius: 999px;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+.mp-arti {
+  background: var(--uzerinde);
+  font-weight: var(--kalin);
+}
+.mp-arti:hover,
+.mp-temizle:hover {
+  background: var(--uzerinde);
+  color: var(--metin);
+}
+
+/* ---------- Tazele düğmesi ---------- */
+.mp-tazele {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -6px;
+  border-radius: 999px;
+  color: var(--metin-2);
+}
+.mp-tazele:hover {
+  background: var(--uzerinde);
+  color: var(--metin);
+}
+.mp-tazele.donuyor svg {
+  animation: mp-don 0.8s linear infinite;
+}
+@keyframes mp-don {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Lejant: sağ alt köşede küçük (sol altta altlık/araç düğmeleri var) ---------- */
+.ih-kutu.ih-lejant.mp-lejant {
+  position: absolute;
+  right: 12px;
+  bottom: 28px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  max-width: calc(100% - 24px);
+  padding: 2px 4px;
+  opacity: 0.92;
+}
+.mp-lejant button {
+  gap: 6px;
+  padding: 2px 6px;
+  font-size: var(--boy-k);
+}
+.mp-lejant i {
+  width: 10px;
+  height: 10px;
+}
+
+/* ---------- Filtreler çekmecesi ---------- */
+.mp-cekmece {
+  display: grid;
+  gap: 12px;
+  font-size: var(--boy-o);
+}
+.mp-alan {
+  display: grid;
+  gap: 4px;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+.mp-alan-satir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mp-bolum {
+  border-top: 1px solid var(--cizgi);
+  padding-top: 8px;
+}
+.mp-bolum summary,
+.mp-bolum-baslik {
+  cursor: pointer;
+  color: var(--metin);
+  font-weight: var(--kalin);
+}
+.mp-bolum-baslik {
+  cursor: default;
+  border-top: 1px solid var(--cizgi);
+  padding-top: 8px;
+}
+.mp-ozet {
+  color: var(--metin-3);
+  font-weight: normal;
+  font-size: var(--boy-k);
+}
+.mp-tur {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+.mp-sutunlar {
+  display: grid;
+  gap: 2px;
+}
+.mp-sutun {
+  border-radius: var(--yaricap-k);
+}
+.mp-sutun.etkin > .mp-sutun-bas .ad {
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+.mp-sutun.acik {
+  background: var(--uzerinde);
+}
+.mp-sutun-bas {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--yaricap-k);
+  color: var(--metin);
+  text-align: left;
+}
+.mp-sutun-bas:hover {
+  background: var(--uzerinde);
+}
+.mp-sutun-bas .mp-ozet {
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mp-sutun-govde {
+  display: grid;
+  gap: 6px;
+  padding: 4px 8px 8px;
+}
+.mp-sutun-govde .xg-liste {
+  max-height: 260px;
+  overflow: auto;
+}
+.mp-cekmece-alt {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Durum sayaç çubuğu (Ayarlar ▸ Durum çubuğu): üst sağda, süzgeç şeridinin altında. */
+.mp-sag .mp-durum {
+  align-self: flex-end;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ---------- Ekipler katmanı (BOSS GPS) ipucu ---------- */
+.mp-ekip-ipucu {
+  max-width: 360px;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+  line-height: 1.35;
+}

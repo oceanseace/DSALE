@@ -30,6 +30,7 @@ def _yeni_obek(conn, op, ad="Deneme Öbeği"):
     return s["obek"]["id"], s["surum"]
 
 
+@pytest.mark.skip(reason="Tek iş havuzu (2026-10): kurulum/2. donanım çıkarma ve öbeksiz→Kontrol kuralı kaldırıldı")
 def test_mahalle_ekle_cikar_is_sayisi(v2db, conn, kim):
     """F1: öbeğe mahalle eklenince o mahallenin işleri öbeğe geçer; çıkarılınca Kontrol'e döner. Sayılar anında."""
     op = kim("operasyon")
@@ -146,6 +147,7 @@ def test_ad_var_409(v2db, conn, kim):
     assert e.value.kod == "ad_var"
 
 
+@pytest.mark.skip(reason="Tek iş havuzu (2026-10): kurulum/2. donanım çıkarma ve öbeksiz→Kontrol kuralı kaldırıldı")
 def test_sil_geri_al(v2db, conn, kim, saat):
     op = kim("operasyon")
     (m,) = _obeksiz(conn, 1)
@@ -247,3 +249,30 @@ def test_obek_surum_409(v2db, conn, kim):
         obek.olustur(conn, "Deneme Eşzamanlı 2", yon, eski)                # aynı eski sürümle ikinci yazar
     assert e.value.kod == "guncel_degil" and e.value.durum == 409
     assert e.value.ek["surum"] == eski + 1 and e.value.ek["obekler"]
+
+
+def test_tum_ilce_mahalle_sayisi_ve_eslesme(v2db, conn, kim):
+    """'İlçenin tamamı' tek mahalle sayılmaz: ilçenin sözlükteki bütün mahalleleri sayılır, işleri öbeğe düşer."""
+    op = kim("operasyon")
+    ilce = None
+    for i in sozluk.ilceler(conn):
+        if i["il"] != "Bursa" or i["tum_ilce_obek"] or i["mahalle_sayisi"] < 3:
+            continue
+        hepsi = sozluk.ara(conn, None, "Bursa", i["ilce"], 1000)["mahalleler"]
+        if all(m["obek"] is None for m in hepsi):
+            ilce, toplam = i["ilce"], i["mahalle_sayisi"]
+            break
+    assert ilce, "öbeksiz ilçe bulunamadı"
+    ms = _obeksiz(conn, 2, ilce=ilce)
+    y.aktar(v2db, [y.satir(1, mahalle=ms[0]["ad"], ilce=ilce), y.satir(2, mahalle=ms[1]["ad"], ilce=ilce)])
+    oid, surum = _yeni_obek(conn, op)
+    s = obek.mahalle_ekle(conn, oid, op, surum, tum_ilce=[{"il": "Bursa", "ilce": ilce}])
+    o = next(x for x in s["obekler"] if x["id"] == oid)
+    (m,) = o["mahalleler"]
+    assert m["tum_ilce"] and m["mahalle_sayisi"] == toplam and o["mahalle_sayisi"] == toplam
+    assert {r[0] for r in conn.execute("SELECT obek_id FROM is_emri")} == {oid}
+    # ilçeden bir mahalle başka öbeğe tek tek verilirse sayıdan düşer
+    b = obek.olustur(conn, "Deneme B", op, obek.surum(conn))
+    obek.mahalle_ekle(conn, b["obek"]["id"], op, b["surum"], mahalle_idler=[ms[0]["id"]])
+    o = next(x for x in obek.liste(conn)["obekler"] if x["id"] == oid)
+    assert o["mahalle_sayisi"] == toplam - 1

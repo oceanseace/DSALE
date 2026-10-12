@@ -119,6 +119,7 @@ V4: list[str] = [
     boss_bekleyen TEXT,
     boss_islendi TEXT,
     boss_kapanmadi INTEGER NOT NULL DEFAULT 0,
+    bizim_durum TEXT,
     durum TEXT NOT NULL,
     durum_zamani TEXT NOT NULL,
     atanan_id INTEGER REFERENCES kullanici(id),
@@ -223,7 +224,7 @@ V7: list[str] = [
 # (izleme.varsayilan_klasorler) — makine değişince yol kendiliğinden doğru kalsın.
 AYAR_VARSAYILAN: dict[str, str] = {
     "obek_surumu": "1",
-    "musteri_tel": "kapali",
+    "musteri_tel": "acik",               # sahibin kararı: BOSS telefonları saklanır
     "boss_task_url": "",
     "aktarim_esik": json.dumps({"kaybolan_oran": 0.25, "kaybolan_min": 50}),
     "rapor_bayat_dk": json.dumps({"amber": 30, "kirmizi": 60}),
@@ -271,6 +272,9 @@ def kur(conn: sqlite3.Connection) -> None:
     try:
         conn.execute("BEGIN IMMEDIATE")
         for sql in ifadeler():
+            conn.execute(sql)
+        from . import dagitim                  # iş dağıtım kuralları (kendi göçü ilk kullanımda da koşar)
+        for sql in dagitim.SEMA:
             conn.execute(sql)
         ayar_varsayilanlari(conn)
         conn.execute("COMMIT")

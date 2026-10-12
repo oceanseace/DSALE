@@ -1,0 +1,614 @@
+/* =========================================================================
+   Takip — yönetici paneli (OPERASYON_V2_SPEC §6.11, §7).
+   Yalnız tokenlar; 4 yazı boyu; kalınlık 400/600; kart = --kart, kenarsız.
+   Renk yalnız hedef aşılınca girer; kutular varsayılan nötr.
+   Telefonda (< 768) kutular alt alta satır: etiket solda, değer sağa yaslı;
+   tablolar satır kartı (yon-tablo satirlasir); yatay kaydırma yok.
+   ========================================================================= */
+
+.tp {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  max-width: 1280px;
+}
+
+.tp-ust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.tp-ust-sol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-width: 0;
+}
+.tp-tarih {
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+}
+.tp-hap {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--kontrol-k);
+  padding: 0 var(--b2);
+  border-radius: var(--yaricap-k);
+  font-size: var(--boy-k);
+  background: var(--ikincil-zemin);
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+}
+.tp-hap.amber {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+}
+.tp-hap.kirmizi {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+}
+
+/* ---------------- Dört kutu ---------------- */
+
+.tp-kutular {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1199px) {
+  .tp-kutular {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tp-kutu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--b4);
+  background: var(--kart);
+  border: 0;
+  border-radius: var(--yaricap);
+  text-align: left;
+  color: var(--metin);
+}
+button.tp-kutu {
+  cursor: pointer;
+  transition: background-color var(--sure-k) var(--egri);
+}
+button.tp-kutu:hover {
+  background: color-mix(in srgb, var(--metin) 3%, var(--kart));
+}
+button.tp-kutu:hover .tp-soru {
+  color: var(--vurgu-yazi);
+}
+button.tp-kutu:active {
+  background: color-mix(in srgb, var(--metin) 6%, var(--kart));
+}
+
+.tp-soru {
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+}
+.tp-deger {
+  font-size: var(--boy-bb);
+  font-weight: var(--kalin);
+  line-height: var(--satir-bb);
+  font-variant-numeric: tabular-nums;
+}
+.tp-deger small {
+  font-size: var(--boy-bb);
+  font-weight: 400;
+  color: var(--metin-2);
+}
+.tp-deger.kirmizi {
+  color: var(--kirmizi);
+}
+.tp-deger.amber {
+  color: var(--amber);
+}
+.tp-ek {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+}
+.tp-alt {
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+  width: 100%;
+}
+.tp-uyari-yazi {
+  color: var(--amber);
+}
+
+.tp-egri {
+  display: block;
+  width: 120px;
+  height: 28px;
+  color: var(--vurgu);
+  margin-top: var(--b1);
+}
+.tp-egri.genis {
+  width: 100%;
+  max-width: 360px;
+  height: 36px;
+}
+
+/* Kapasite ölçeri: talep / kapasite. Aşırı yükte amber (yazı da söyler). */
+.tp-olcer {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ikincil-zemin);
+  overflow: hidden;
+  margin: var(--b2) 0 var(--b1);
+}
+.tp-olcer > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vurgu);
+}
+.tp-olcer.asiri > span {
+  background: var(--amber-dolgu);
+}
+.tp-olcer.ince {
+  height: 4px;
+  max-width: 480px;
+}
+
+.tp-sahada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--b2);
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+}
+.tp-sahada strong {
+  color: var(--metin);
+  font-variant-numeric: tabular-nums;
+}
+.tp-adimci {
+  display: inline-flex;
+  gap: var(--b1);
+}
+.tp-adimci .o-simge-dugme {
+  font-size: var(--boy-b);
+  color: var(--metin);
+}
+.tp-otomatik {
+  font-size: var(--boy-k);
+  min-height: 32px;
+}
+
+/* ---------------- Bölümler ---------------- */
+
+.tp-bolum {
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  padding: var(--b4);
+  min-width: 0;
+}
+.tp-bolum-bas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 12px;
+}
+.tp-bolum-bas h2 {
+  margin: 0;
+  font-size: var(--boy-b);
+  line-height: var(--satir-b);
+  font-weight: var(--kalin);
+}
+.tp-bolum-alt {
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+}
+.tp-bolum-eylem {
+  margin-left: auto;
+  align-self: center;
+}
+
+.tp-ikili {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Hız hattı: adımlar soldan sağa (masaüstü), telefonda alt alta satır. */
+.tp-hat {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px;
+}
+.tp-adim {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--b3);
+  border-radius: var(--yaricap);
+  background: var(--ikincil-zemin);
+  min-width: 0;
+  position: relative;
+}
+.tp-adim .ad {
+  font-size: var(--boy-k);
+  font-weight: 600;
+  color: var(--metin-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tp-adim .deger {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.tp-adim .ek {
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+  font-variant-numeric: tabular-nums;
+}
+.tp-adim.gec {
+  background: var(--amber-yumusak);
+}
+.tp-adim.gec .deger,
+.tp-adim.gec .ek {
+  color: var(--amber);
+}
+.tp-adim.bos .deger {
+  color: var(--metin-3);
+}
+
+.tp-satir-buyuk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+.tp-buyuk-sayi {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--metin);
+  border-radius: var(--yaricap);
+}
+button.tp-buyuk-sayi:not(:disabled):hover {
+  color: var(--vurgu-yazi);
+}
+.tp-egim {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+}
+.tp-egim.kotu {
+  color: var(--kirmizi);
+}
+.tp-egim.iyi {
+  color: var(--yesil);
+}
+
+/* Sayı listesi: etiket solda, değer sağa yaslı; satır tıklanır. */
+.tp-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.tp-liste.iki-sutun {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+}
+.tp-liste li > button,
+.tp-liste .tp-liste-ic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--b2) 0;
+  border-top: 1px solid var(--cizgi);
+  text-align: left;
+  color: var(--metin);
+  font-size: var(--boy-o);
+}
+.tp-liste li:first-child > button,
+.tp-liste li:first-child .tp-liste-ic {
+  border-top: 0;
+}
+.tp-liste.iki-sutun li:nth-child(2) > button,
+.tp-liste.iki-sutun li:nth-child(2) .tp-liste-ic {
+  border-top: 0;
+}
+.tp-liste li > button:hover .etiket {
+  color: var(--vurgu-yazi);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tp-liste .deger {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tp-liste .deger.uyari {
+  color: var(--amber);
+}
+.tp-liste .deger.bag {
+  color: var(--vurgu-yazi);
+}
+.tp-liste li.soluk .etiket,
+.tp-liste li.soluk .deger {
+  color: var(--metin-3);
+}
+
+.tp-tablo tr.soluk td {
+  color: var(--metin-3);
+}
+.tp-tablo td.kirmizi {
+  color: var(--kirmizi);
+}
+.tp-tablo td.mavi {
+  color: var(--vurgu-yazi);
+}
+.tp-tablo tbody tr.tiklanir:focus-visible {
+  outline: 2px solid var(--odak);
+  outline-offset: -2px;
+}
+
+.tp-bos {
+  margin: 0;
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+}
+.tp-dipnot {
+  margin: var(--b2) 0 0;
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+}
+
+/* ---------------- Satış ---------------- */
+
+.tp-satis-ozet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0 0 8px;
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+}
+.tp-satis-ozet strong {
+  color: var(--metin);
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-huni {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-width: 560px;
+}
+.tp-huni li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--boy-o);
+}
+.tp-huni .ad {
+  color: var(--metin-2);
+}
+.tp-huni .cubuk {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ikincil-zemin);
+  overflow: hidden;
+}
+.tp-huni .cubuk > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vurgu);
+}
+.tp-huni .deger {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tp-huni small {
+  font-size: var(--boy-k);
+  font-weight: 400;
+  color: var(--metin-3);
+}
+
+/* ---------------- Kayıt panelleri ---------------- */
+
+.tp-kayitlar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tp-kayitlar li {
+  display: flex;
+  gap: 12px;
+  padding: var(--b3) 0;
+  border-top: 1px solid var(--cizgi);
+  font-size: var(--boy-o);
+  align-items: baseline;
+}
+.tp-kayitlar li:first-child {
+  border-top: 0;
+}
+.tp-kayitlar .zaman {
+  flex: 0 0 96px;
+  color: var(--metin-3);
+  font-variant-numeric: tabular-nums;
+}
+.tp-kayitlar .metin {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.tp-kayitlar .kisi {
+  display: block;
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+.tp-kayitlar .adet {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Tablet ve telefon ---------------- */
+
+@media (max-width: 1023px) {
+  .tp-ikili {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .tp {
+    gap: 12px;
+  }
+  /* Dört kutu tek kartta satır olur: soru solda, değer sağda. */
+  .tp-kutular {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    background: var(--kart);
+    border-radius: var(--yaricap);
+    overflow: hidden;
+  }
+  .tp-kutu {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'soru deger' 'ek deger' 'alt alt';
+    column-gap: 12px;
+    row-gap: 4px;
+    align-items: center;
+    border: 0;
+    border-top: 1px solid var(--cizgi);
+    border-radius: 0;
+    padding: var(--b3) var(--b4);
+    min-height: 64px;
+  }
+  .tp-kutu:first-child {
+    border-top: 0;
+  }
+  .tp-soru {
+    grid-area: soru;
+    font-size: var(--boy-b);
+    color: var(--metin);
+  }
+  .tp-deger {
+    grid-area: deger;
+    font-size: var(--boy-bb);
+    text-align: right;
+  }
+  .tp-deger small {
+    font-size: var(--boy-b);
+  }
+  .tp-ek {
+    grid-area: ek;
+    font-size: var(--boy-o);
+  }
+  .tp-alt,
+  .tp-kapasite .tp-olcer,
+  .tp-kapasite .tp-otomatik {
+    grid-column: 1 / -1;
+  }
+  .tp-kutu .tp-egri {
+    display: none;
+  }
+  .tp-adimci .o-simge-dugme {
+    width: 44px;
+    height: 44px;
+  }
+  .tp-otomatik {
+    min-height: 44px;
+    justify-self: start;
+  }
+
+  .tp-bolum {
+    padding: 16px;
+  }
+  .tp-hat {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .tp-adim {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'ad deger' 'ek deger';
+    column-gap: 12px;
+    background: transparent;
+    border-top: 1px solid var(--cizgi);
+    border-radius: 0;
+    padding: var(--b2) 0;
+  }
+  .tp-adim:first-child {
+    border-top: 0;
+  }
+  .tp-adim .ad {
+    grid-area: ad;
+    font-size: var(--boy-o);
+    color: var(--metin);
+  }
+  .tp-adim .deger {
+    grid-area: deger;
+    font-size: var(--boy-bb);
+    text-align: right;
+  }
+  .tp-adim .ek {
+    grid-area: ek;
+    font-size: var(--boy-k);
+  }
+  .tp-adim.gec {
+    background: transparent;
+  }
+  .tp-liste.iki-sutun {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tp-liste.iki-sutun li:nth-child(2) > button,
+  .tp-liste.iki-sutun li:nth-child(2) .tp-liste-ic {
+    border-top: 1px solid var(--cizgi);
+  }
+  .tp-liste li > button,
+  .tp-liste .tp-liste-ic {
+    min-height: 48px;
+  }
+  .tp-buyuk-sayi {
+    min-height: 44px;
+  }
+  .tp-kayitlar .zaman {
+    flex-basis: 84px;
+  }
+}
+
+/* BOSS'a yazılmayı bekleyen (BossBekleyen.tsx) */
+.tp-satir-durum { font-size: var(--boy-k); font-weight: 400; color: var(--metin-3); }
+.tp-bb-aciklama { margin: 0 0 var(--b3); font-size: var(--boy-k); color: var(--metin-2); }
+.tp-bb-ozet { display: flex; flex-wrap: wrap; gap: var(--b1); margin-bottom: var(--b3); }
+.tp-bb-liste { list-style: none; margin: 0; padding: 0; display: grid; }
+.tp-bb-liste li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--b3);
+  min-height: 36px; border-top: 1px solid var(--cizgi); font-size: var(--boy-o); }
+.tp-bb-liste li:first-child { border-top: 0; }
+.tp-bb-liste .eylem { min-width: 0; color: var(--metin); overflow-wrap: anywhere; }
+.tp-bb-liste .zaman { font-size: var(--boy-k); color: var(--metin-3); white-space: nowrap; }

@@ -6,72 +6,72 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
     />
-    <!-- Tarayıcı çubuğu: açık #EFF1F5, koyu #0F1319 (§7.1). Cihazda seçilen
-         görünüm ortak/tema.ts ile ikisini de o renge çeker. -->
-    <meta name="theme-color" content="#EFF1F5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0F1319" media="(prefers-color-scheme: dark)" />
+    <!-- Tarayıcı çubuğu = --zemin (stil/tokenlar.css): açık #F5F5F5, koyu #1F1F1F.
+         Cihazda seçilen görünüm ortak/tema.ts ile ikisini de o renge çeker. -->
+    <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1F1F1F" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="Dehanet EÇM Saha Sistemi — iş emirleri, saha ekibi, bina listesi ve ziyaret kaydı." />
+    <meta name="description" content="Turkcell — bayi iş akışı: iş emirleri, atamalar, ziyaret ve satış kaydı." />
+    <meta name="application-name" content="Turkcell" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Saha" />
+    <meta name="apple-mobile-web-app-title" content="Turkcell" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/ikon/ikon-192.png" sizes="192x192" />
+    <link rel="icon" href="/ikon/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" href="/ikon/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/ikon/ikon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/ikon/apple-touch-icon.png" />
-    <title>Saha Sistemi</title>
+    <link rel="preload" href="/ikon/isaret.png" as="image" />
+    <title>Turkcell</title>
     <!-- Görünüm ilk boyamadan önce (satır içi betik güvenlik politikasına takılır). -->
     <script src="/tema-erken.js"></script>
     <style>
-      /* İlk boyama: zemin + marka işareti (ortak/Marka.tsx ile aynı işaret).
-         Gerçek arayüz yüklenince kaybolur. */
-      html { background: #eff1f5; }
+      /* Açılış perdesi: düz zemin + Turkcell işareti + ince ilerleme çizgisi (renkler stil/tokenlar.css
+         --zemin/--metin/--birincil ile aynı; masaüstü kabuğunun açılış ekranı da aynısı: masaustu/turkcell.py).
+         İlk veri gelince yumuşakça kalkar (src/cekirdek/ortak/acilis.ts). */
+      html { background: #f5f5f5; }
       body { margin: 0; }
       #acilis {
         position: fixed;
         inset: 0;
+        z-index: 2147483000;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 18px;
-        background: #eff1f5;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        color: #101828;
+        gap: 16px;
+        background: #f5f5f5;
+        font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        color: #242424;
+        cursor: default;
+        user-select: none;
+        transition: opacity 200ms cubic-bezier(0, 0, 0, 1);
       }
-      #acilis .isaret {
-        width: 76px;
-        height: 76px;
-        border-radius: 22px;
-        background: #0b63e5;
-        display: grid;
-        place-items: center;
-        color: #ffc900;
-        font-size: 38px;
-        font-weight: 800;
-      }
-      #acilis .yazi { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
-      #acilis .alt { font-size: 14px; color: #525c6b; margin-top: -10px; }
+      #acilis.bitti { opacity: 0; pointer-events: none; }
+      #acilis img { width: 64px; height: 64px; }
+      #acilis .yazi { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+      #acilis .cubuk { width: 160px; height: 2px; border-radius: 2px; overflow: hidden; background: rgba(0, 0, 0, 0.08); }
+      #acilis .cubuk i { display: block; width: 40%; height: 100%; border-radius: 2px; background: #fec600;
+        animation: acilis-kay 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+      @keyframes acilis-kay { from { transform: translateX(-110%); } to { transform: translateX(260%); } }
+      @media (prefers-reduced-motion: reduce) { #acilis .cubuk i { animation: none; width: 100%; opacity: 0.6; } }
       @media (prefers-color-scheme: dark) {
-        html:not([data-theme='light']),
-        html:not([data-theme='light']) #acilis { background: #0f1319; }
-        html:not([data-theme='light']) #acilis { color: #eef1f6; }
-        html:not([data-theme='light']) #acilis .alt { color: #aab3c1; }
+        html:not([data-theme='light']), html:not([data-theme='light']) #acilis { background: #1f1f1f; color: #ffffff; }
+        html:not([data-theme='light']) #acilis .cubuk { background: rgba(255, 255, 255, 0.12); }
       }
-      html[data-theme='dark'],
-      html[data-theme='dark'] #acilis { background: #0f1319; }
-      html[data-theme='dark'] #acilis { color: #eef1f6; }
-      html[data-theme='dark'] #acilis .alt { color: #aab3c1; }
+      html[data-theme='dark'], html[data-theme='dark'] #acilis { background: #1f1f1f; color: #ffffff; }
+      html[data-theme='dark'] #acilis .cubuk { background: rgba(255, 255, 255, 0.12); }
     </style>
   </head>
   <body>
     <div id="kok"></div>
-    <div id="acilis" role="status" aria-live="polite">
-      <div class="isaret">S</div>
-      <div class="yazi">Saha Sistemi</div>
-      <div class="alt">Yükleniyor…</div>
+    <div id="acilis" role="status" aria-live="polite" aria-label="Turkcell yükleniyor">
+      <img src="/ikon/isaret.png" alt="" width="64" height="64" />
+      <div class="yazi">Turkcell</div>
+      <div class="cubuk" aria-hidden="true"><i></i></div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

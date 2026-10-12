@@ -1,8 +1,18 @@
 # OPERASYON_V2_SPEC — Ek A2 (30.09 öğleden sonra, kullanıcının ikinci mesajı)
 
 Bu ek `OPERASYON_V2_SPEC.md`'nin **üstündedir**: çelişki varsa bu ek geçerlidir. Kaynak: GEREKSINIMLER §G (G1–G17).
-Süreç kuralları için ayrıca `docs/TURKCELL_SUREC_BILGISI.md` (extrajet araştırması, hazır olduğunda) okunur; oradan gelen
+Süreç kuralları için ayrıca `belgeler/TURKCELL_SUREC_BILGISI.md` (extrajet araştırması, hazır olduğunda) okunur; oradan gelen
 kurallar **ayar** anahtarlarıyla değiştirilebilir tutulur, koda gömülmez.
+
+> **Yollar değişti (01.10.2026, depo toparlama).** Bu belgedeki eski yollar şöyle okunur — tek kaynak `kod/yollar.py`:
+>
+> | Eski yol | Yeni yol |
+> |---|---|
+> | `saha/` · `operasyon/` · `dsale/` · `lisans/` · `eklenti/` · `masaustu/` | `kod/saha/` · `kod/operasyon/` · `kod/dsale/` · `kod/lisans/` · `kod/eklenti/` · `kod/masaustu/` |
+> | `saha_app/` · `app/` · `scripts/` + `bolge.py` | `kod/arayuz/` · `kod/sunum/` · `kod/araclar/` |
+> | `data/` · `outputs/` · `docs/` | `veri/` · `cikti/` · `belgeler/` |
+> | `saha/saha.db*` · `gizli.key` · `yedek/` · `kayit/` · `ek/` · `operasyon/obekler.json` · `operasyon/veri/` · `data/raw/gelen/` | çalışma klasörü (`SAHA_VERI_DIZINI`; geliştirmede `gelistirme/veri/`, canlıda `canli/veri/`) altında `saha/…` · `operasyon/…` · `gelen/` |
+> | `python -m saha.…` · `pytest saha/testler` | `PYTHONPATH=kod` ile aynı komut · kökte `pytest` (`pytest.ini`: `pythonpath = kod`) |
 
 ---
 
@@ -83,7 +93,7 @@ Teknisyenlerin çoğu (≈65) işini **BOSS Mobil** ile yapar; bizde hesabı/tel
 - Giden kutusunu eklentiye hazır yap: `GET /api/boss/giden` (`is.ata`) → `[{is_no, boss_task_no, alanlar: {ekip, randevu_baslangic,
   randevu_bitis}, neden, olusma}]` — BOSS'a birebir yazılacak değerler; `POST /api/boss/giden/{is_no}/islendi` (bugünkü "BOSS'a işlendi").
   Eklenti gelirse bu iki uçla çalışır; bugün operatör kopyala-yapıştır yapar.
-- WP-F `docs/SAHA_KULLANIM.md` içine **"Hangi işlem nereye yansır"** tablosu ekler (her satır: bizdeki eylem → BOSS · FOX · Maya ·
+- WP-F `belgeler/SAHA_KULLANIM.md` içine **"Hangi işlem nereye yansır"** tablosu ekler (her satır: bizdeki eylem → BOSS · FOX · Maya ·
   OneDesk · ONENT: `okunur (rapor)` / `elle işlenir (giden kutusu)` / `eklentiyle (onaylı fazda)` / `yok`).
 
 ## EK-5 · Ticket ekibi ve başlıkları (G10) — WP-A (sunucu) + WP-E (Ticketlar arayüzü)
@@ -118,7 +128,7 @@ tablosu). `imgs/<ticket no>.zip` içinde ticket'a ait fotoğraflar (jpeg).
   (`tur='guzergah'`), yalnız dolu satırlar. ALTYAPI → yeni `altyapi_bekleyen` tablosu (ALTER/CREATE yalnız ekleme: id, musteri_no,
   kanal, baslangic, satici_ad, bolge, bina_serial NULL, durum 'bekliyor'|'kuruldu'|'iptal', not, olusturma, guncelleme).
   PVT türetilir (saklanmaz). LOCS/ORIGN içe alınmaz (bina tablosu zaten var).
-- **Ticket fotoğrafları:** `imgs/<no>.zip` → `saha/ek/ticket/<ticket_id>/…` (git dışı klasör), `ticket_ek` tablosu (id, ticket_id,
+- **Ticket fotoğrafları:** `imgs/<no>.zip` → çalışma klasöründe `saha/ek/ticket/<ticket_id>/…` (git dışı), `ticket_ek` tablosu (id, ticket_id,
   dosya_adi, boyut, sha256, olusturma). Yetki: ticketı görebilen görür. Uçlar: liste, küçük resim, tam resim, yükle (sürükle-bırak,
   telefonda kamera/galeri). 10 MB/dosya sınırı; yalnız jpeg/png/heic→jpeg.
 - **"Tablolar" ekranı** (Excel alışkanlığı — kullanıcının kelimesiyle "Microsoft'u geçmek"): PS26 gibi üstte sayfa sekmeleri
@@ -129,7 +139,7 @@ tablosu). `imgs/<ticket no>.zip` içinde ticket'a ait fotoğraflar (jpeg).
 
 ## EK-9 · Excel alışkanlığı her listede (G7, kullanıcı: "insanlar Excel dışında bir şey kullanmak istemiyor") — WP-E ortak bileşeni
 
-Ortak `Tablo` bileşeni (WP-E sahibi, `saha_app/src/ortak/Tablo.tsx`): sıralama, sütun süzgeci, arama, sanal kaydırma (20.000 satır akıcı),
+Ortak `Tablo` bileşeni (WP-E sahibi, `kod/arayuz/src/ortak/Tablo.tsx`): sıralama, sütun süzgeci, arama, sanal kaydırma (20.000 satır akıcı),
 klavye (ok tuşları, Enter=aç, Esc), seçim + Ctrl+C sekme ayrımlı kopya, "Excel'e indir". İşler panosunun liste kipi, Ticketlar ve
 Tablolar bunu kullanır. Bildik görünüm: ince ızgara çizgileri, sağa yaslı sayılar, Türkçe biçim.
 
@@ -147,7 +157,7 @@ yönetici) için Windows masaüstü uygulaması (Electron — sunum uygulamasın
 izleme, yerel bildirim, Excel'i doğrudan açma); telefonlar (teknik, satış) için bugünkü web uygulaması (PWA). Bu yapımda arayüz kodu
 kabuktan bağımsız yazılır (tarayıcıya özgü varsayım yok), böylece exe paketleme sonraki adımda yalnız kabuk işi olur.
 
-## EK-12 · Turkcell süreç kuralları → varsayılanlar (extrajet araştırması 30.09; kaynak `docs/TURKCELL_SUREC_BILGISI.md`)
+## EK-12 · Turkcell süreç kuralları → varsayılanlar (extrajet araştırması 30.09; kaynak `belgeler/TURKCELL_SUREC_BILGISI.md`)
 
 Hepsi **ayar** anahtarıdır (kod içine gömülmez); aşağıdakiler varsayılan değerlerdir. Belirsiz olanlar kullanıcıya sorulana kadar işaretli.
 1. **Hedef saatler:** arıza/bağlantı **24 s** (belgede kesin); "TV 6 s / Bağlantı 12 s" belgede bulunamadı — kullanıcının **FOX dışa

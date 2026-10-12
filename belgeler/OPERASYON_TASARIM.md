@@ -5,6 +5,16 @@
 ayrık olay simülasyonu ve üç bağımsız hakem incelemesi (toplam 2.000'i aşkın koşu). Belgede kişisel veri yoktur;
 yalnız sayım, oran, ilçe ve saat vardır.*
 
+> **Yollar değişti (01.10.2026, depo toparlama).** Bu belgedeki eski yollar şöyle okunur — tek kaynak `kod/yollar.py`:
+>
+> | Eski yol | Yeni yol |
+> |---|---|
+> | `saha/` · `operasyon/` · `dsale/` · `lisans/` · `eklenti/` · `masaustu/` | `kod/saha/` · `kod/operasyon/` · `kod/dsale/` · `kod/lisans/` · `kod/eklenti/` · `kod/masaustu/` |
+> | `saha_app/` · `app/` · `scripts/` + `bolge.py` | `kod/arayuz/` · `kod/sunum/` · `kod/araclar/` |
+> | `data/` · `outputs/` · `docs/` | `veri/` · `cikti/` · `belgeler/` |
+> | `saha/saha.db*` · `gizli.key` · `yedek/` · `kayit/` · `ek/` · `operasyon/obekler.json` · `operasyon/veri/` · `data/raw/gelen/` | çalışma klasörü (`SAHA_VERI_DIZINI`; geliştirmede `gelistirme/veri/`, canlıda `canli/veri/`) altında `saha/…` · `operasyon/…` · `gelen/` |
+> | `python -m saha.…` · `pytest saha/testler` | `PYTHONPATH=kod` ile aynı komut · kökte `pytest` (`pytest.ini`: `pythonpath = kod`) |
+
 ---
 
 ## 0. Önce: senin gününde ne değişiyor
@@ -443,7 +453,7 @@ Hasan Bey'e açıkça söylemek gerekir.
 
 ## 5. Ekranlar
 
-Hepsi mevcut uygulamanın (saha/ + saha_app/) içinde. Yeni bir uygulama yok.
+Hepsi mevcut uygulamanın (kod/saha/ + kod/arayuz/) içinde. Yeni bir uygulama yok.
 
 ### 5.1 Giriş: Satış · Teknik · Operasyon
 
@@ -605,20 +615,20 @@ yüzden kimlik bazlı çekim yapılır ve ayda bir tam çekimde fark aranır.
 - Telefon numarası sisteme girmez; BOSS dışa aktarımında zaten yok.
 - Müşteri adı maskelenir. Adres yalnız bina bulunamadıysa tutulur ve kapanıştan 30 gün sonra silinir. Ham dosyalar 7 gün sonra silinir.
 - Raporlar ve yönetici panosu yalnız toplu sayı gösterir.
-- Analiz çıktılarından biri (`operasyon/analiz/cikti/is_emri_analizi.json`) ekip listesi içeriyor; yalnız-toplu-veri kuralı gereği temizlenmeli.
+- Analiz çıktılarından biri (`kod/operasyon/analiz/cikti/is_emri_analizi.json`, git dışı) ekip listesi içeriyor; yalnız-toplu-veri kuralı gereği temizlenmeli.
 - **Acil:** PS26 deposu tur raporunu ve müşteri no'lu listeleri GitHub Pages'e itiyor. Pages varsayılan olarak herkese açıktır; bu KVKK md. 9 (yurt dışına aktarım) riski doğurur. Yayın kapatılmalı.
 
 ---
 
 ## 7. Veri modeli eklemeleri
 
-Tam SQL taslağı `operasyon/analiz/entegrasyon.md` §5.3'te. Burada yalnız ne var, ne eklenecek ve KARMA-2'nin ne
+Tam SQL taslağı `kod/operasyon/analiz/entegrasyon.md` §5.3'te. Burada yalnız ne var, ne eklenecek ve KARMA-2'nin ne
 istediği yazıyor.
 
 **Zaten var:**
 
 - Tablolar: `kullanici`, `bina`, `ziyaret`, `gorev`, `bolge_plani`, `tur_raporu`, `bina_bekleyen`, `bina_degisim`, `ticket`, `ticket_gecmis`.
-- `operasyon/obekler.json` (öbek tanımları).
+- Öbek tanımları (v2'de veritabanında; eski `operasyon/obekler.json` çalışma klasöründen göçte bir kez okunur).
 - `son_yukleme.pkl`: yalnız son BOSS yüklemesi. Faz 1'de tablolara taşınır, çünkü fark ve 24 saat saati için geçmiş gerekiyor.
 
 **Faz 1'de eklenecekler:**
@@ -714,4 +724,4 @@ Mevcut `bina` tablosuna `aktif` ve `location_id_norm` sütunları eklenir.
 - Makro ve ekran: `is_emri.py`, `api.py`, `obekler.json`, `yakinlik.py`.
 - Analiz: `analiz/is_emri_analizi.md`, `analiz/surec.md`, `analiz/entegrasyon.md`, `analiz/simulasyon.md`.
 - Hakem çıktıları: `analiz/hakem1/cikti/hakem1_karar.json`, `analiz/hakem2/cikti/hakem_ozet.txt`, `analiz/hakem3/cikti/h3_tablo.txt`.
-- Tek sayfalık özet: `docs/OPERASYON_OZET.md`.
+- Tek sayfalık özet: `belgeler/OPERASYON_OZET.md`.

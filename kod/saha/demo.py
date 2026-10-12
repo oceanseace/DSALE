@@ -277,19 +277,8 @@ def _ozet_yaz(o: dict) -> None:
     print("      .venv\\Scripts\\python.exe -m saha.demo_temizle\n")
 
 
-def demo_bilgisi(conn: sqlite3.Connection) -> dict | None:
-    """Kurulu gösterim verisinin künyesi; yoksa None."""
-    ham = db.ayar_oku(conn, AYAR_ANAHTARI)
-    if not ham:
-        return None
-    try:
-        return json.loads(ham)
-    except (TypeError, ValueError):
-        return {"aciklama": "Gösterim verisi kurulu."}
-
-
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi gösterim verisi")
+    ayrac = argparse.ArgumentParser(description="Turkcell gösterim verisi")
     ayrac.add_argument("--gun", type=int, default=7, help="Kaç günlük geçmiş üretilsin (varsayılan 7)")
     ayrac.add_argument("--tohum", type=int, default=20260921, help="Rastgelelik tohumu")
     a = ayrac.parse_args(argv)

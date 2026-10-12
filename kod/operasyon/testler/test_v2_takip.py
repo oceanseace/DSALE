@@ -118,13 +118,13 @@ def test_takip_ek12_hijyen(v2db, conn, kim, saat):
 
 def test_satis_ozet_gun_ile_ayni(v2db, conn):
     """F15: Takip satış bölümü /api/ozet/gun ile aynı sayıları verir (iptal edilen ziyaret sayılmaz)."""
-    from saha import api as saha_api
+    from saha import satis_uclari
     r = conn.execute("SELECT substr(zaman,1,10), COUNT(*) FROM ziyaret WHERE iptal=0 GROUP BY 1 ORDER BY 2 DESC "
                      "LIMIT 1").fetchone()
     gun = r[0] if r else "2026-09-30"
     simdi = dt.datetime.fromisoformat(gun + " 20:00:00")
     s = takip.satis(conn, simdi, 7)
-    o = saha_api.ozet_gun(tarih=gun, k={}, conn=conn)
+    o = satis_uclari.ozet_gun(tarih=gun, k={}, conn=conn)
     assert (s["bugun"]["ziyaret"], s["bugun"]["satis"]) == (o["toplam"]["ziyaret"], o["toplam"]["satis"])
     assert s["bugun"]["toplam_satisci"] == len(o["satiscilar"])
     assert all(x["hafta_ziyaret"] >= x["bugun_ziyaret"] for x in s["satiscilar"])

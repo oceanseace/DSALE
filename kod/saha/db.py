@@ -1,6 +1,7 @@
 """SQLite bağlantısı ve şema.
 
-Tek dosyalık veritabanı (``saha/saha.db``), WAL kipinde: sahadan gelen yazmalar
+Tek dosyalık veritabanı (``ayarlar.DB_YOLU`` = ``<çalışma klasörü>/saha/saha.db``; geliştirmede
+``gelistirme/veri/saha/saha.db``), WAL kipinde: sahadan gelen yazmalar
 yöneticinin okumalarını kilitlemez. Sütun adı ``not`` hem SQL hem Python'da
 ayrılmış sözcük olduğu için her yerde ``notu`` kullanılır.
 
@@ -184,7 +185,7 @@ CREATE TABLE IF NOT EXISTS bolge_plani (
 -- Tur raporu yüklemeleri: önce önizleme, sonra (isteğe bağlı) uygulama.
 CREATE TABLE IF NOT EXISTS tur_raporu (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    dosya         TEXT    NOT NULL,       -- data/raw/gelen/tur_<zaman>.xlsx
+    dosya         TEXT    NOT NULL,       -- <çalışma>/gelen/tur_<zaman>.xlsx (ayarlar.gelen_dizini)
     ozet_imza     TEXT,                   -- dosyanın sha256'sı
     yukleme       TEXT    NOT NULL,
     yukleyen_id   INTEGER REFERENCES kullanici(id),
@@ -219,7 +220,7 @@ CREATE TABLE IF NOT EXISTS bina_degisim (
 CREATE INDEX IF NOT EXISTS ix_degisim_bina ON bina_degisim(bina_serial);
 
 -- Sonradan eklenen binaların taban poligonu (ilk kurulumdakiler
--- data/master/bina_geometri.json dosyasında).
+-- veri/master/bina_geometri.json dosyasında).
 CREATE TABLE IF NOT EXISTS bina_geometri_ek (
     bina_serial  TEXT PRIMARY KEY,
     halka        TEXT NOT NULL,           -- JSON [[lon,lat], ...]
@@ -502,10 +503,6 @@ def ayar_yaz(conn: sqlite3.Connection, anahtar: str, deger: str) -> None:
 
 def sozluk(satir: sqlite3.Row | None) -> dict | None:
     return dict(satir) if satir is not None else None
-
-
-def sozlukler(satirlar) -> list[dict]:
-    return [dict(s) for s in satirlar]
 
 
 VERI_SURUMU = "veri_surumu"

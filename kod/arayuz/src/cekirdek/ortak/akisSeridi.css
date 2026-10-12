@@ -1,0 +1,116 @@
+.akis {
+  display: grid;
+  gap: 16px;
+}
+
+.akis-adimlar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  counter-reset: adim;
+}
+
+.akis-adim {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  box-shadow: var(--golge-ufak);
+}
+
+/* Adımlar arası ok (yan yana dizildiklerinde) */
+.akis-adim:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid var(--metin-3);
+  border-right: 2px solid var(--metin-3);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.akis-simge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--yaricap);
+  color: var(--birincil-yazi);
+  background: var(--birincil-yumusak);
+}
+
+.akis-metin {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.akis-metin b {
+  font-size: var(--boy-o);
+  color: var(--metin);
+}
+
+.akis-metin span {
+  font-size: var(--boy-k);
+  color: var(--metin-2);
+}
+
+.akis-sayi {
+  margin-left: auto;
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--metin);
+}
+
+.akis-dallar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.akis-dallar li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: var(--boy-k);
+  background: var(--amber-yumusak);
+  color: var(--metin);
+}
+
+.akis-dallar .kosul {
+  font-weight: 600;
+}
+
+.akis-dallar .ok {
+  color: var(--metin-3);
+}
+
+@media (max-width: 720px) {
+  .akis-adimlar {
+    grid-template-columns: 1fr;
+  }
+  .akis-adim:not(:last-child)::after {
+    right: 50%;
+    top: auto;
+    bottom: -9px;
+    transform: translateX(50%) rotate(135deg);
+  }
+  .akis-dallar li {
+    border-radius: var(--yaricap);
+  }
+}

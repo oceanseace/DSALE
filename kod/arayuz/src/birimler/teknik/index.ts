@@ -1,0 +1,1 @@
+export { Islerim } from './Islerim';

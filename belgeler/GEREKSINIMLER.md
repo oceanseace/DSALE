@@ -50,11 +50,11 @@ Durum: ✅ bitti · 🔨 yapılıyor · 🧭 tasarımda (çalışma sürüyor) �
 | C13 | Ek kapasite (EKSP) talepleri ONENT'ten açılıyor | 🧭 | Entegrasyon çalışmasında |
 | C14 | Teknik ekip müşteri **telefon numaralarını BOSS'tan elle çekiyor** (raporda yok) — "sonraki iş" | ⏳ | Tarayıcı destekli çekim; kişisel veri — dikkatle |
 | C15 | Maya Saha ile fazla işimiz yok; mail OWA'dan takip | 🧭 | Kapsam notu |
-| C16 | TeknikTaskDetayRaporu.xlsx sisteme atılınca **makro gibi** çalışsın | ✅ | Yönetici → **İş emirleri** (sürükle-bırak) ya da `operasyon\IS_EMRI_HAZIRLA.bat` üzerine sürükle → `_hazir.xlsx` |
+| C16 | TeknikTaskDetayRaporu.xlsx sisteme atılınca **makro gibi** çalışsın | ✅ | Yönetici → **İş emirleri** (sürükle-bırak) ya da `kod\operasyon\IS_EMRI_HAZIRLA.bat` üzerine sürükle → `_hazir.xlsx` |
 | C17 | E "Task Adı"nda **kurulum** ve **2. donanım** geçenler çıkarılsın | ✅ | Büyük/küçük harf, Türkçe harf, "2.Donanım / 2. DONANIM" hepsi yakalanır; "12.Donanım" yanlışlıkla çıkmaz. Çıkarılanlar ayrı sayfada |
 | C18 | Mahalle yok → **G "Adres"ten mahalle çıkarılsın**, M İl + N İlçe ile | ✅ | Gerçek raporda 601/601 (541 listeyle birebir); 1.000 iş < 1 sn. Kaynak sütunu + 17 satırlık "Kontrol" listesi |
 | C19 | **Aynı ad farklı ilçe ayrı**: Nilüfer/Dumlupınar ≠ Osmangazi/Dumlupınar (N sütunu belirler) | ✅ | Anahtar (il, ilçe, mahalle). Osmangazi'deki "Dumlupınar Mah." → Demirtaş Dumlupınar |
-| C20 | **Öbekleri kullanıcı kursun** (Görükle 1 öbek · Nilüfer Dumlupınar 1 öbek · 19 Mayıs + Yüzüncüyıl + Altınşehir… 1 öbek); ilçeden süzülebilsin (ör. Mudanya) | ✅ | Mahalle seç → "Öbek yap". Örnek 3 öbek hazır. "İlçe/*" = ilçenin tamamı. Öbekler `operasyon/obekler.json` |
+| C20 | **Öbekleri kullanıcı kursun** (Görükle 1 öbek · Nilüfer Dumlupınar 1 öbek · 19 Mayıs + Yüzüncüyıl + Altınşehir… 1 öbek); ilçeden süzülebilsin (ör. Mudanya) | ✅ | Mahalle seç → "Öbek yap". Örnek 3 öbek hazır. "İlçe/*" = ilçenin tamamı. Öbekler veritabanında (eski `obekler.json` çalışma klasöründen göçte bir kez okunur) |
 | C21 | Süzünce **öbekleri yoğunluğa göre hızlıca bölmek** | ✅ | "Böl": k parça, eşit iş, derli toplu. Mahalleye göre → kalıcı öbek; binaya göre → bugünkü liste (Excel'de Parça sütunu) |
 | C22 | **Yakınlık/uzaklık bir kez yazılsın, hep kullanılsın** | ✅ | `operasyon/yakinlik.py`: mesafe, en yakınlar, dengeli bölme (satış bölgelemesiyle aynı algoritma) |
 
@@ -85,7 +85,7 @@ Durum: ✅ bitti · 🔨 yapılıyor · 🧭 tasarımda (çalışma sürüyor) �
 
 Her satırın bir kabul testi var; "üret → test et → düzelt → tekrarla" bu satırlar üzerinden yürür.
 
-**30.09 — tasarım tamam (🧭):** yapım sözleşmesi `docs/OPERASYON_V2_SPEC.md` (göç SQL'i canlı yedeğin karalama kopyasında
+**30.09 — tasarım tamam (🧭):** yapım sözleşmesi `belgeler/OPERASYON_V2_SPEC.md` (göç SQL'i canlı yedeğin karalama kopyasında
 doğrulandı; 6 paralel iş paketi; her F satırının test eşlemesi §9'da). 🧭 = sözleşmede tasarlandı, yapım bekliyor.
 
 | # | İstek | Durum | Kabul testi |
@@ -120,7 +120,7 @@ doğrulandı; 6 paralel iş paketi; her F satırının test eşlemesi §9'da). �
 | G1 | **Tarayıcı eklentisi**: sistemimiz BOSS / FOX / Maya web ekranlarıyla konuşsun; bizde yapılan atama BOSS'ta da arka planda yapılsın (çift ekran olmasın) | ❓ | Teknik olarak mümkün. Turkcell BT/güvenlik politikası teyit edilmeli; ilk adım "eklenti BOSS formunu doldurur, kişi Kaydet'e basar" |
 | G2 | **BTK "evet" işler abone kaynaklı askıya alınınca BTK süresi durur** — bu takip edilebilmeli | ⏳ | İş başına duraklatmalı saat: askı başladı/bitti zaman çizelgesi, net BTK süresi |
 | G3 | Randevu alınan işler **web'den BOSS üzerinden iletilmeli** | ⏳ | G1 ile; o gelene kadar "BOSS'a işlenecekler" listesi |
-| G4 | Süreci **extrajet**'ten öğren (computer use), dokümantasyon varsa araştır | ✅ · indirilebilirler ⏳ | `docs/TURKCELL_SUREC_BILGISI.md` (extrajet + atmosfer; salt okunur). Kurallar varsayılan olarak `OPERASYON_V2_EK.md` EK-12'de. Yalnız indirilebilen SLA listesi, TCELL-PR-191, BTK BOSS eğitimi açılmadı (kullanıcı izniyle); pusulaev giriş istedi |
+| G4 | Süreci **extrajet**'ten öğren (computer use), dokümantasyon varsa araştır | ✅ · indirilebilirler ⏳ | `belgeler/TURKCELL_SUREC_BILGISI.md` (extrajet + atmosfer; salt okunur). Kurallar varsayılan olarak `OPERASYON_V2_EK.md` EK-12'de. Yalnız indirilebilen SLA listesi, TCELL-PR-191, BTK BOSS eğitimi açılmadı (kullanıcı izniyle); pusulaev giriş istedi |
 | G5 | Süreç gerçekleri: teknik işler **mobil BOSS**'la yapılır; teknik olmayan akışlar **FOX**'tan kapanır, BOSS'a düşerse BOSS'tan da kapanır; fiziksel iş (~1000'de 950) BOSS'a düşer; fatura itirazı gibi fiziksel olmayanlar FOX'ta kalır; **kanal şikayeti BOSS'a düşer** (her şeyle ilgili olabilir): okunur → gerekirse mail, gerekirse planlama | 📌 | Triyaj kurallarına işlenecek |
 | G6 | Turkcell mailleri **"Örümcek"** ağında; Turkcell'deki herkese mail atılabiliyor | ⏳ | Sistem doğru alıcıya hazır mail taslağı açar; gönderen kişidir |
 | G7 | **Yeni bir ekosistem**; Apple stili yalnız görüntü değil, ilham; atmosfer "signals" haberleri de ilham | 🔨 | |

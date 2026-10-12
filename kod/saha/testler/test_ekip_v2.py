@@ -69,14 +69,14 @@ def test_son_yonetici(istemci, yonetici, conn):
     il = istemci.get(f"/api/kullanici/{kid}/iliskiler", headers=yonetici).json()
     assert {"kendini_silemez", "son_yonetici"} <= set(il["engeller"]) and il["silinebilir"] is False
     # Yönetici toplu kartta tek yöneticiyi (kendisi dahil değil) düşüremez: son yönetici kalmalı.
-    from saha import api
+    from saha import ekip_uclari
 
     satir = dict(conn.execute("SELECT * FROM kullanici WHERE id=?", (kid,)).fetchone())
-    assert api._son_yonetici_mi(conn, satir, ["yonetici"]) is True
+    assert ekip_uclari._son_yonetici_mi(conn, satir, ["yonetici"]) is True
     # İkinci bir aktif yönetici eklenince artık son değildir.
     y = _kaydet(istemci, yonetici, ad="İkinci Yönetici", telefon="5550000201", rol="yonetici")
     assert y.status_code == 200
-    assert api._son_yonetici_mi(conn, satir, ["yonetici"]) is False
+    assert ekip_uclari._son_yonetici_mi(conn, satir, ["yonetici"]) is False
 
 
 def test_kendi_rolu(istemci, yonetici, conn):

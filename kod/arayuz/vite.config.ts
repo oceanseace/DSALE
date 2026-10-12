@@ -31,7 +31,7 @@ function servisCalisani(): Plugin {
         .map((ad) => '/' + ad);
       // public/ dosyaları pakette görünmez: index.html'in ilk karede okuduğu tema
       // betiği (koyu/açık parlamasın) çevrimdışı ilk açılışta da gelmeli.
-      const liste = ['/', '/index.html', '/manifest.webmanifest', '/tema-erken.js', ...dosyalar];
+      const liste = ['/', '/index.html', '/manifest.webmanifest', '/tema-erken.js', '/ikon/isaret.png', '/ikon/favicon.ico', '/ikon/favicon-32.png', ...dosyalar];
       const surum = Date.now().toString(36);
       const sablon = readFileSync(resolve(__dirname, 'src/sw.js'), 'utf8')
         .replace('__SAHA_SURUM__', surum)

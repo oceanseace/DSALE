@@ -1,6 +1,6 @@
 /**
  * Veri paketinin TypeScript tipleri.
- * Kaynak: dsale/bundle.py → app/src/data/generated/{binalar,planlar,meta,altlik}.json
+ * Kaynak: kod/dsale/bundle.py → kod/sunum/src/data/generated/{binalar,planlar,meta,altlik}.json
  * (JSON dosyaları ?raw ile içe alınıp JSON.parse edilir; tipleri buradan gelir, TS dosyadan çıkarım yapmaz.)
  */
 

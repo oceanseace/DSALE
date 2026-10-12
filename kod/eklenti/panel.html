@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BOSS Yardımcısı</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="bas">
+      <h1>BOSS Yardımcısı</h1>
+      <p id="durum" class="durum">Denetleniyor…</p>
+      <p id="denetim" class="ince"></p>
+    </header>
+
+    <main>
+      <!-- Yapılacak tek şey (gerekirse): kod girin / Teknik Havuz'u açın -->
+      <section class="bolum adim" id="adim" hidden>
+        <p class="buyuk" id="adimMetin"></p>
+        <p class="aciklama" id="adimAyrinti"></p>
+      </section>
+
+      <section class="bolum" id="kodBolum">
+        <h2>Eşleme kodu</h2>
+        <p class="aciklama">Turkcell uygulamasında <b>Operasyon ▸ BOSS bağlantısı</b> ekranındaki kodu bir kez yazın.</p>
+        <div class="satir">
+          <input id="kod" class="girdi" inputmode="numeric" autocomplete="off" placeholder="1234-5678" maxlength="9" />
+          <button id="kodKaydet" class="dugme" style="margin:0">Kaydet</button>
+        </div>
+      </section>
+
+      <section class="kartlar" id="kartlar"></section>
+      <p class="aciklama" id="fark"></p>
+      <p class="aciklama" id="detay"></p>
+
+      <div class="satir">
+        <button id="simdi" class="dugme">Şimdi eşitle</button>
+      </div>
+
+
+      <details class="bolum">
+        <summary>Kayıt modu <span class="ince">(BOSS'a yazmayı hazırlamak için)</span></summary>
+        <p class="aciklama">Açıkken BOSS'ta elle yaptığınız işlemin yalnız <b>türü ve alan adları</b> kaydedilir; müşteri bilgisi ve değer kaydedilmez. Kayıt modu BOSS'a hiçbir şey yazmaz.</p>
+        <label class="anahtar"><input type="checkbox" id="kayitModu" /> Kayıt modu açık</label>
+        <button id="kayitKopyala" class="dugme ikincil" style="margin-top:8px">Kayıtları kopyala</button>
+        <pre id="kayitlar" class="harita"></pre>
+      </details>
+
+      <details class="bolum">
+        <summary>Ayarlar ve alan haritası <span class="ince">(değer içermez)</span></summary>
+        <div class="satir" style="margin:8px 0">
+          <span>Uygulama portu</span>
+          <input id="port" class="girdi kucuk" inputmode="numeric" placeholder="8080" maxlength="5" />
+          <button id="portKaydet" class="dugme ikincil" style="margin:0">Kaydet</button>
+        </div>
+        <p class="aciklama">BOSS alanlarının uygulamadaki karşılığı ve BOSS'un uç yapıları. "Kopyala"ya basıp geliştiriciye gönderebilirsiniz; müşteri bilgisi içermez.</p>
+        <button id="kopyala" class="dugme ikincil">Haritayı kopyala</button>
+        <pre id="harita" class="harita"></pre>
+      </details>
+    </main>
+
+    <footer class="alt">BOSS oturumunuz yalnız BOSS sayfasında kalır. Müşteri bilgisi yalnız bu bilgisayardaki uygulamaya gider. Eklenti BOSS'a uygulamada yazılan notları yazar; Ata · Askı yalnız yönetici "BOSS'a yazma"yı açtığında (ya da tek iş denemesinde) gider; giriş ve doğrulama kodları hiç kaydedilmez.</footer>
+    <script src="panel.js"></script>
+  </body>
+</html>

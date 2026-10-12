@@ -136,7 +136,7 @@ def temizle(sor: bool = True) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi gösterim verisini siler")
+    ayrac = argparse.ArgumentParser(description="Turkcell gösterim verisini siler")
     ayrac.add_argument("--evet", action="store_true", help="Onay sormadan siler")
     a = ayrac.parse_args(argv)
     temizle(sor=not a.evet)

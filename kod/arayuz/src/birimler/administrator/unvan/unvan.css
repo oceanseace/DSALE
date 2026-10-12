@@ -1,0 +1,265 @@
+/* Unvan ve yetkinlik (Administrator). Yalnız bu ekranın sınıfları; yalnız tokenlar. */
+
+.unvan-arac {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--b3);
+  align-items: center;
+  margin: var(--b1) 0 var(--b4);
+}
+
+.unvan-ara {
+  flex: 1 1 220px;
+}
+
+/* ---------------- yetkinlik sözlüğü ---------------- */
+.unvan-sozluk {
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  margin-bottom: var(--b4);
+}
+
+.unvan-sozluk-bas {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--b4);
+  cursor: pointer;
+  font-weight: var(--kalin);
+  color: var(--metin);
+}
+
+.unvan-sozluk-bas:hover {
+  background: var(--uzerinde);
+  border-radius: var(--yaricap);
+}
+
+.unvan-sozluk-bas:focus-visible {
+  outline: 2px solid var(--odak);
+  outline-offset: -2px;
+  border-radius: var(--yaricap);
+}
+
+.unvan-sozluk-bas .sayi {
+  color: var(--metin-3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.unvan-sozluk dl {
+  margin: 0;
+  padding: var(--b1) var(--b4) var(--b4);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--b3) var(--b5);
+}
+
+.unvan-sozluk dt {
+  font-weight: var(--kalin);
+  color: var(--metin);
+}
+
+.unvan-sozluk dd {
+  margin: var(--b1) 0 0;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  line-height: var(--satir-o);
+}
+
+/* ---------------- matris ---------------- */
+.unvan-matris-kap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--kart);
+  border-radius: var(--yaricap);
+}
+
+.unvan-matris-kap:focus-visible {
+  outline: 2px solid var(--odak);
+}
+
+.unvan-matris {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  min-width: 860px;
+}
+
+.unvan-matris th,
+.unvan-matris td {
+  padding: var(--b2) var(--b3);
+  border-bottom: 1px solid var(--cizgi);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.unvan-matris thead th {
+  position: sticky;
+  top: 0;
+  background: var(--kart);
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+  color: var(--metin-2);
+  z-index: 1;
+}
+
+.unvan-sutun-ad {
+  display: inline-block;
+  max-width: 92px;
+  line-height: var(--satir-k);
+}
+
+.unvan-matris .unvan-ad-sutun {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  background: var(--kart);
+  min-width: 240px;
+  max-width: 320px;
+  z-index: 2;
+}
+
+.unvan-matris thead .unvan-ad-sutun {
+  z-index: 3;
+}
+
+.unvan-matris tbody tr:hover td,
+.unvan-matris tbody tr:hover .unvan-ad-sutun {
+  background: color-mix(in srgb, var(--metin) 4%, var(--kart));
+}
+
+.unvan-matris tr.pasif .unvan-ad .ad {
+  color: var(--metin-3);
+  text-decoration: line-through;
+}
+
+.unvan-matris tr.degisti .unvan-ad-sutun {
+  box-shadow: inset 3px 0 0 var(--vurgu);
+}
+
+.unvan-matris tr.unvan-tl th,
+.unvan-matris tr.unvan-tl td {
+  border-bottom: 0;
+  background: var(--ikincil-zemin);
+}
+
+.unvan-ad {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--b1);
+  cursor: pointer;
+  width: 100%;
+}
+
+.unvan-ad.sabit {
+  cursor: default;
+}
+
+.unvan-ad:focus-visible {
+  outline: 2px solid var(--odak);
+  outline-offset: 2px;
+  border-radius: var(--yaricap-k);
+}
+
+.unvan-ad .ad {
+  font-weight: var(--kalin);
+  color: var(--metin);
+  line-height: var(--satir-o);
+}
+
+.unvan-ad:hover .ad {
+  color: var(--vurgu-yazi);
+}
+
+.unvan-ad.sabit:hover .ad {
+  color: var(--metin);
+}
+
+.unvan-ad .alt {
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+}
+
+/* ---------------- yapışkan kaydet şeridi (yüzen) ---------------- */
+.unvan-kaydet {
+  position: sticky;
+  bottom: calc(var(--b3) + var(--alt-guvenli, 0px));
+  margin: var(--b4) auto 0;
+  width: fit-content;
+  max-width: calc(100% - var(--b8));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--b3);
+  padding: var(--b2) var(--b2) var(--b2) var(--b4);
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  box-shadow: var(--golge-menu);
+  animation: unvan-belir var(--sure) var(--egri) both;
+  z-index: 5;
+}
+
+.unvan-kaydet span {
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+}
+
+@keyframes unvan-belir {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------- panel ---------------- */
+.unvan-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--b4);
+}
+
+.unvan-secim {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--b3);
+}
+
+.unvan-secim-metin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--b1);
+}
+
+.unvan-secim-metin span {
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+
+.unvan-durum .aciklama {
+  margin: var(--b3) 0 0;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+}
+
+@media (max-width: 640px) {
+  .unvan-matris .unvan-ad-sutun {
+    min-width: 168px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unvan-kaydet {
+    animation: none;
+  }
+}

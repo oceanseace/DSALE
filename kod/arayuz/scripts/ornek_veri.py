@@ -173,7 +173,7 @@ def ts(o):
 
 out = []
 out.append("/* OTOMATİK ÜRETİLDİ — elle düzenlemeyin.")
-out.append(" * Kaynak: cikti/N08_res_hp/atama.csv (bölge %d) + veri/ref/osm_yollar.geojson" % BOLGE)
+out.append(" * Kaynak: veri/cikti/N08_res_hp/atama.csv (bölge %d) + veri/ref/osm_yollar.geojson" % BOLGE)
 out.append(" * Üreten: scripts/ornek_veri.py — yalnız `?sahte=1` modunda yüklenir.")
 out.append(" */")
 out.append("")

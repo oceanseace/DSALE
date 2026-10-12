@@ -30,7 +30,8 @@
      "ilce": "Nilüfer",
      "mahalle": "Görükle",
      "tum_ilce": false,
-     "acik": 0
+     "acik": 0,
+     "mahalle_sayisi": 1
     },
     {
      "ref": "Bursa/Nilüfer/Kayapa",
@@ -38,13 +39,15 @@
      "ilce": "Nilüfer",
      "mahalle": "Kayapa",
      "tum_ilce": false,
-     "acik": 3
+     "acik": 3,
+     "mahalle_sayisi": 1
     }
    ],
    "acik": 3,
    "geciken": 3,
    "btk": 3,
-   "atanmamis": 2
+   "atanmamis": 2,
+   "mahalle_sayisi": 2
   },
   {
    "id": 2,
@@ -67,7 +70,8 @@
      "ilce": "Nilüfer",
      "mahalle": "Özlüce",
      "tum_ilce": false,
-     "acik": 6
+     "acik": 6,
+     "mahalle_sayisi": 1
     },
     {
      "ref": "Bursa/Nilüfer/Ertuğrul",
@@ -75,13 +79,15 @@
      "ilce": "Nilüfer",
      "mahalle": "Ertuğrul",
      "tum_ilce": false,
-     "acik": 4
+     "acik": 4,
+     "mahalle_sayisi": 1
     }
    ],
    "acik": 10,
    "geciken": 7,
    "btk": 7,
-   "atanmamis": 2
+   "atanmamis": 2,
+   "mahalle_sayisi": 2
   },
   {
    "id": 3,
@@ -112,13 +118,15 @@
      "ilce": "Nilüfer",
      "mahalle": "Dumlupınar",
      "tum_ilce": false,
-     "acik": 0
+     "acik": 0,
+     "mahalle_sayisi": 1
     }
    ],
    "acik": 1,
    "geciken": 1,
    "btk": 1,
-   "atanmamis": 1
+   "atanmamis": 1,
+   "mahalle_sayisi": 1
   },
   {
    "id": 4,
@@ -142,7 +150,8 @@
      "ilce": "Nilüfer",
      "mahalle": "Beşevler",
      "tum_ilce": false,
-     "acik": 4
+     "acik": 4,
+     "mahalle_sayisi": 1
     },
     {
      "ref": "Bursa/Nilüfer/Ataevler",
@@ -150,13 +159,15 @@
      "ilce": "Nilüfer",
      "mahalle": "Ataevler",
      "tum_ilce": false,
-     "acik": 2
+     "acik": 2,
+     "mahalle_sayisi": 1
     }
    ],
    "acik": 6,
    "geciken": 2,
    "btk": 4,
-   "atanmamis": 3
+   "atanmamis": 3,
+   "mahalle_sayisi": 2
   },
   {
    "id": 5,
@@ -187,7 +198,8 @@
      "ilce": "Yıldırım",
      "mahalle": "Yiğitler",
      "tum_ilce": false,
-     "acik": 2
+     "acik": 2,
+     "mahalle_sayisi": 1
     },
     {
      "ref": "Bursa/Yıldırım/Mimarsinan",
@@ -195,13 +207,15 @@
      "ilce": "Yıldırım",
      "mahalle": "Mimarsinan",
      "tum_ilce": false,
-     "acik": 4
+     "acik": 4,
+     "mahalle_sayisi": 1
     }
    ],
    "acik": 6,
    "geciken": 4,
    "btk": 5,
-   "atanmamis": 2
+   "atanmamis": 2,
+   "mahalle_sayisi": 2
   },
   {
    "id": 6,
@@ -216,13 +230,15 @@
      "ilce": "Mudanya",
      "mahalle": "İlçenin tamamı",
      "tum_ilce": true,
-     "acik": 2
+     "acik": 2,
+     "mahalle_sayisi": 42
     }
    ],
    "acik": 2,
    "geciken": 1,
    "btk": 0,
-   "atanmamis": 0
+   "atanmamis": 0,
+   "mahalle_sayisi": 42
   },
   {
    "id": 7,
@@ -245,7 +261,8 @@
      "ilce": "Merkez",
      "mahalle": "İlçenin tamamı",
      "tum_ilce": true,
-     "acik": 3
+     "acik": 3,
+     "mahalle_sayisi": 42
     },
     {
      "ref": "Yalova/Çiftlikköy/*",
@@ -253,13 +270,15 @@
      "ilce": "Çiftlikköy",
      "mahalle": "İlçenin tamamı",
      "tum_ilce": true,
-     "acik": 3
+     "acik": 3,
+     "mahalle_sayisi": 42
     }
    ],
    "acik": 6,
    "geciken": 4,
    "btk": 3,
-   "atanmamis": 3
+   "atanmamis": 3,
+   "mahalle_sayisi": 84
   },
   {
    "id": 8,
@@ -274,13 +293,15 @@
      "ilce": "Gürsu",
      "mahalle": "İlçenin tamamı",
      "tum_ilce": true,
-     "acik": 0
+     "acik": 0,
+     "mahalle_sayisi": 42
     }
    ],
    "acik": 0,
    "geciken": 0,
    "btk": 0,
-   "atanmamis": 0
+   "atanmamis": 0,
+   "mahalle_sayisi": 42
   }
  ],
  "obeksiz": [

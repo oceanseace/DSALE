@@ -60,3 +60,17 @@ def test_canli_kopya_mutlak_yolla_calisir_ps26_depo_yaninda(tmp_path):
     assert Path(d["ps26"]) == tmp_path / "PS26"             # canli/PS26 değil
     r = _kos(kod, SAHA_VERI_DIZINI=str(veri), SAHA_PS26=str(tmp_path / "baska" / "PS26"))
     assert Path(json.loads(r.stdout)["ps26"]) == tmp_path / "baska" / "PS26"
+
+
+def test_calisma_klasoru_depoda_izlenen_yere_dusmez(tmp_path):
+    """saha.db/gizli.key git'in izlediği bir klasöre yazılamaz: depo içinde yalnız gelistirme/ ve canli/ olur."""
+    kok = tmp_path / "DSALE"
+    kod = _kopya(kok)
+    for yanlis in ("veri", r"kod\saha", str(kok / "cikti" / "x"), str(kok)):
+        r = _kos(kod, SAHA_VERI_DIZINI=yanlis)
+        assert r.returncode != 0 and "git'in izlediği" in r.stderr, (yanlis, r.stderr)
+    for dogru, beklenen in ((r"gelistirme\karalama", kok / "gelistirme" / "karalama"),
+                            (str(tmp_path / "dis"), tmp_path / "dis")):
+        r = _kos(kod, SAHA_VERI_DIZINI=dogru)
+        assert r.returncode == 0, r.stderr
+        assert Path(json.loads(r.stdout)["calisma"]) == beklenen

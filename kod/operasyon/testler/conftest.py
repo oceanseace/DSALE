@@ -21,6 +21,7 @@ import pytest
 import yollar  # kod/ içe aktarma yolunda: kökteki pytest.ini (pythonpath = kod)
 
 os.environ.setdefault("SAHA_GIZLI", "test-icin-sabit-gizli-anahtar-0123456789")
+os.environ.setdefault("TURKCELL_ADMIN_TELEFON", "")   # Administrator yalnız açıkça verilir
 
 # Canlının göç öncesi hâli (30.09 14:54, v0; doğrulanmış yedek) — yoksa 12:05 günlük yedeği. İkisi de yalnız OKUNUR.
 _YEDEK = yollar.CALISMA_SAHA / "yedek"
@@ -30,7 +31,7 @@ CANLI_YEDEK = next((p for p in (_YEDEK / "goc" / "saha-oncesi-v0-v8-20260930-145
 # Gerçek BOSS raporunun SABİT kopyası (müşteri bilgisi içerir → depoya girmez; gelistirme/ git dışıdır).
 # Masaüstündeki dosya her gün değiştiği için testler oradan okumaz. Başka bir dosya: BOSS_RAPOR=<yol>.
 # Kopya yoksa gerçek-rapor testleri atlanır.
-GERCEK_RAPOR = Path(os.environ.get("BOSS_RAPOR") or yollar.TEST_VERISI / "TeknikTaskDetayRaporu.xlsx")
+GERCEK_RAPOR = yollar.BOSS_RAPOR          # gelistirme/test/TeknikTaskDetayRaporu.xlsx (başka dosya: BOSS_RAPOR)
 GERCEK_OBEK = yollar.CALISMA_OPERASYON / "obekler.json"
 
 # Testlerin "şimdi"si: v2 testleri sabit tarihlerle (randevu 2026-10-01 10:00, askı sınırı 2026-10-05 …)

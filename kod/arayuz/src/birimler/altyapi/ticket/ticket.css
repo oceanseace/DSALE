@@ -1,0 +1,401 @@
+/* Altyapı › Ticketlar tablosu (Ticketlar.tsx, hucreler.tsx): yerinde düzenlenen hücreler. */
+.tk-hucre-durum {
+  appearance: auto;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  max-width: 100%;
+}
+.tk-hucre-durum:disabled {
+  opacity: 0.6;
+}
+.tk-hucre-no {
+  width: 100%;
+  height: 28px;
+  padding: 0 6px;
+  font: inherit;
+  border: 1px solid var(--birincil);
+  border-radius: 6px;
+  background: var(--kart);
+  color: var(--metin);
+}
+.tk-hucre-no-ekle {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--birincil-yazi);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tk-bina-suzgeci {
+  background: var(--birincil-yumusak);
+  border-color: transparent;
+  color: var(--metin);
+}
+/* Yeni satır (YeniSatir.tsx): Excel'deki boş satır gibi — açık ızgara, gri başlık, yeşil odak çerçevesi. */
+.tk-yeni {
+  margin: 0 0 10px;
+  color-scheme: light;
+}
+.tk-yeni-izgara {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.4fr) minmax(100px, 0.9fr) minmax(150px, 1.6fr) minmax(140px, 1.4fr)
+    minmax(104px, 0.8fr) minmax(96px, 0.8fr) minmax(100px, 0.8fr) minmax(130px, 1.2fr) auto;
+  border: 1px solid #bcbcbc;
+  border-right: 0;
+  background: #fff;
+  font-family: Calibri, Carlito, 'Segoe UI', system-ui, sans-serif;
+  font-size: 11pt;
+  color: #1f1f1f;
+}
+.tk-yh {
+  display: grid;
+  grid-template-rows: 22px 28px;
+  min-width: 0;
+  border-right: 1px solid #d4d4d4;
+}
+.tk-yh > span {
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  border-bottom: 1px solid #bcbcbc;
+  background: #f3f3f3;
+  color: #444;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tk-yh input,
+.tk-yh select,
+.tk-yh output {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #1f1f1f;
+  font: inherit;
+  outline: none;
+}
+.tk-yh output {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: #fafafa;
+  color: #444;
+}
+.tk-yh output i {
+  color: #9a9a9a;
+}
+.tk-yh input::placeholder {
+  color: #a8a8a8;
+}
+.tk-yh:focus-within {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid #217346;
+  outline-offset: -1px;
+}
+.tk-yh:focus-within > span {
+  background: #d6e8dd;
+  color: #185c37;
+  box-shadow: inset 0 -2px 0 #217346;
+}
+.tk-yh.eylem {
+  border-right: 1px solid #bcbcbc;
+}
+.tk-yh.eylem button {
+  height: 28px;
+  margin: 0;
+  border-radius: 0;
+  background: #217346;
+  border-color: #217346;
+  color: #fff;
+  white-space: nowrap;
+}
+.tk-yeni-not {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.tk-yeni-not.uyari {
+  color: var(--amber, #9c5700);
+}
+.tk-yeni-not.bilgi {
+  color: var(--metin-2);
+}
+.tk-bos {
+  padding: 18px 4px;
+  color: var(--metin-2);
+}
+@media (max-width: 900px) {
+  .tk-yeni-izgara {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tk-yh.genis {
+    grid-column: span 2;
+  }
+}
+
+/* Açılır liste (hucreler.tsx Acilir — DahaMenusu düğmesi): tabloda Konu hücresi, yeni satırda Konu/Durum. */
+.tk-acilir {
+  display: flex;
+  min-width: 0;
+}
+.tk-acilir .o-daha {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.tk-acilir-deger {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tk-acilir-ok {
+  opacity: 0.6;
+  font-size: 11px;
+}
+.tk-hucre-acilir .o-daha {
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.tk-hucre-acilir .o-daha:hover,
+.tk-hucre-acilir .o-daha:focus-visible {
+  border-color: var(--cizgi-koyu);
+}
+.tk-hucre-acilir.bekliyor {
+  opacity: 0.6;
+}
+.tk-yh .tk-acilir .o-daha {
+  background: #fff;
+  color: #1f1f1f;
+}
+
+/* ⚠ kanal şikâyeti (TASKS Uyarı sütunundaki gibi) · "+3" özeti */
+.tk-uyari {
+  color: var(--amber);
+  font-weight: var(--kalin);
+}
+.tk-musteri-ek {
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--uzerinde);
+  color: var(--metin-2);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* İş seçicisi (IsSecici.tsx): yeni satırın altında ve çekmecede "+ abone ekle" */
+.tk-is-secici {
+  margin-top: 6px;
+  border: 1px solid var(--cizgi);
+  border-radius: 6px;
+  background: var(--kart);
+}
+.tk-is-ust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--cizgi);
+}
+.tk-is-ara {
+  flex: 1 1 240px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--cizgi-koyu);
+  border-radius: 6px;
+  background: var(--kart);
+  color: var(--metin);
+  font: inherit;
+}
+.tk-is-sayi {
+  color: var(--metin-2);
+  font-size: 12.5px;
+}
+.tk-is-liste {
+  max-height: 280px;
+  overflow: auto;
+}
+.tk-is-liste table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tk-is-liste th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 4px 6px;
+  background: var(--yuzey, var(--kart));
+  color: var(--metin-2);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+.tk-is-liste td {
+  padding: 3px 6px;
+  border-top: 1px solid var(--cizgi);
+  white-space: nowrap;
+}
+.tk-is-liste td.adres {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tk-is-liste td.no {
+  font-variant-numeric: tabular-nums;
+}
+.tk-is-liste tr {
+  cursor: pointer;
+}
+.tk-is-liste tbody tr:hover {
+  background: var(--uzerinde);
+}
+.tk-is-liste tr.secili {
+  background: var(--birincil-yumusak);
+}
+.tk-is-liste tr.sikayet td {
+  color: var(--metin-2);
+}
+.tk-is-etiket {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--uzerinde);
+  color: var(--metin-2);
+  font-size: 11px;
+}
+.tk-is-bos {
+  margin: 6px 8px;
+  color: var(--metin-2);
+  font-size: 13px;
+}
+
+/* Çekmecede ticket'ın işleri */
+.tk-isler-bas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tk-isler-bas .yd {
+  margin-left: auto;
+}
+.tk-is-satirlari {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.tk-is-satirlari li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--cizgi);
+}
+.tk-is-satirlari li.kapali {
+  color: var(--metin-3, var(--metin-2));
+}
+.tk-is-satirlari .no {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tk-is-satirlari .ad {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tk-is-satirlari .kanal {
+  max-width: 140px;
+  overflow: hidden;
+  color: var(--metin-2);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tk-is-cikar {
+  border: 0;
+  background: none;
+  color: var(--metin-2);
+  font-size: 16px;
+  cursor: pointer;
+}
+.tk-is-cikar:hover {
+  color: var(--kirmizi);
+}
+.tk-is-ekle {
+  margin-bottom: 12px;
+}
+.tk-sil {
+  margin-left: auto;
+  color: var(--kirmizi);
+}
+
+/* BOSS notu (ticket numarası işlere not olarak düşüldü): gidiyor / ✓ / hata */
+.tk-boss-notlari {
+  margin-top: 8px;
+}
+.tk-boss-not {
+  margin-left: auto;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--gri);
+}
+.tk-boss-not.gonderildi {
+  color: var(--yesil);
+}
+.tk-boss-not.hata {
+  color: var(--kirmizi);
+}
+
+/* Bağlı işlerin hepsi BOSS'ta kapandı: takip gerekmiyor (Ticketlar.tsx) */
+.tk-kapandi-satir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+.tk-kapandi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(217, 119, 6, 0.14);
+  color: #b45309;
+}
+.tk-kapandi-sil {
+  flex: none;
+  font-size: 12px;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+}

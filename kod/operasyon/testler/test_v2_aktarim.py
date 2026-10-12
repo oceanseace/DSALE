@@ -219,6 +219,7 @@ def test_buyuk_dosya_413(v2db):
     assert e.value.durum == 413
 
 
+@pytest.mark.skip(reason="Tek iş havuzu (2026-10): kurulum/2. donanım çıkarma ve öbeksiz→Kontrol kuralı kaldırıldı")
 def test_filtre_istisnasi_c5(v2db, conn):
     satirlar = [y.satir(1, task="Kurulum Taskı Ürememiş"), y.satir(2, task="TV+ Kurulum"),
                 y.satir(3, task="2.Donanım"), y.satir(4, task="Bağlantı Problemi")]
@@ -284,6 +285,7 @@ def test_lokasyon_db_332(v2db, conn):
     assert s["fark"]["yeni"] == conn.execute("SELECT COUNT(*) FROM is_emri").fetchone()[0]
 
 
+@pytest.mark.skip(reason="Tek iş havuzu (2026-10): kurulum/2. donanım çıkarma ve öbeksiz→Kontrol kuralı kaldırıldı")
 def test_kontrol_yalniz_gercek_sorun(v2db, conn):
     obeksiz = next(m for m in sozluk.ara(conn, None, "Bursa", None, 500)["mahalleler"] if m["obek"] is None)
     satirlar = [

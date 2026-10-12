@@ -938,7 +938,7 @@ def excel_yolu(conn: sqlite3.Connection, plan_id: int | None = None) -> tuple[Pa
         hedef = float(df[olcu].sum()) / n
         sonuc = SimpleNamespace(n=n, olcu=olcu, atama=seri, hedef=hedef, parametreler={
             "algoritma": _algoritma(), "birim_sayisi": int(df["site_grup"].nunique()),
-            "kaynak": "Saha Sistemi bölge planlayıcı", "plan_id": pid})
+            "kaynak": "Turkcell bölge planlayıcı", "plan_id": pid})
         bolgeler = metrics.bolge_ozetleri(df, seri, olcu, hedef)
         for b in bolgeler:
             pb = plan_bolgeleri.get(int(b["bolge"]), {})

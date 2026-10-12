@@ -123,8 +123,8 @@ def bolge(conn, n: int | None, olcu: str, uygula: bool, pasiflestir: bool, geri:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi veri işleri (tur raporu, OneMap, bölge planı).")
-    ayrac.add_argument("--db", default=None, help="Veritabanı (varsayılan: saha/saha.db)")
+    ayrac = argparse.ArgumentParser(description="Turkcell veri işleri (tur raporu, OneMap, bölge planı).")
+    ayrac.add_argument("--db", default=None, help=ayarlar.db_yardim())
     alt = ayrac.add_subparsers(dest="komut", required=True)
     t = alt.add_parser("tur", help="Tur raporunu (data.xlsx) karşılaştır / uygula")
     t.add_argument("dosya")

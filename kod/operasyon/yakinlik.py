@@ -10,8 +10,10 @@
 """
 from __future__ import annotations
 
-import numpy as np
-import pandas as pd
+from operasyon.tembel import tembel
+
+np = tembel("numpy")  # ağır: ilk kullanımda yüklenir
+pd = tembel("pandas")  # ağır: ilk kullanımda yüklenir
 
 DUNYA_YARICAP_KM = 6371.0088
 YOL_KATSAYISI = 1.3

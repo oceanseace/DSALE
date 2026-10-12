@@ -5,6 +5,9 @@
 | müşteri no                             | kapanış + 30 gün → NULL; HMAC özeti kalır (tekrar arıza bozulmaz) |
 | ham BOSS dosyası (veri/gelen/<sha>.xlsx) | ``ham_saklama_gun`` (7) → silinir |
 | fark dosyaları (veri/gelen/<id>.fark.json) | karar verilince ya da 1 gün → silinir |
+| BOSS ham liste alanları (``boss_ham``)  | iş kapanınca → silinir (boss_ham.kapananlari_sil) |
+| BOSS yazma kaydı (``boss_yazma``)       | ``pii_saklama_gun`` (30) → silinir (bekleyen hariç) |
+| BOSS iş ayrıntısı (``boss_detay``)      | iş kapanınca → silinir (boss_detay.kapananlari_sil) |
 Olay defterleri kişisel veri DEĞERİ içermez; süresiz kalır. ``son_yukleme.pkl`` açılmaz, silinmez.
 """
 from __future__ import annotations
@@ -36,6 +39,10 @@ def uygula(conn: sqlite3.Connection, simdi: dt.datetime | None = None) -> dict:
             "WHERE durum='kapandi' AND kapanis IS NOT NULL AND kapanis < ? AND "
             "(musteri_adi IS NOT NULL OR adres IS NOT NULL OR musteri_tel IS NOT NULL OR musteri_no IS NOT NULL)",
             (sinir,)).rowcount
+    from . import boss_detay, boss_ham, boss_yazma
+    boss_ham_silinen = boss_ham.kapananlari_sil(conn)
+    boss_detay_silinen = boss_detay.kapananlari_sil(conn)
+    yazma_silinen = boss_yazma.eskileri_sil(conn, pii)
     silinen_ham = silinen_fark = 0
     gelen = sozluk.veri_dizini() / "gelen"
     if gelen.exists():
@@ -55,7 +62,9 @@ def uygula(conn: sqlite3.Connection, simdi: dt.datetime | None = None) -> dict:
                     silinen_ham += 1
             except OSError:
                 continue
-    return {"musteri_temizlenen": n, "ham_silinen": silinen_ham, "fark_silinen": silinen_fark}
+    return {"musteri_temizlenen": n, "ham_silinen": silinen_ham, "fark_silinen": silinen_fark,
+            "boss_ham_silinen": boss_ham_silinen, "boss_yazma_silinen": yazma_silinen,
+            "boss_detay_silinen": boss_detay_silinen}
 
 
 def metin(conn: sqlite3.Connection) -> str:

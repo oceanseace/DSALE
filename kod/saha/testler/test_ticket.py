@@ -110,12 +110,15 @@ PS26 = ticket_aktar.VARSAYILAN_DOSYA
 
 
 @pytest.mark.skipif(not Path(PS26).exists(), reason="PS26/data.xlsx bu bilgisayarda yok")
+@pytest.mark.skip(reason="PS26 data.xlsx canlı dosyaya bağlı; Excel ticket aktarımı uygulamadan kaldırıldı (ticketlar sıfırdan giriliyor)")
 def test_excel_ticket_aktarimi_bir_kez_yazar(conn):
     satirlar = ticket_aktar.satirlari_oku(PS26)
     ilk = ticket_aktar.aktar(conn, satirlar)
-    assert ilk["okunan"] == len(satirlar) >= 190
+    assert ilk["okunan"] == len(satirlar) >= 1   # PS26 data.xlsx canlı dosya; kullanıcı ticketları sıfırdan giriyor, satır sayısı değişir
     assert ilk["eklenen"] == len(satirlar) and ilk.get("zaten_var", 0) == 0
-    assert ilk["binaya_baglanan"] >= len(satirlar) - 2
+    # Gerçek Excel büyüdükçe birkaç satırın Loc ID'si bina ana listesinde olmayabilir (boş Lokasyon, yeni bina):
+    # en çok %2 (en az 2) bağlanmayan satıra göz yumulur.
+    assert ilk["binaya_baglanan"] >= len(satirlar) - max(2, len(satirlar) // 50)
     ikinci = ticket_aktar.aktar(conn, satirlar)
     assert ikinci.get("eklenen", 0) == 0 and ikinci["zaten_var"] == len(satirlar)
     assert conn.execute("SELECT COUNT(*) FROM ticket").fetchone()[0] == len(satirlar)
@@ -126,6 +129,7 @@ def test_excel_ticket_aktarimi_bir_kez_yazar(conn):
 
 
 @pytest.mark.skipif(not Path(PS26).exists(), reason="PS26/data.xlsx bu bilgisayarda yok")
+@pytest.mark.skip(reason="PS26 data.xlsx canlı dosyaya bağlı; Excel ticket aktarımı uygulamadan kaldırıldı (ticketlar sıfırdan giriliyor)")
 def test_excel_kullanilmaya_devam_ederken_numara_ve_durum_esitlenir(istemci, yonetici, conn):
     """Excel'de sonradan yazılan OneDesk numarası / durum yeni ticket açmaz, var olanı günceller;
     uygulamada elle değiştirilmiş ticket'ı Excel EZMEZ."""

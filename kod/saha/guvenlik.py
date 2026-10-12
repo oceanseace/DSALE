@@ -1,7 +1,7 @@
 """Kimlik doğrulama: PIN özeti, oturum jetonu, hatalı giriş kilidi.
 
 PIN hiçbir yerde açık saklanmaz (stdlib ``hashlib.scrypt``). Jeton imzası için
-gereken gizli anahtar ilk çalıştırmada ``saha/gizli.key`` dosyasına üretilir;
+gereken gizli anahtar ilk çalıştırmada ``ayarlar.GIZLI_ANAHTAR`` (çalışma klasöründe ``saha/gizli.key``) dosyasına üretilir;
 dosya sürüm kontrolüne girmez.
 """
 from __future__ import annotations
@@ -106,7 +106,7 @@ def davet_kodu_uret() -> str:
 
 # ----------------------------------------------------------------------------- gizli anahtar
 def gizli_anahtar() -> str:
-    """Jeton imzalama anahtarı; yoksa üretilip ``saha/gizli.key`` dosyasına yazılır."""
+    """Jeton imzalama anahtarı; yoksa üretilip ``ayarlar.GIZLI_ANAHTAR`` (çalışma klasöründe ``saha/gizli.key``) dosyasına yazılır."""
     ortam = os.environ.get("SAHA_GIZLI")
     if ortam:
         return ortam
@@ -151,11 +151,13 @@ def _imzalayici() -> URLSafeTimedSerializer:
 
 
 # ----------------------------------------------------------------------------- jeton
-def jeton_uret(kullanici: sqlite3.Row | dict) -> str:
+def jeton_uret(kullanici: sqlite3.Row | dict, bg: str | None = None) -> str:
+    """``bg``: BOSS ile girişte BOSS oturum kimliği (boss_giris.py); BOSS'tan çıkılınca bu jeton geçersizleşir."""
     k = dict(kullanici)
-    return _imzalayici().dumps(
-        {"kid": k["id"], "rol": k["rol"], "bolge": k.get("bolge"), "otr": k.get("oturum_no", 1)}
-    )
+    yuk = {"kid": k["id"], "rol": k["rol"], "bolge": k.get("bolge"), "otr": k.get("oturum_no", 1)}
+    if bg:
+        yuk["bg"] = bg
+    return _imzalayici().dumps(yuk)
 
 
 def jeton_coz(jeton: str) -> dict | None:

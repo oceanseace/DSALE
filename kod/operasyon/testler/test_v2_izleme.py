@@ -141,3 +141,44 @@ def test_sunucu_acilisinda_baslar_kapanista_durur(v2db, monkeypatch):
     with TestClient(uygulama()):
         pass
     assert cagri == []
+
+
+def test_gelistirme_verisinde_izleyici_acilmaz(v2db, conn, monkeypatch, tmp_path):
+    """Geliştirme/karalama verisiyle açılan sunucu kullanıcının GERÇEK İndirilenler/Masaüstü klasörüne bakmaz
+    (pytest koruması kaldırılsa bile); yalnız canlı veri, masaüstü sürümü ya da SAHA_KLASOR_IZLEME=1 açar."""
+    import sys
+
+    import yollar
+    from fastapi.testclient import TestClient
+
+    from operasyon.testler.conftest import uygulama
+    monkeypatch.setattr(izleme, "_TESTTE_KAPALI", False)                 # yalnız süreç izni karar versin
+    monkeypatch.setattr(izleme, "_IZLEYICI", None)
+    acilan = []
+    monkeypatch.setattr(izleme.Izleyici, "baslat", lambda self: acilan.append(self))   # asla gerçek iş parçacığı
+    monkeypatch.delenv("SAHA_IZLEME", raising=False)
+    monkeypatch.delenv("SAHA_KLASOR_IZLEME", raising=False)
+    monkeypatch.setattr(yollar, "CANLI_KOPYA", False)
+    monkeypatch.setattr(yollar, "CALISMA", tmp_path / "karalama")
+    monkeypatch.delattr(sys, "frozen", raising=False)
+
+    izin, neden = izleme.surec_izni()
+    assert izin is False and "SAHA_KLASOR_IZLEME=1" in neden
+    with TestClient(uygulama()):                                         # geliştirme sunucusunun açılışı
+        assert acilan == [] and izleme.izleyici() is None
+    assert izleme.baslat(lambda: None) is None and acilan == []
+    d = izleme.durum(conn)
+    assert d["surec_izni"] is False and d["calisiyor"] is False and d["kapali_neden"] == neden
+
+    monkeypatch.setattr(yollar, "CALISMA", yollar.DEPO / "canli" / "veri")   # canlı veri: kendiliğinden açılır
+    assert izleme.surec_izni() == (True, "canlı veri")
+    monkeypatch.setenv("SAHA_KLASOR_IZLEME", "0")                        # açıkça kapatma canlıda da geçerli
+    assert izleme.surec_izni()[0] is False
+    monkeypatch.setattr(yollar, "CALISMA", tmp_path / "karalama")
+    monkeypatch.setenv("SAHA_KLASOR_IZLEME", "1")                        # geliştirmede açıkça açmak
+    assert izleme.surec_izni()[0] is True
+    monkeypatch.delenv("SAHA_KLASOR_IZLEME")
+    monkeypatch.setattr(sys, "frozen", True, raising=False)              # exe deneme klasörüyle: izleme kapalı
+    assert izleme.surec_izni()[0] is False
+    monkeypatch.setattr(yollar, "CALISMA", yollar.DEPO / "veri" / "canli")  # exe'nin kendi canlı klasörü
+    assert izleme.surec_izni()[0] is True

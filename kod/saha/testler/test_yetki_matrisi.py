@@ -16,11 +16,6 @@ from fastapi.routing import APIRoute
 
 from saha import ayarlar, goc, yetki
 
-# Eski iş emri ekranı dururken WP-B'nin geçici olarak bağladığı operasyon/api.py uçları: sözleşmede
-# 410'a dönecekler; tabloda ``/api/is-emri*`` kimliksiz 410 olarak durur.
-_GECICI_MODULLER = {"operasyon.api"}
-
-
 def rotalar(app) -> list[APIRoute]:
     """Uygulamanın bütün APIRoute'ları (FastAPI 0.14x'te dahil edilen yönlendiriciler iç içe durur)."""
     def gez(liste):
@@ -54,8 +49,6 @@ def _uc_listesi():
     from saha import api
 
     for r in rotalar(api.uygulama):
-        if r.endpoint.__module__ in _GECICI_MODULLER:
-            continue
         for m in sorted(r.methods - {"HEAD", "OPTIONS"}):
             yield m, r.path, r
 

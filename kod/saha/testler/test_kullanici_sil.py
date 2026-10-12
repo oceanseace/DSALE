@@ -78,22 +78,22 @@ def test_kendini_silemez(istemci, yonetici, conn):
 
 def test_son_yonetici_silinemez(istemci, yonetici, kisi, conn, monkeypatch):
     """Silme denetimi 'son_yonetici' engelini de uygular (ilişki sayımı sahte olsa bile)."""
-    from saha import api
+    from saha import ekip_uclari
 
     hedef, _ = kisi("yonetici")
     # Çağıran yönetici pasifleşmiş gibi: hedef tek aktif yönetici olur.
     conn.execute("UPDATE kullanici SET aktif=0 WHERE telefon=?", (YONETICI_TEL,))
     conn.commit()
     satir = dict(conn.execute("SELECT * FROM kullanici WHERE id=?", (hedef,)).fetchone())
-    assert api._son_yonetici_mi(conn, satir, ["yonetici"]) is True
+    assert ekip_uclari._son_yonetici_mi(conn, satir, ["yonetici"]) is True
     conn.execute("UPDATE kullanici SET aktif=1 WHERE telefon=?", (YONETICI_TEL,))
     conn.commit()
-    assert api._son_yonetici_mi(conn, satir, ["yonetici"]) is False
+    assert ekip_uclari._son_yonetici_mi(conn, satir, ["yonetici"]) is False
 
 
 def test_fk_hatasi_503_degil_409(istemci, yonetici, satisci1, conn, monkeypatch):
     """İlişki sayımı bir bağı kaçırsa bile veritabanı silmeyi durdurur ve yanıt 409 olur."""
-    from saha import api
+    from saha import ekip_uclari
 
     kid = _id(conn, SATISCI_TEL[1])
     gorev = istemci.post("/api/gorev/olustur", headers=satisci1, json={"adet": 2}).json()
@@ -101,7 +101,7 @@ def test_fk_hatasi_503_degil_409(istemci, yonetici, satisci1, conn, monkeypatch)
         "offline_id": "fk-1", "bina_serial": gorev["binalar"][0]["bina_serial"], "sonuc": "ilgilenmedi"})
     bos = {"silinebilir": True, "engeller": [], "sayilar": {}, "acik_is": 0, "obek_sahipligi": 0,
            "obekleri_birak_gerekli": False, "demo": 0, "hepsi_demo": False, "etiketler": []}
-    monkeypatch.setattr(api, "_iliskiler", lambda *_a, **_k: bos)
+    monkeypatch.setattr(ekip_uclari, "_iliskiler", lambda *_a, **_k: bos)
     y = istemci.delete(f"/api/kullanici/{kid}", headers=yonetici)
     assert y.status_code == 409 and y.json()["kod"] == "iliskili_kayit"
     assert conn.execute("SELECT COUNT(*) FROM kullanici WHERE id=?", (kid,)).fetchone()[0] == 1

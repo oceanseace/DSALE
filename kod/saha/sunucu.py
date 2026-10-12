@@ -1,7 +1,12 @@
-"""Ofis bilgisayarında sunucuyu başlatır (geliştirmede ``kod/saha/GELISTIRME_BASLAT.bat`` çağırır).
+"""Sunucuyu başlatır (geliştirmede ``kod/saha/GELISTIRME_BASLAT.bat`` çağırır).
 
-    PYTHONPATH=kod .venv/Scripts/python.exe -m saha.sunucu                 # 0.0.0.0:8080 (ofis ağı)
-    PYTHONPATH=kod .venv/Scripts/python.exe -m saha.sunucu --host 127.0.0.1 --port 8090
+    PYTHONPATH=kod .venv/Scripts/python.exe -m saha.sunucu                 # geliştirme: 127.0.0.1:8090
+    PYTHONPATH=kod .venv/Scripts/python.exe -m saha.sunucu --port 8093     # geliştirme, başka port (8090–8099)
+
+Varsayılan adres çalışma klasörüne göre seçilir: geliştirme verisi (``gelistirme/veri`` ya da depo dışı bir
+karalama klasörü) yalnız bu bilgisayara, ``127.0.0.1:8090``'da açılır. Ofis ağı ve canlı port (``0.0.0.0:8080``)
+yalnız canlı veride varsayılandır (kod ``canli/`` altından çalışıyor ya da ``SAHA_VERI_DIZINI`` ``canli/``'yi
+gösteriyor). Geliştirme verisini ofis ağına açmak ancak ``--host``/``--port`` AÇIKÇA verilerek olur ve uyarı basar.
 
 Ekrana telefonlardan yazılacak adresi basar, dönüşümlü günlük tutar
 (çalışma klasöründe ``saha/kayit/saha.log``, 2 MB × 5 dosya). Dışarı hiçbir şey açılmaz: bağlanılacak
@@ -11,11 +16,27 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import socket
 import sys
 from logging.handlers import RotatingFileHandler
 
+import yollar
+
 from . import SURUM, ayarlar, db, goc
+
+GELISTIRME_ADRES = ("127.0.0.1", 8090)
+CANLI_ADRES = ("0.0.0.0", 8080)
+
+
+def canli_veri_mi() -> bool:
+    """Çalışma klasörü canlı veri mi (tanım ``yollar.canli_veri_mi``; burada eski çağıranlar için)."""
+    return yollar.canli_veri_mi()
+
+
+def durdur_komutu(port: int) -> str:
+    """Yalnız bu portta çalışan sunucuyu kapatan komut."""
+    return f"{yollar.KOD / 'saha' / 'DURDUR.bat'} {port}"
 
 
 def yerel_ipler() -> list[str]:
@@ -53,6 +74,30 @@ def port_dolu_mu(port: int) -> bool:
         return False
     finally:
         s.close()
+
+
+def dosya_kullanimda_mi(yol) -> bool | None:
+    """Veritabanı dosyasını başka bir süreç (açık bir sunucu, DB Browser …) tutuyor mu?
+
+    Windows'ta dosya PAYLAŞIMSIZ açılmaya çalışılır: başka bir tutamaç varsa paylaşım ihlali (32) döner. Dosya
+    içeriğine dokunulmaz, tutamaç hemen kapanır. Hangi portta açıldığından bağımsızdır (8080, 8090–8099, karalama).
+    Sınanamıyorsa (Windows dışı) ``None``: çağıran porta bakar.
+    """
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateFileW.restype = wintypes.HANDLE
+    k32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD,
+                                wintypes.DWORD, wintypes.HANDLE]
+    GENERIC_READ, OPEN_EXISTING, NORMAL = 0x80000000, 3, 0x80
+    tutamac = k32.CreateFileW(str(yol), GENERIC_READ, 0, None, OPEN_EXISTING, NORMAL, None)
+    if tutamac in (None, wintypes.HANDLE(-1).value):
+        return ctypes.get_last_error() in (32, 33)        # ERROR_SHARING_VIOLATION / ERROR_LOCK_VIOLATION
+    k32.CloseHandle(tutamac)
+    return False
 
 
 def kaydi_kur(seviye: str = "info") -> None:
@@ -134,7 +179,7 @@ def _guncelle() -> bool:
 def _adres_yaz(host: str, port: int) -> None:
     """Telefonlara yazılacak adresi hem ekrana hem günlüğe basar."""
     cizgi = "=" * 62
-    satirlar = [cizgi, f"  SAHA SİSTEMİ {SURUM} — sunucu çalışıyor", cizgi]
+    satirlar = [cizgi, f"  TURKCELL {SURUM} — sunucu çalışıyor", cizgi]
     adresler = []
     if host in ("0.0.0.0", "::"):
         adresler = [f"http://{ip}:{port}" for ip in yerel_ipler()]
@@ -159,7 +204,7 @@ def _adres_yaz(host: str, port: int) -> None:
     satirlar += [
         "",
         "  Telefonda: adresi aç, paylaş menüsünden 'Ana Ekrana Ekle' deyin.",
-        "  Kapatmak için bu pencerede Ctrl+C (ya da saha\\DURDUR.bat).",
+        f"  Kapatmak için bu pencerede Ctrl+C (ya da {durdur_komutu(port)}).",
         f"  Günlük: {ayarlar.KAYIT_DIZINI / 'saha.log'}",
         cizgi,
     ]
@@ -171,18 +216,24 @@ def _adres_yaz(host: str, port: int) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi sunucusu")
-    ayrac.add_argument("--host", default="0.0.0.0", help="Dinlenecek adres (varsayılan: ofis ağı)")
-    ayrac.add_argument("--port", type=int, default=8080)
+    canli = canli_veri_mi()
+    host0, port0 = CANLI_ADRES if canli else GELISTIRME_ADRES
+    ayrac = argparse.ArgumentParser(description="Turkcell sunucusu")
+    ayrac.add_argument("--host", default=host0,
+                       help=f"Dinlenecek adres (varsayılan {host0}: canlı veride ofis ağı, geliştirmede yalnız bu bilgisayar)")
+    ayrac.add_argument("--port", type=int, default=port0, help=f"Port (varsayılan {port0}; geliştirme 8090–8099)")
     ayrac.add_argument("--seviye", default="info", help="Günlük seviyesi: debug|info|warning")
     a = ayrac.parse_args(argv)
     ayarlar.konsolu_hazirla()
+    if not canli and not getattr(sys, "frozen", False) and (a.host in ("0.0.0.0", "::") or a.port == CANLI_ADRES[1]):
+        yaz(f"\n  UYARI: geliştirme verisi ({yollar.CALISMA}) {a.host}:{a.port} adresinde açılıyor.")
+        yaz("  Bu kopyada gerçek kişilerin bilgisi olabilir; ofis ağı ve 8080 canlı sunucunundur.\n")
 
     # 1) Port: sunucu zaten açıksa veritabanına HİÇ dokunulmaz (göç dahil).
     if port_dolu_mu(a.port):
         cizgi = "=" * 62
         yaz(f"\n{cizgi}")
-        yaz("  SAHA SİSTEMİ ZATEN ÇALIŞIYOR — yeni bir tane açmaya gerek yok.")
+        yaz("  TURKCELL ZATEN ÇALIŞIYOR — yeni bir tane açmaya gerek yok.")
         yaz(cizgi)
         if a.host in ("0.0.0.0", "::"):
             for ip in yerel_ipler():
@@ -190,7 +241,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             yaz(f"      http://{a.host}:{a.port}")
         yaz("\n  Bu pencereyi kapatabilirsiniz.")
-        yaz("  Sunucuyu gerçekten durdurmak için:  saha\\DURDUR.bat")
+        yaz(f"  Sunucuyu gerçekten durdurmak için:  {durdur_komutu(a.port)}")
         yaz(f"{cizgi}\n")
         return 2            # baslat.bat bunu "hata" değil "zaten açık" sayar
 

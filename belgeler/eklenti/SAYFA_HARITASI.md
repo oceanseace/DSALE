@@ -44,8 +44,8 @@ Bilinenler (repo belgelerinden, canlı değil):
 
 | Konu | Bilgi | Kaynak |
 |---|---|---|
-| Adres | Görevdeki adres `https://boss.turkcell.com.tr/technical-tasks`. `docs/TURKCELL_SUREC_BILGISI.md` BOSS için `boss.superonline.net` diyor. **Eklenti ikisini de eşlemeli.** | görev metni + süreç belgesi |
-| Dışa aktarım | `TeknikTaskDetayRaporu.xlsx`, 51 kolon. Eklentide kullanılacak başlıklar: `Task No` (= Fox Akış No, tekil anahtar), `Task Adı`, `Ekip`, `Lokasyon` (= bina `location_id`), `Müşteri No`, `Randevu Durumu`, `Randevu Başlangıç Tarihi`, `Randevu Bitiş Tarihi`, `Merkeze Gönder Statüsü`, `Durum` | `operasyon/analiz/entegrasyon.md` §2.1, `operasyon/is_emri.py` |
+| Adres | Görevdeki adres `https://boss.turkcell.com.tr/technical-tasks`. `belgeler/TURKCELL_SUREC_BILGISI.md` BOSS için `boss.superonline.net` diyor. **Eklenti ikisini de eşlemeli.** | görev metni + süreç belgesi |
+| Dışa aktarım | `TeknikTaskDetayRaporu.xlsx`, 51 kolon. Eklentide kullanılacak başlıklar: `Task No` (= Fox Akış No, tekil anahtar), `Task Adı`, `Ekip`, `Lokasyon` (= bina `location_id`), `Müşteri No`, `Randevu Durumu`, `Randevu Başlangıç Tarihi`, `Randevu Bitiş Tarihi`, `Merkeze Gönder Statüsü`, `Durum` | `kod/operasyon/analiz/entegrasyon.md` §2.1, `kod/operasyon/is_emri.py` |
 | Müşteri telefonu | Raporda **yok**; teknik ekip detay ekranından elle alıyor (GEREKSINIMLER C14). Eklenti yalnız **etiketi** bilmeli, değeri sunucuya yalnız kullanıcı "Getir"e basınca taşımalı. | GEREKSINIMLER |
 | Randevu | Randevu ataması BOSS'ta yapılır, tarih/saat task'a not olarak da girilir. | süreç belgesi §3 |
 
@@ -73,7 +73,7 @@ Eklenti davranışı için karar (G1): **ilk sürüm BOSS'a yazmaz.** Bizde yap�
 
 **Durum: giriş gerekli.** `https://mail.turkcell.com.tr/owa/` → `https://mail.turkcell.com.tr/my.policy`
 (F5 BIG-IP APM giriş sayfası). Posta kutusu şirket içi Exchange; Microsoft Graph kullanılamaz
-(`operasyon/analiz/entegrasyon.md` §2.7).
+(`kod/operasyon/analiz/entegrasyon.md` §2.7).
 
 `outlook.office.com` **denenmedi**: bağlı tarayıcı kullanıcının iş bilgisayarı değildi, kişisel bir posta
 kutusu açılma riski vardı.
@@ -234,7 +234,7 @@ Not: Atmosfer kodunda OneDesk için `https://onedeskwsdynamic.turkcell.com.tr/ap
 
 | Sistem | Adres | Durum | Bilinen |
 |---|---|---|---|
-| ONENT ek kapasite | `https://onent.turkcell.com.tr/Pys#AdditionalCapacityFlowNew` | **Giriş gerekli**: `/my.policy` (F5 APM; alanlar `username`, `password`, `Domain` seçimi TURKCELL/KKTCELL) | `#` ile yönlenen tek sayfa uygulaması (`operasyon/analiz/entegrasyon.md` §2.4). Talep listesi/detay seçicileri keşif turunda |
+| ONENT ek kapasite | `https://onent.turkcell.com.tr/Pys#AdditionalCapacityFlowNew` | **Giriş gerekli**: `/my.policy` (F5 APM; alanlar `username`, `password`, `Domain` seçimi TURKCELL/KKTCELL) | `#` ile yönlenen tek sayfa uygulaması (`kod/operasyon/analiz/entegrasyon.md` §2.4). Talep listesi/detay seçicileri keşif turunda |
 | FOX | `foxsaha.global-bilgi.entp` (belgelerde `foxapp.global-bilgi.entp` de geçiyor) | **Erişilemedi**: `DNS_PROBE_FINISHED_NXDOMAIN` (http ve https) | Yalnız Global Bilgi / Turkcell iç ağında çözülen ad. ASP.NET postback'li rapor ekranı olabilir |
 
 ---
@@ -255,7 +255,7 @@ Kullanıcı Windows Brave'de, oturumu açıkken bir kez basar. Eklenti **hiçbir
   düzey alan adları** (değer yok). Bunun için eklenti yalnız keşif anında `PerformanceObserver`
   (`resource`) kullanır; gövde okumaz.
 
-Sunucu bu dökümü `docs/eklenti/` altına yazılacak BOSS/FOX tablolarının (§1 B1–B10) girdisi olarak saklar.
+Sunucu bu dökümü `belgeler/eklenti/` altına yazılacak BOSS/FOX tablolarının (§1 B1–B10) girdisi olarak saklar.
 Kişisel veri içermediği için ayrı izin gerekmez; yine de döküm kullanıcıya gönderilmeden önce gösterilir.
 
 ---

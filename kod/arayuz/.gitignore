@@ -13,3 +13,9 @@ qa/is-emri/
 qa/faz2/
 # v2 tasarım/denetim ekran görüntüleri — canlı verinin kopyasından, adres içerebilir
 qa/v2/
+
+# Bütün QA çıktıları — ekran görüntüleri, günlük rapor Excel'leri ve özetler. Canlı verinin kopyasından
+# alındıklarında adres ya da kişi adı içerebilirler; yeniden üretilirler. Betikler (qa/*.mjs) sürümdedir.
+qa/**/*.png
+qa/**/*.xlsx
+qa/**/ozet.json

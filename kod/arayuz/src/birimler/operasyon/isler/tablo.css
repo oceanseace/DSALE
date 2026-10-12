@@ -1,0 +1,956 @@
+/* =========================================================================
+   TASKS — Excel görünümlü ızgara (xg-*). Bileşenler: Isler.tsx (araç çubuğu, çipler), Tablo.tsx + Baslik.tsx
+   (ızgara), DurumCubugu.tsx (kabuğun durum çubuğuna yazar), SuzgecMenusu / SagTikMenusu / BizimListesi /
+   SutunSecici / DolguRengi (açılırlar). RUT (../rut/rut.css) aynı --xg-* değişkenlerini kullanır.
+   Satır 22 px, başlık 24 px (+ isteğe bağlı 20 px harf satırı); ince nötr ızgara; seçim ve etkin hücre
+   lacivert. Satır dolguları OPAK (kart ile karışım): donuk sütunlar kayan içeriğin üstünde okunur kalsın.
+   Bütün değerler tokenlardan türer → koyu kip kendiliğinden (nötr koyu gri) çalışır.
+   ========================================================================= */
+
+:root {
+  --xg-izgara: var(--cizgi);
+  --xg-izgara-koyu: var(--cizgi-koyu);
+  --xg-bas: var(--ikincil-zemin);
+  --xg-bas-yazi: var(--metin-2);
+  --xg-bas-secili: var(--vurgu-yumusak);
+  --xg-vurgu: var(--vurgu);
+  --xg-vurgu-yazi: var(--vurgu-yazi);
+  --xg-secim: color-mix(in srgb, var(--vurgu) 12%, transparent);
+  --xg-ustunde: var(--uzerinde);
+  /* Palet (düğme) renkleri: aynı tonların doygun hali */
+  --xg-s-sari: color-mix(in srgb, var(--birincil) 70%, var(--kart));
+  --xg-s-kirmizi: color-mix(in srgb, var(--kirmizi-dolgu) 55%, var(--kart));
+  --xg-s-yesil: color-mix(in srgb, var(--yesil-dolgu) 55%, var(--kart));
+  --xg-s-mavi: color-mix(in srgb, var(--obek-1) 55%, var(--kart));
+  --xg-s-mor: color-mix(in srgb, var(--obek-5) 55%, var(--kart));
+  --xg-s-turuncu: color-mix(in srgb, var(--amber-dolgu) 55%, var(--kart));
+  /* Satır dolguları: kart üzerine hafif ton */
+  --xg-r-sari: color-mix(in srgb, var(--birincil) 22%, var(--kart));
+  --xg-r-kirmizi: color-mix(in srgb, var(--kirmizi-dolgu) 16%, var(--kart));
+  --xg-r-yesil: color-mix(in srgb, var(--yesil-dolgu) 16%, var(--kart));
+  --xg-r-mavi: color-mix(in srgb, var(--obek-1) 16%, var(--kart));
+  --xg-r-mor: color-mix(in srgb, var(--obek-5) 16%, var(--kart));
+  --xg-r-turuncu: color-mix(in srgb, var(--amber-dolgu) 16%, var(--kart));
+}
+
+/* ---------------------------------------------------------------- araç çubuğu */
+.xg-arac {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--b2);
+  min-height: 40px;
+  font-size: var(--boy-o);
+}
+.xg-bosluk {
+  flex: 1;
+}
+.xg-ara {
+  width: min(360px, 100%);
+}
+.xg-bolunmus {
+  position: relative;
+  display: inline-flex;
+}
+/* Araç düğmesi: .o-dugme.metin görünümü (32 px, çerçevesiz, üzerine gelince hafif zemin). */
+.xg-arac-dugme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--b2);
+  min-height: var(--kontrol);
+  padding: 0 var(--b3);
+  border: 0;
+  border-radius: var(--yaricap-k);
+  background: transparent;
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-o);
+  line-height: var(--satir-o);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--sure-k) var(--egri);
+}
+.xg-arac-dugme:hover:not(:disabled) {
+  background: var(--uzerinde);
+}
+.xg-arac-dugme:active:not(:disabled) {
+  background: var(--basili);
+}
+.xg-arac-dugme:disabled {
+  color: var(--pasif-yazi);
+  cursor: default;
+}
+.xg-arac-dugme.etkin {
+  background: var(--vurgu-yumusak);
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+.xg-bolunmus > .xg-arac-dugme + .xg-arac-dugme.ok {
+  padding: 0 var(--b2);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.xg-bolunmus > .xg-arac-dugme:has(+ .xg-arac-dugme.ok) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.xg-kova {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.xg-kova-cizgi {
+  width: 16px;
+  height: 4px;
+  border-radius: var(--yaricap-k);
+}
+.xg-acilir {
+  position: absolute;
+  top: calc(100% + var(--b1));
+  left: 0;
+  z-index: 40;
+  display: grid;
+  gap: var(--b1);
+  min-width: 220px;
+  padding: var(--b2);
+  background: var(--kart);
+  color: var(--metin);
+  border-radius: var(--yaricap);
+  box-shadow: var(--golge-menu);
+  font-size: var(--boy-o);
+}
+.xg-sutunlar {
+  width: 320px;
+}
+.xg-sutun-liste {
+  display: grid;
+  max-height: min(320px, 40vh);
+  overflow: auto;
+  padding: var(--b1) 0;
+}
+.xg-sutun-sec {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  padding: var(--b1) var(--b2);
+  border-radius: var(--yaricap-k);
+  cursor: pointer;
+}
+.xg-sutun-sec:hover {
+  background: var(--uzerinde);
+}
+.xg-ozel {
+  width: 320px;
+}
+.xg-ozel-kaydet {
+  display: flex;
+  gap: var(--b2);
+}
+.xg-ozel-kaydet .o-girdi {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Çipler: etkin süzgeçler */
+.xg-cipler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--b2);
+}
+.xg-cip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--b1);
+  max-width: min(380px, 100%);
+  min-width: 0;
+  min-height: var(--kontrol-k);
+  padding: 0 var(--b1) 0 var(--b3);
+  border-radius: 999px;
+  background: var(--vurgu-yumusak);
+  color: var(--vurgu-yazi);
+  font-size: var(--boy-k);
+  white-space: nowrap;
+}
+/* metin kısalır (…), ✕ her zaman görünür ve tıklanır */
+.xg-cip-metin {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xg-cip button {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.xg-cip button:hover {
+  background: var(--uzerinde);
+}
+
+/* ---------------------------------------------------------------- ızgara */
+.xg-kok {
+  position: relative;
+  font-family: var(--yazi);
+  font-size: var(--boy-o);
+}
+.xg-kap {
+  position: relative;
+  overflow: auto;
+  border: 1px solid var(--xg-izgara);
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  color: var(--metin);
+  outline: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Başlık bölümü (harf satırı + alan adları) birlikte yapışır. */
+.xg-bas-kap {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+}
+.xg-harfler,
+.xg-bas {
+  position: relative;
+  display: grid;
+  background: var(--xg-bas);
+  border-bottom: 1px solid var(--xg-izgara-koyu);
+}
+.xg-harfler {
+  height: 20px;
+}
+.xg-bas {
+  height: 24px;
+}
+.xg-kose {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--xg-bas);
+  border-right: 1px solid var(--xg-izgara-koyu);
+  cursor: cell;
+}
+.xg-kose:not(.xg-kose-alt)::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  border: 4px solid transparent;
+  border-right-color: var(--metin-3);
+  border-bottom-color: var(--metin-3);
+}
+.xg-harf {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border-right: 1px solid var(--xg-izgara);
+  background: var(--xg-bas);
+  color: var(--xg-bas-yazi);
+  font-size: var(--boy-k);
+  cursor: s-resize;
+}
+.xg-harf.donuk {
+  position: sticky;
+  z-index: 2;
+}
+.xg-harf.secili {
+  background: var(--xg-bas-secili);
+  color: var(--xg-vurgu-yazi);
+  font-weight: var(--kalin);
+  box-shadow: inset 0 -2px 0 var(--xg-vurgu);
+}
+.xg-bh {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--b1);
+  min-width: 0;
+  padding: 0 var(--b1);
+  border-right: 1px solid var(--xg-izgara);
+  background: var(--xg-bas);
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+  color: var(--metin-2);
+}
+.xg-bh.donuk {
+  position: sticky;
+  z-index: 2;
+}
+.xg-bh.secili {
+  background: var(--xg-bas-secili);
+  color: var(--xg-vurgu-yazi);
+  box-shadow: inset 0 -2px 0 var(--xg-vurgu);
+}
+.xg-bh-ad {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+}
+.xg-ok {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+  line-height: 1;
+  cursor: pointer;
+}
+.xg-ok:hover {
+  border-color: var(--xg-vurgu);
+}
+.xg-bh.suzuk .xg-ok {
+  border-color: var(--xg-vurgu);
+  background: var(--vurgu-yumusak);
+  color: var(--xg-vurgu-yazi);
+}
+.xg-tutamak {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  z-index: 1;
+  width: 8px;
+  cursor: col-resize;
+}
+
+.xg-govde {
+  position: relative;
+}
+.xg-satir {
+  position: absolute;
+  left: 0;
+  height: 22px;
+  display: grid;
+  background: var(--kart);
+}
+/* Dolgu rengi HÜCRE düzeyinde (Excel gibi; eski satır rengi bütün hücrelere — sutunlar.ts hucreRengi). */
+.xg-h.r-sari { background: var(--xg-r-sari); }
+.xg-h.r-kirmizi { background: var(--xg-r-kirmizi); }
+.xg-h.r-yesil { background: var(--xg-r-yesil); }
+.xg-h.r-mavi { background: var(--xg-r-mavi); }
+.xg-h.r-mor { background: var(--xg-r-mor); }
+.xg-h.r-turuncu { background: var(--xg-r-turuncu); }
+
+/* Satır başı: numara (gri, ortada) + "i". Katmanlar: hücre 0 · etkin hücre 2 · donuk 4 · başlık 6. */
+.xg-sb {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: var(--b1);
+  padding: 0 var(--b1);
+  background: var(--xg-bas);
+  border-right: 1px solid var(--xg-izgara-koyu);
+  border-bottom: 1px solid var(--xg-izgara);
+  color: var(--xg-bas-yazi);
+  font-size: var(--boy-k);
+  cursor: e-resize;
+}
+.xg-sb.secili {
+  background: var(--xg-bas-secili);
+  color: var(--xg-vurgu-yazi);
+  font-weight: var(--kalin);
+  box-shadow: inset -2px 0 0 var(--xg-vurgu);
+}
+.xg-satir.acik .xg-sb {
+  box-shadow: inset 3px 0 0 var(--xg-vurgu);
+}
+.xg-sb-no {
+  flex: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.xg-i {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--xg-vurgu-yazi);
+  border-radius: 50%;
+  background: var(--kart);
+  color: var(--xg-vurgu-yazi);
+  font-family: var(--yazi);
+  font-size: var(--boy-k);
+  font-weight: var(--kalin);
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.xg-satir:hover .xg-i {
+  opacity: 1;
+}
+.xg-i:hover,
+.xg-satir.acik .xg-i {
+  background: var(--xg-vurgu);
+  border-color: var(--xg-vurgu);
+  color: var(--vurgu-ust);
+  opacity: 1;
+}
+
+/* Hücre */
+.xg-h {
+  position: relative;
+  min-width: 0;
+  padding: 0 var(--b1);
+  border-right: 1px solid var(--xg-izgara);
+  border-bottom: 1px solid var(--xg-izgara);
+  background: inherit;
+  line-height: 21px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: cell;
+}
+.xg-h.donuk {
+  position: sticky;
+  z-index: 4;
+}
+.xg-h.donuk-son,
+.xg-bh.donuk-son,
+.xg-harf.donuk-son {
+  border-right: 2px solid var(--xg-izgara-koyu);
+}
+.xg-h.sayi {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.xg-satir:hover > .xg-h {
+  box-shadow: inset 0 0 0 999px var(--xg-ustunde);
+}
+.xg-satir.acik > .xg-h {
+  box-shadow: inset 0 0 0 999px var(--xg-ustunde);
+}
+.xg-h.secili,
+.xg-satir:hover > .xg-h.secili {
+  box-shadow: inset 0 0 0 999px var(--xg-secim);
+}
+/* Etkin hücre: kalın lacivert çerçeve (komşu çizginin üstüne biner). */
+.xg-h.etkin,
+.xg-satir:hover > .xg-h.etkin {
+  z-index: 2;
+  box-shadow: none;
+  outline: 2px solid var(--xg-vurgu);
+  outline-offset: -1px;
+}
+.xg-h.donuk.etkin {
+  z-index: 5;
+}
+.xg-kap:not(:focus-within) .xg-h.etkin {
+  outline-color: var(--metin-3);
+}
+.xg-uyari {
+  color: var(--amber);
+  font-weight: var(--kalin);
+}
+.xg-h-metin {
+  display: block;
+  padding-right: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xg-hucre-ok {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+  line-height: 1;
+  cursor: pointer;
+}
+.xg-bos {
+  position: sticky;
+  left: 0;
+  padding: var(--b6);
+  color: var(--metin-2);
+}
+
+/* ---------------------------------------------------------------- durum (kabuğun durum çubuğunda) */
+.xg-durum-bildiri {
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+.xg-durum-ozet {
+  display: inline-flex;
+  gap: var(--b2);
+  color: var(--metin);
+  font-variant-numeric: tabular-nums;
+}
+.xg-yakinlik {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--b1);
+  margin-left: auto;
+}
+.xg-yakinlik input[type='range'] {
+  width: 110px;
+  accent-color: var(--vurgu);
+}
+.xg-yakinlik button {
+  min-width: 20px;
+  padding: 0 var(--b1);
+  border: 0;
+  border-radius: var(--yaricap-k);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.xg-yakinlik button:hover {
+  background: var(--uzerinde);
+}
+.xg-yakinlik-yuzde {
+  min-width: 44px;
+  font-variant-numeric: tabular-nums;
+}
+.xg-durum-ozet > span + span::before {
+  content: '·';
+  margin-right: var(--b2);
+  color: var(--metin-3);
+}
+
+/* ---------------------------------------------------------------- açılır menüler (body'ye taşınır) */
+.xg-menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--b1);
+  width: 296px;
+  padding: var(--b2);
+  background: var(--kart);
+  color: var(--metin);
+  border-radius: var(--yaricap);
+  box-shadow: var(--golge-menu);
+  font-size: var(--boy-o);
+}
+.xg-sagtik {
+  width: 252px;
+}
+/* ekrana sığdırma (acilir.ts useEkranaSigdir): menü kısılınca içi kayar; süzgeçte yalnız değer listesi kısalır */
+.xg-menu {
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+}
+.xg-menu > * {
+  flex-shrink: 0;
+}
+.xg-suzgec {
+  overflow: hidden;
+}
+.xg-suzgec > .xg-liste {
+  flex-shrink: 1;
+}
+.xg-acilir {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.xg-bizim {
+  width: 212px;
+  max-height: 340px;
+  overflow: auto;
+  outline: none;
+  gap: 0;
+}
+.xg-menu hr,
+.xg-acilir hr {
+  width: 100%;
+  margin: var(--b1) 0;
+  border: 0;
+  border-top: 1px solid var(--cizgi);
+}
+.xg-menu-satir {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  min-height: var(--kontrol);
+  padding: 0 var(--b2);
+  border: 0;
+  border-radius: var(--yaricap-k);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.xg-menu-satir:hover,
+.xg-menu-satir.imlec {
+  background: var(--uzerinde);
+}
+.xg-menu-satir.secili {
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+.xg-menu-satir kbd {
+  margin-left: auto;
+  font: inherit;
+  font-size: var(--boy-k);
+  color: var(--metin-3);
+}
+.xg-menu-simge {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  font-size: var(--boy-k);
+  color: var(--metin-2);
+}
+.xg-menu-etiket {
+  display: grid;
+  gap: var(--b1);
+  padding: var(--b1);
+  font-size: var(--boy-k);
+  color: var(--metin-2);
+}
+.xg-menu-renk {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  padding: var(--b1) var(--b2);
+  font-size: var(--boy-k);
+  color: var(--metin-2);
+}
+.xg-menu-renk > span {
+  margin-right: auto;
+}
+.xg-liste {
+  max-height: 280px;
+  min-height: 72px;
+  flex: 0 1 auto;
+  overflow: auto;
+  padding: var(--b1) 0;
+  border-radius: var(--yaricap-k);
+  background: var(--ikincil-zemin);
+}
+.xg-deger {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  min-height: 24px;
+  padding: 0 var(--b2);
+  cursor: pointer;
+}
+.xg-deger:hover {
+  background: var(--uzerinde);
+}
+/* Diğer süzgeçler yüzünden şu an görünmeyen değer (Excel gibi soluk; yine aranır ve seçilir). */
+.xg-deger.soluk .xg-deger-ad,
+.xg-deger.soluk .xg-sayi {
+  opacity: 0.5;
+}
+.xg-deger-ad {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xg-sayi {
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.xg-not {
+  padding: var(--b1) var(--b2);
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+.xg-menu-alt {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  margin-top: var(--b1);
+}
+
+/* Renk paleti */
+.xg-palet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--b2);
+  padding: var(--b1);
+}
+.xg-renk {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: var(--yaricap-k);
+  cursor: pointer;
+}
+.xg-renk:hover {
+  outline: 2px solid var(--vurgu);
+  outline-offset: 1px;
+}
+.r-sari:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-sari); }
+.r-kirmizi:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-kirmizi); }
+.r-yesil:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-yesil); }
+.r-mavi:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-mavi); }
+.r-mor:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-mor); }
+.r-turuncu:is(.xg-renk, .xg-kova-cizgi) { background: var(--xg-s-turuncu); }
+
+/* Uyarı ipucu (Uyarı sütununda ⚠ üzerine gelince) */
+.xg-ipucu {
+  position: fixed;
+  z-index: 1100;
+  max-width: 340px;
+  padding: var(--b2) var(--b3);
+  border-radius: var(--yaricap-k);
+  background: var(--bildirim-zemin);
+  color: var(--bildirim-yazi);
+  font-size: var(--boy-k);
+  white-space: pre-line;
+  pointer-events: none;
+  box-shadow: var(--golge-menu);
+}
+
+/* ---------------------------------------------------------------- BOSS'tan değişen hücre: kısa sarı vurgu */
+.xg-h.degisti {
+  box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--birincil) 30%, transparent);
+}
+/* Yeni gelen satır: satır başında lacivert şerit */
+.xg-satir.yeni .xg-sb {
+  box-shadow: inset 3px 0 0 var(--xg-vurgu);
+  color: var(--xg-vurgu-yazi);
+  font-weight: var(--kalin);
+}
+
+/* ---------------------------------------------------------------- değişiklik şeridi (FarkSeridi.tsx) */
+.xg-fark {
+  position: relative;
+  font-size: var(--boy-k);
+}
+.xg-fark-serit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--b2);
+  max-width: 100%;
+  min-height: var(--kontrol-k);
+  padding: 0 var(--b3);
+  border: 0;
+  border-radius: 999px;
+  background: var(--ikincil-zemin);
+  color: var(--metin-2);
+  font: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+.xg-fark-serit:hover {
+  background: var(--kart-bas);
+}
+.xg-fark-serit b {
+  color: var(--metin);
+  font-variant-numeric: tabular-nums;
+}
+.xg-fark-nokta {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--yesil-dolgu);
+}
+.xg-fark-sayi {
+  font-weight: var(--kalin);
+}
+.xg-fark-sayi.yeni {
+  color: var(--yesil);
+}
+.xg-fark-sayi.degisen {
+  color: var(--amber);
+}
+.xg-fark-sayi.kapanan {
+  color: var(--kirmizi);
+}
+.xg-fark-sessiz {
+  color: var(--metin-3);
+}
+.xg-fark-ok {
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+.xg-fark-liste {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  gap: 0;
+  padding: var(--b1) 0;
+}
+.xg-fark-kayit {
+  padding: var(--b2) var(--b3);
+  border-bottom: 1px solid var(--cizgi);
+}
+.xg-fark-kayit:last-child {
+  border-bottom: 0;
+}
+.xg-fark-kayit header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--b2);
+  margin-bottom: var(--b2);
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+.xg-fark-kayit header b {
+  color: var(--metin);
+  font-size: var(--boy-k);
+}
+.xg-fark-ozet {
+  margin-left: auto;
+  color: var(--metin-2);
+}
+.xg-fark-nolar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--b1);
+}
+.xg-fark-no {
+  padding: 0 var(--b2);
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-family: var(--yazi-es);
+  font-size: var(--boy-k);
+  line-height: 20px;
+  cursor: pointer;
+}
+.xg-fark-no.yeni {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+.xg-fark-no.degisen {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+}
+.xg-fark-no.kapanan {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+  text-decoration: line-through;
+}
+.xg-fark-no:hover {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* Düzen ▾ (DuzenMenusu.tsx): satır + sil düğmesi */
+.xg-duzen-satir {
+  display: flex;
+  align-items: center;
+  gap: var(--b1);
+}
+.xg-duzen-satir .xg-menu-satir {
+  flex: 1;
+  min-width: 0;
+}
+.xg-duzen-sil {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--yaricap-k);
+  color: var(--metin-3);
+}
+.xg-duzen-sil:hover {
+  background: var(--uzerinde);
+  color: var(--metin);
+}
+
+/* Renge göre süz: etkin renk */
+.xg-renk.secili {
+  outline: 2px solid var(--vurgu);
+  outline-offset: 1px;
+}
+/* Süzgeç gövdesi: Görünenleri seç / Temizle ve seçim özeti */
+.xg-eylem {
+  display: flex;
+  justify-content: space-between;
+}
+.xg-ozet {
+  padding: 0 var(--b1);
+}
+
+/* Sütunlar ▾ — sıra listesi (sürükle ya da ↑/↓) */
+.xg-sira-liste {
+  display: grid;
+  gap: 1px;
+  max-height: 240px;
+  overflow: auto;
+  padding: var(--b1) 0;
+  border-radius: var(--yaricap-k);
+  background: var(--ikincil-zemin);
+}
+.xg-sira {
+  display: flex;
+  align-items: center;
+  gap: var(--b1);
+  min-height: 26px;
+  padding: 0 var(--b1);
+  background: var(--kart);
+  cursor: grab;
+  user-select: none;
+}
+.xg-sira.surukleniyor {
+  opacity: 0.45;
+}
+.xg-sira.hedef-ust {
+  box-shadow: inset 0 2px 0 var(--xg-vurgu);
+}
+.xg-sira.hedef-alt {
+  box-shadow: inset 0 -2px 0 var(--xg-vurgu);
+}
+.xg-sira-tutamak {
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+.xg-sira-ad {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xg-sira-dugme {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--girdi-kenar);
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  color: inherit;
+  font: inherit;
+  font-size: var(--boy-k);
+  cursor: pointer;
+}
+.xg-sira-dugme:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

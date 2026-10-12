@@ -6,7 +6,6 @@
  "GET /api/isler/boss-ekip": "get_isler_boss_ekip.json",
  "GET /api/isler/ayarlar": "get_isler_ayarlar.json",
  "GET /api/boss/giden": "get_boss_giden.json",
- "GET /api/aranacaklar": "get_aranacaklar.json",
  "GET /api/islerim": "get_islerim.json",
  "GET /api/obekler": "get_obekler.json",
  "GET /api/mahalleler": "get_mahalleler.json",

@@ -18,7 +18,7 @@ from . import akis, aski, kisi, kurallar, siralama, zaman
 from .hatalar import IsYok
 
 _BTK_48 = dt.timedelta(hours=48)
-_ACIK_TICKET = ("AÇIK", "HATA", "TRANSFER")
+_ACIK_TICKET = ("AÇIK", "HATA", "TRANSFER", "BÖLGE")
 
 
 def kisa_ad(ad) -> str:
@@ -64,12 +64,10 @@ class Baglam:
         self.obekler = {r[0]: {"id": r[0], "ad": r[1], "renk": r[2]} for r in
                         conn.execute("SELECT id, ad, renk FROM obek")}
         self.kisiler = kisi.kisiler(conn)
-        try:
-            t = conn.execute("SELECT bina_serial, COUNT(*) FROM ticket WHERE bina_serial IS NOT NULL AND durum IN "
-                             "('AÇIK','HATA','TRANSFER') GROUP BY bina_serial").fetchall()
-            self.bina_ticket = {r[0]: r[1] for r in t}
-        except sqlite3.OperationalError:
-            self.bina_ticket = {}
+        from collections import Counter
+
+        from saha import ticket as tk        # açık ticket'ların tek kaynağı (uyarılar ve Ticketlar ile aynı)
+        self.bina_ticket = dict(Counter(t["bina_serial"] for t in tk.acik_ticketlar(conn) if t["bina_serial"]))
         self.ticketlar: dict[int, dict] = {}
         self.araliklar = aski.araliklar(conn, is_nolar)
         self.son24_durur = aski.son24_durur(conn)
@@ -80,6 +78,31 @@ class Baglam:
         self.tatiller = kurallar.oku(conn, "resmi_tatiller")
         self.btk = akis.btk_bilgileri(conn, is_nolar)
         self._oncelik: dict[str, str | None] = {}
+        self._uyari = None
+        self._isaret: dict[str, str] | None = None
+        self._hucre: dict[str, dict[str, str]] | None = None
+
+    @property
+    def uyari(self):
+        """Satır uyarıları (açık ticket'lar + müşteri başına açık işler): ilk satırda bir kez kurulur."""
+        if self._uyari is None:
+            from .uyari import Uyarilar
+            self._uyari = Uyarilar(self.conn)
+        return self._uyari
+
+    @property
+    def isaretler(self) -> dict[str, str]:
+        if self._isaret is None:
+            from . import isaret
+            self._isaret = isaret.hepsi(self.conn)
+        return self._isaret
+
+    @property
+    def hucre_renkleri(self) -> dict[str, dict[str, str]]:
+        if self._hucre is None:
+            from . import isaret
+            self._hucre = isaret.hucreler(self.conn)
+        return self._hucre
 
     def oncelik(self, task_adi: str) -> str | None:
         """Öncelik kuralı iş tipi başına bir kez eşlenir (437 işte ≈40 farklı tip; düzenli ifade her satırda değil)."""
@@ -147,6 +170,8 @@ def _rozetler(r, b: Baglam) -> list[str]:
         z.append("yeniden")
     if r["obek_elle_id"]:
         z.append("elle")
+    if r["durum"] == "askida" and not r["uyanma"]:
+        z.append("uyanmasiz")          # Pano "Askıda, uyanma yok" süzgeci (sayac askida_uyanmasiz ile aynı koşul)
     return z
 
 
@@ -211,7 +236,12 @@ def satir(conn: sqlite3.Connection, r, k: dict | None, b: Baglam | None = None) 
         "btk_sikayet": kurallar.btk_sikayet_durumu(b.btk.get(r["is_no"]), (b.btk.get(r["is_no"]) or {}).get("tcs"),
                                                    simdi, b.btk_kural, b.tatiller) if r["is_no"] in b.btk else None,
         "genel_ariza": r["durum"] == "askida" and str(r["askida_neden"] or "").startswith("Genel arıza"),
+        "bizim_durum": r["bizim_durum"] if "bizim_durum" in r.keys() else None,
+        # TASKS tablosu: satır uyarıları ve kullanıcının boyadığı renk
+        "uyarilar": b.uyari.liste(r), "isaret": b.isaretler.get(r["is_no"]),
+        "hucre_renk": b.hucre_renkleri.get(r["is_no"]) or {},
     }
+    s["iliskili_akis"], s["iliskili_isler"] = b.uyari.iliskili(r)    # aynı müşterinin diğer açık işleri
     izin = b.musteri_izni(r)
     if izin:
         bina = {"site_adi": r["b_site_adi"], "crm_site_adi": r["b_crm_site_adi"], "bina_ad": r["b_ad"]} \
@@ -221,6 +251,9 @@ def satir(conn: sqlite3.Connection, r, k: dict | None, b: Baglam | None = None) 
         s["kisa_adres"] = kisa_adres(r["adres"], bina, r["mahalle"])
     if b.ofis:
         s["boss_ekip"] = r["boss_ekip"]
+        s["boss_durum"] = r["boss_durum"]
+        s["boss_randevu_durumu"] = r["boss_randevu_durumu"]   # MAP rengi: BOSS 'Açık' + randevu → sarı
+        s["satis_kanali"] = r["satis_kanali"]
     return s
 
 
@@ -229,7 +262,7 @@ _OLAY_ALAN = {"atanan_id": "teknisyen", "randevu_bas": "randevu", "durum": "duru
               "ticket_id": "ticket", "mahalle": "mahalle", "adres": "adres", "musteri_adi": "müşteri adı",
               "musteri_no": "müşteri no", "task_adi": "iş tipi", "boss_durum": "BOSS durumu", "boss_ekip": "BOSS ekibi",
               "boss_randevu_bas": "BOSS randevusu", "lokasyon": "Location Id", "boss_son_aciklama": "BOSS açıklaması",
-              "boss_sl": "SL", "obek_id": "öbek"}
+              "boss_sl": "SL", "obek_id": "öbek", "bizim_durum": "bizim durum"}
 
 
 def _dilim(bas, bit) -> str:
@@ -283,7 +316,7 @@ def olay_ozeti(o: dict) -> str:
         return "Geri aldı"
     return notu or {"teknik_gordu": "Teknisyen gördü", "boss_islendi": "BOSS'a işlendi", "boss_bagla": "BOSS'a bağlandı",
                     "ticket": "Ticket değişti", "obek": "Öbek değişti", "mahalle": "Mahalle değişti",
-                    "teshis": "Masa araması", "sira": "Sıra değişti"}.get(tur, "Değişti")
+                    "teshis": "Masa araması", "sira": "Sıra değişti", "isaret": "Renk değişti"}.get(tur, "Değişti")
 
 
 def soz_metni(acilis: str | None, mesai_bitis: str = "20:00") -> str:
@@ -326,8 +359,10 @@ def _izinler(conn, r, b: Baglam) -> dict:
                       | ({"kapandi"} if ofis and r["kaynak"] == "bayi" and not r["boss_task_no"] and r["durum"] in akis.ACIK
                          else set()), key=akis.DURUMLAR.index)
     acik = r["durum"] in akis.ACIK
+    from saha import yetki   # "Yeni ticket aç" yalnız ticket.defter iznine (POST /api/ticket ve Loc ID sorgusu ister)
+    ticket_izni = b.k is None or yetki.izinli(b.k, "ticket.defter")
     return {"ata": ofis and (r["durum"], "atandi") in akis.GECISLER, "randevu": ofis and acik,
-            "ticket": ofis and acik, "obek": ofis and r["durum"] != "kapandi",
+            "ticket": ofis and acik and ticket_izni, "obek": ofis and r["durum"] != "kapandi",
             "iletisim": ofis and _ayar(conn, "musteri_tel", "kapali") == "acik",
             "durumlar": durumlar, "ofisten_kapat": ofis and acik, "yeniden_ac": ofis and r["durum"] == "cozuldu",
             "boss_bagla": ofis and r["kaynak"] == "bayi" and not r["boss_task_no"]}
@@ -364,6 +399,17 @@ def boss_giden(conn, r, b: Baglam | None = None) -> dict | None:
             "olusma": son[0] if son else r["guncelleme"]}
 
 
+def _not_boss(conn, is_no: str, boss_task_no, olaylar) -> dict:
+    """Notların BOSS'a yazılma durumu (olay id → {durum: gonderiliyor|gonderildi|hata|kapali, zaman, hata?})."""
+    if not boss_task_no or not any(o["tur"] == "not" for o in olaylar):
+        return {}
+    from . import boss_yazma
+    try:
+        return boss_yazma.not_durumlari(conn, is_no)
+    except sqlite3.Error:
+        return {}
+
+
 def ayrinti(conn: sqlite3.Connection, is_no: str, k: dict | None, *, kapsam: bool = True) -> dict:
     """``IsAyrinti``. Kapsam dışı iş (teknikte başkasının) → 404 is_yok.
 
@@ -385,6 +431,7 @@ def ayrinti(conn: sqlite3.Connection, is_no: str, k: dict | None, *, kapsam: boo
     net = aski.hesap(b.araliklar.get(is_no), r["acilis"], r["btk_hedef"], b.simdi, r["son24"], b.son24_durur)
     olaylar = conn.execute("SELECT id, zaman, kayit_zamani, kullanici_ad, tur, eski, yeni, notu FROM is_emri_olay "
                            "WHERE is_no=? ORDER BY id DESC LIMIT 50", (is_no,)).fetchall()
+    not_boss = _not_boss(conn, is_no, r["boss_task_no"], olaylar)
     url = _ayar(conn, "boss_task_url")
     mesai = str(_ayar(conn, "mesai", "08:00-20:00")).split("-")[-1].strip() or "20:00"
     s.update({
@@ -405,7 +452,8 @@ def ayrinti(conn: sqlite3.Connection, is_no: str, k: dict | None, *, kapsam: boo
         "boss_url": url.replace("{task_no}", r["boss_task_no"]) if url and r["boss_task_no"] and "{task_no}" in url else None,
         "bayi_oneri": _bayi_oneri(conn, r) if b.ofis else None,
         "olaylar": [{"id": o["id"], "zaman": o["zaman"], "kisi": o["kullanici_ad"], "tur": o["tur"],
-                     "ozet": olay_ozeti(dict(o)), "notu": o["notu"] if o["tur"] == "not" or b.ofis else None}
+                     "ozet": olay_ozeti(dict(o)), "notu": o["notu"] if o["tur"] == "not" or b.ofis else None,
+                     **({"boss": not_boss[o["id"]]} if o["id"] in not_boss else {})}
                     for o in olaylar],
         "aski": [aski.gorunum(a, b.simdi) for a in b.araliklar.get(is_no, [])],
         "aski_durdu_dk": net["durdu_dk"],
@@ -488,7 +536,6 @@ def sayac(conn: sqlite3.Connection, simdi: dt.datetime | None = None, satirlar: 
     return {"acik": r[0] or 0, "asan24": r[1] or 0, "atanmamis": r[2] or 0,
             "en_eski_atanmamis_dk": int((simdi - en_eski).total_seconds() // 60) if en_eski else None,
             "btk48": r[4] or 0, "kontrol": r[5] or 0, "boss_bekleyen": r[6] or 0, "konum_yaklasik": r[7] or 0,
-            "aranacak": sum(len(b["isler"]) for b in aranacak_bantlari(conn, simdi, sayim=True)),
             "eslesmemis_ekip": len(eslesmemis), "askida_btk_durdu": durdu, "askida_uyanmasiz": r[8] or 0}
 
 
@@ -600,39 +647,6 @@ def degisim(conn: sqlite3.Connection, k: dict | None, imlec_: int) -> dict:
     return {"imlec": yeni_imlec, "isler": isler, "gorunmez": gorunmez, "obek_surumu": obek.surum(conn),
             "son_aktarim": son_aktarim(conn, simdi), "sayac": sayac(conn, simdi), "sunucu_zamani": zaman.metin(simdi),
             "onay_bekleyen": aktarim.onay_bekleyenler(conn) if kisi.ofis_mu(conn, k) else []}
-
-
-# ----------------------------------------------------------------------------- Aranacaklar (§6.6)
-def aranacak_bantlari(conn: sqlite3.Connection, simdi: dt.datetime, k: dict | None = None,
-                      sayim: bool = False) -> list[dict]:
-    """1 BTK teşhis (masa vadesi) › 2 Ulaşılamadı (uyanma geldi) › 3 Uyanan askı › 4 Masa işleri."""
-    s = zaman.metin(simdi)
-    bir_saat_once = zaman.metin(simdi - dt.timedelta(hours=24))
-    sorgular = [
-        ("btk_teshis", "serit='BTK' AND masa_vade IS NOT NULL AND kotu_gecmis=0 AND teshis_sonucu IS NULL AND "
-                       "durum IN ('triyaj','bekliyor','randevulu','atandi') ORDER BY masa_vade", ()),
-        ("ulasilamadi", "durum='ulasilamadi' AND (uyanma IS NULL OR uyanma <= ?) ORDER BY uyanma, evde_yok_sayisi DESC",
-         (s,)),
-        ("uyanan", "durum IN ('bekliyor','triyaj') AND is_no IN (SELECT is_no FROM is_emri_olay WHERE tur='uyandi' "
-                   "AND kayit_zamani >= ?) ORDER BY durum_zamani", (bir_saat_once,)),
-        ("masa", "serit='MASA' AND durum NOT IN ('cozuldu','kapandi','askida') ORDER BY son24", ()),
-    ]
-    goruldu: set[str] = set()
-    bantlar = []
-    for bant, kosul, param in sorgular:
-        if sayim:
-            nolar = [r[0] for r in conn.execute(f"SELECT is_no FROM is_emri WHERE {kosul}", param)]
-            nolar = [n for n in nolar if n not in goruldu]
-            goruldu.update(nolar)
-            bantlar.append({"bant": bant, "isler": nolar})
-            continue
-        # koşuldaki sütunların hepsi is_emri'ye özgüdür (bina ile çakışan ad yok)
-        satirlar = [r for r in conn.execute(_SATIR_SQL + " WHERE " + kosul, param).fetchall()
-                    if r["is_no"] not in goruldu]
-        goruldu.update(r["is_no"] for r in satirlar)
-        b = Baglam(conn, k, simdi, is_nolar=[r["is_no"] for r in satirlar])
-        bantlar.append({"bant": bant, "isler": [satir(conn, r, k, b) for r in satirlar]})
-    return bantlar
 
 
 def islerim(conn: sqlite3.Connection, k: dict) -> dict:

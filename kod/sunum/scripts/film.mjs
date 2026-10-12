@@ -3,7 +3,7 @@
  * Tanıtım filmi — tek dosya HTML'i `?film=1` ile açar, film döngüsünü kaydeder,
  * ffmpeg-static ile MP4'e çevirir.
  *
- * Kullanım (app/ içinden):
+ * Kullanım (kod/sunum içinden):
  *   node scripts/film.mjs --html ../../cikti/DSALE_Sunum.html --out ../../cikti/DSALE_Tanitim.mp4
  *
  * Seçenekler:

@@ -1,5 +1,5 @@
-# Saha Sistemi sunucusu
-#   .venv/Scripts/python.exe -m pip install -r saha/gereksinimler.txt
+# Turkcell sunucusu
+#   .venv/Scripts/python.exe -m pip install -r kod/saha/gereksinimler.txt   (kökteki requirements.txt hepsini kurar)
 fastapi>=0.115
 uvicorn[standard]>=0.30
 itsdangerous>=2.2

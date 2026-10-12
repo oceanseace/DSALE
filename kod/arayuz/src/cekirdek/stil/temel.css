@@ -1,0 +1,1960 @@
+/* Temel öğe stilleri + telefon (saha) ekranlarının iskeleti.
+   Tokenlar: tokenlar.css (TEK kaynak). Bu dosyada renk kodu yazılmaz. */
+@import "./tokenlar.css";
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  /* iOS/Android yazı boyutu ayarı çalışsın diye kök ölçü tarayıcıdan gelir;
+     ekrandaki ölçüler rem'dir. Sabit px'te 65 yaşındaki kullanıcı yazıyı
+     büyüttüğünde hiçbir şey değişmiyordu. */
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overscroll-behavior-y: none;
+  /* Saha uygulaması hiçbir zaman yana kaymaz. Uzun bir bina adı taşarsa
+     sayfayı genişletmesin diye kesiyoruz (clip kaydırma çubuğu yaratmaz). */
+  overflow-x: clip;
+}
+
+body {
+  background: var(--zemin);
+  color: var(--metin);
+  font-family: var(--yazi);
+  font-feature-settings: "kern", "calt";
+  font-synthesis-weight: none;
+  font-size: var(--boy-b);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Kalınlık yalnız 400 / 600 (§7.2): tarayıcının "bold" (700) varsayılanı da. */
+b,
+strong,
+h1,
+h2,
+h3,
+h4,
+th {
+  font-weight: 600;
+}
+
+/* Başlıklarda Display optik boyutu ve sıkı harf aralığı (SF Pro / Segoe UI
+   Variable Display). Sayılar her yerde aynı genişlikte (tablo, sayaç). */
+h1,
+h2,
+h3 {
+  font-family: var(--yazi-baslik);
+}
+table,
+time,
+.sayi,
+[data-sayi] {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--birincil-yumusak);
+  color: var(--metin);
+}
+
+#kok {
+  min-height: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+a {
+  color: var(--birincil-yazi);
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--odak);
+  outline-offset: 2px;
+  border-radius: var(--yaricap);
+}
+
+/* ---------------- Sayfa iskeleti ---------------- */
+
+.sayfa {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-left: var(--sol-guvenli);
+  padding-right: var(--sag-guvenli);
+}
+
+.sayfa-govde {
+  flex: 1;
+  padding: 0 var(--bosluk);
+  padding-bottom: calc(96px + var(--alt-guvenli));
+}
+
+/* Harita gibi tam ekran içerikler: sayfa kaymaz, gövde kalan alanı doldurur. */
+.sayfa.sabit {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.sayfa-govde.tam {
+  padding: 0 0 calc(60px + var(--alt-guvenli));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sayfa-govde.sekmesiz {
+  padding-bottom: calc(24px + var(--alt-guvenli));
+}
+
+/* ---------------- Üst başlık ---------------- */
+
+.ust {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--ust-zemin);
+  padding-top: var(--ust-guvenli);
+}
+
+.ust-satir {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px var(--bosluk) 8px;
+}
+
+.ust-baslik {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ust-baslik.kucuk {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  text-align: center;
+}
+
+.ust-alt {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  padding: 0 var(--bosluk) 12px;
+  margin-top: -8px;
+}
+
+.geri {
+  width: 44px;
+  height: 44px;
+  margin-left: -12px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--birincil-yazi);
+}
+
+.geri:active {
+  background: var(--birincil-yumusak);
+}
+
+/* ---------------- Düğmeler ---------------- */
+
+.dugme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: var(--hedef);
+  width: 100%;
+  padding: 0 20px;
+  border-radius: var(--yaricap);
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  transition: background-color 0.12s var(--egri), opacity 0.12s var(--egri);
+}
+
+.dugme:disabled {
+  opacity: 0.55;
+}
+
+/* Devre dışı ana düğme soluk mavi değil, nötr gri görünür:
+   "biraz daha bekle" ile "bas bana" karışmasın. Yazı KOYU: beyaz yazı açık gri
+   zeminde 1,46:1 kontrast veriyordu ve güneşte ya hiç okunmuyor ya düğme bozuk
+   sanılıyordu (WCAG AA büyük yazı eşiği 3:1). */
+.dugme.birincil:disabled,
+.dugme.yesil:disabled {
+  background: var(--pasif-zemin);
+  color: var(--pasif-yazi);
+  box-shadow: none;
+  opacity: 1;
+}
+
+/* Geri alınamaz/yıkıcı eylem (ör. "kaydetmeden çık"). */
+.dugme.tehlike {
+  background: var(--kirmizi-dolgu);
+  color: var(--dolgu-yazi);
+}
+
+.dugme.birincil {
+  background: var(--birincil);
+  color: var(--birincil-ust);
+  box-shadow: var(--golge-birincil);
+}
+
+.dugme.birincil:active:not(:disabled) {
+  background: var(--birincil-bas);
+}
+
+/* Çekmece içi onay (ekranın sarı birincili dışında): lacivert dolgu. */
+.dugme.vurgu {
+  background: var(--vurgu);
+  color: var(--vurgu-ust);
+}
+.dugme.vurgu:active:not(:disabled) {
+  background: var(--vurgu-bas);
+}
+
+.dugme.ikincil {
+  background: var(--kart);
+  color: var(--birincil-yazi);
+}
+
+.dugme.ikincil:active:not(:disabled) {
+  background: var(--birincil-yumusak);
+}
+
+.dugme.yesil {
+  background: var(--yesil-dolgu);
+  color: var(--dolgu-yazi);
+  box-shadow: var(--golge-yesil);
+}
+
+.dugme.sessiz {
+  background: transparent;
+  color: var(--metin-2);
+  font-weight: 600;
+  min-height: 48px;
+}
+
+.dugme.buyuk {
+  min-height: 62px;
+  font-size: var(--boy-bb);
+}
+
+/* Ekranın altına yapışan eylem alanı */
+.eylem-serit {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  /* Birincil eylemin ("Sonucu işle") arkası tam opak: altından geçen liste
+     yazıları düğmenin okunurluğunu düşürmesin. */
+  background: var(--kart);
+  padding: 12px var(--bosluk) calc(12px + var(--alt-guvenli));
+  display: grid;
+  gap: 12px;
+  box-shadow: var(--golge-yuzen);
+}
+
+/* Şeridin üstünde yumuşak geçiş: altta içerik kaldığı anlaşılsın, liste
+   ortadan kesilmiş gibi durmasın (bkz. .cekmece-ayak). */
+.eylem-serit::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 20px;
+  pointer-events: none;
+  background: none;
+}
+
+/* ---------------- Kartlar ---------------- */
+
+.kart {
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  overflow: hidden;
+}
+
+.kart-ic {
+  padding: 16px;
+}
+
+.liste-kart {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  padding: 16px 16px 16px 12px;
+  margin-bottom: 12px;
+  transition: opacity 0.15s var(--egri);
+}
+
+.liste-kart.bitti {
+  background: var(--kart-bas);
+  box-shadow: none;
+}
+
+.sira-rozet {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--yaricap);
+  display: grid;
+  place-items: center;
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+  font-size: var(--boy-b);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sira-rozet.tamam {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+
+.sira-rozet.atlandi {
+  background: var(--gri-yumusak);
+  color: var(--gri);
+}
+
+.kart-govde {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+/* span olarak kullanıldıkları için display:block şart:
+   satır içi elemanlarda overflow/ellipsis çalışmaz. */
+.kart-ad {
+  display: block;
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kart-adres {
+  display: block;
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  margin: 0 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Kartın sağ şeridi: mesafe + ok. Mesafeyi rozetlerden ayırdık, yoksa
+   360 px'lik telefonlarda rozetler alt satıra taşıp kartı iki katına çıkarıyor. */
+.kart-sag {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  color: var(--metin-3);
+}
+
+.kart-mesafe {
+  font-size: var(--boy-k);
+  font-weight: 600;
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kart-ok {
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--metin-3);
+}
+
+/* ---------------- Rozetler / etiketler ---------------- */
+
+.rozetler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rozet {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: var(--boy-o);
+  font-weight: 600;
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+  white-space: nowrap;
+}
+
+.rozet.firsat {
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+}
+.rozet.yesil {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+.rozet.amber {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+}
+.rozet.kirmizi {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+}
+.rozet.mor {
+  background: var(--mor-yumusak);
+  color: var(--mor);
+}
+
+.rozet .nokta {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* ---------------- İlerleme ---------------- */
+
+.ilerleme-kart {
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  padding: 16px;
+  margin: 12px 0 16px;
+}
+
+.ilerleme-ust {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ilerleme-sayi {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ilerleme-sayi small {
+  font-size: var(--boy-b);
+  font-weight: 600;
+  color: var(--metin-2);
+}
+
+/* Gün içinde ikinci liste alındığında görünür: "Bugün toplam 32 bina gezdin" */
+.ilerleme-gun {
+  margin-top: 4px;
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+}
+
+.ilerleme-etiket {
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+  text-align: right;
+}
+
+.cubuk {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--gri-yumusak);
+  overflow: hidden;
+}
+
+.cubuk > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vurgu);
+  transition: width 150ms var(--yay-yumusak);
+}
+
+.cubuk.yesil > span {
+  background: var(--yesil-dolgu);
+}
+
+/* ---------------- Bilgi ızgarası ---------------- */
+
+.bilgi-izgara {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.bilgi {
+  background: var(--kart);
+  border-radius: var(--yaricap-k);
+  padding: 16px;
+}
+
+.bilgi .etiket {
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+  margin-bottom: 4px;
+}
+
+.bilgi .deger {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Büyük sayının altındaki açıklama satırı ("1 / 6 binada satış"). */
+.bilgi .alt-not {
+  margin-top: 4px;
+  font-size: var(--boy-k);
+  font-weight: 600;
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.bilgi.vurgu {
+  background: var(--vurgu);
+  box-shadow: var(--golge-birincil);
+}
+.bilgi.vurgu .etiket {
+  color: var(--birincil-ust);
+}
+.bilgi.vurgu .deger {
+  color: var(--birincil-ust);
+}
+
+.bilgi.yesil-vurgu {
+  background: var(--yesil-dolgu);
+  box-shadow: var(--golge-yesil);
+}
+.bilgi.yesil-vurgu .etiket {
+  color: var(--dolgu-yazi);
+}
+.bilgi.yesil-vurgu .deger {
+  color: var(--dolgu-yazi);
+}
+
+/* ---------------- Bölüm başlığı ---------------- */
+
+.bolum-baslik {
+  font-size: var(--boy-k);
+  font-weight: 600;
+  /* --metin-3 (2,74:1) yerine --metin-2: bölüm başlıkları da okunmalı. */
+  color: var(--metin-2);
+  margin: 24px 0 12px;
+}
+
+/* ---------------- Alt sekme çubuğu ---------------- */
+
+.sekmeler {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  /* TAM OPAK. Yarı saydam "buzlu cam" güzel duruyordu ama altından kayan
+     liste yazıları sekme etiketlerinin arasından okunuyordu; güneş altında
+     çalışan biri için bu okunaklılık kaybı süslemeye değmez. */
+  background: var(--kart);
+  padding-bottom: var(--alt-guvenli);
+  padding-left: var(--sol-guvenli);
+  padding-right: var(--sag-guvenli);
+}
+
+.sekme {
+  flex: 1;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 0 4px;
+  /* Sekme etiketleri 3,10:1 ile 4,5 eşiğinin altındaydı. */
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+  font-weight: 600;
+  position: relative;
+}
+
+.sekme.etkin {
+  color: var(--birincil-yazi);
+}
+
+.sekme:active {
+  opacity: 0.6;
+}
+
+.sekme .ikon-kutu {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.sekme .sayac {
+  position: absolute;
+  top: -5px;
+  right: -12px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--kirmizi-dolgu);
+  color: var(--dolgu-yazi);
+  font-size: var(--boy-k);
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Durum şeridi (çevrimdışı / bekleyen) ---------------- */
+
+.serit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--yaricap-k);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  margin: 12px 0 0;
+}
+
+.serit.bekleyen {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+}
+
+.serit.cevrimdisi {
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+}
+
+.serit.basarili {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+
+.serit .buton {
+  margin-left: auto;
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+  color: inherit;
+}
+
+/* ---------------- Boş durum ---------------- */
+
+.bos {
+  text-align: center;
+  padding: 48px 24px 24px;
+}
+
+.bos .simge {
+  font-size: var(--boy-bb);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.bos h2 {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.bos p {
+  color: var(--metin-2);
+  font-size: var(--boy-b);
+  margin: 0 auto 24px;
+  max-width: 320px;
+}
+
+/* ---------------- Alt çekmece (sheet) ---------------- */
+
+.perde {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--perde);
+  animation: perde-ac 150ms var(--egri) both;
+}
+
+.cekmece {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 61;
+  background: var(--kart);
+  border-radius: 8px 8px 0 0;
+  padding: 12px var(--bosluk) calc(16px + var(--alt-guvenli));
+  max-height: 92dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: cekmece-ac 150ms var(--yay-yumusak) both;
+  box-shadow: var(--golge-cekmece);
+}
+
+.cekmece-tutamac {
+  width: 40px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--cizgi-koyu);
+  margin: 0 auto 12px;
+}
+
+.cekmece-baslik {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.cekmece-alt {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+@keyframes perde-ac {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cekmece-ac {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ---------------- Sonuç seçenekleri ---------------- */
+
+.sonuc-izgara {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.sonuc-dugme {
+  min-height: 104px;
+  border-radius: var(--yaricap);
+  border: 2px solid var(--cizgi);
+  background: var(--kart);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  font-size: var(--boy-b);
+  font-weight: 600;
+  color: var(--metin);
+  text-align: center;
+  transition: border-color 0.12s var(--egri), background-color 0.12s var(--egri);
+}
+
+.sonuc-dugme .yuvarlak {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--gri-yumusak);
+  color: var(--metin-2);
+}
+
+.sonuc-dugme.satis .yuvarlak {
+  background: var(--yesil-yumusak);
+  color: var(--yesil);
+}
+.sonuc-dugme.randevu .yuvarlak {
+  background: var(--mor-yumusak);
+  color: var(--mor);
+}
+.sonuc-dugme.altyapi_sorunu .yuvarlak,
+.sonuc-dugme.girilemedi .yuvarlak {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+}
+.sonuc-dugme.ilgilenmedi .yuvarlak,
+.sonuc-dugme.evde_yok .yuvarlak {
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+}
+
+.sonuc-dugme.secili {
+  border-color: currentColor;
+}
+
+.sonuc-dugme.satis.secili {
+  color: var(--yesil);
+  background: var(--yesil-yumusak);
+}
+.sonuc-dugme.randevu.secili {
+  color: var(--mor);
+  background: var(--mor-yumusak);
+}
+.sonuc-dugme.altyapi_sorunu.secili,
+.sonuc-dugme.girilemedi.secili {
+  color: var(--amber);
+  background: var(--amber-yumusak);
+}
+.sonuc-dugme.ilgilenmedi.secili,
+.sonuc-dugme.evde_yok.secili {
+  color: var(--birincil-yazi);
+  background: var(--birincil-yumusak);
+}
+
+/* Seçili durumda daire dolu renk, simge beyaz olur.
+   (currentColor kullanılamaz: aynı kuralda color:#fff verildiği için daire de
+   beyaza döner ve simge kaybolur.) */
+.sonuc-dugme.secili .yuvarlak {
+  color: var(--dolgu-yazi);
+}
+.sonuc-dugme.satis.secili .yuvarlak {
+  background: var(--yesil-dolgu);
+}
+.sonuc-dugme.randevu.secili .yuvarlak {
+  background: var(--mor-dolgu);
+}
+.sonuc-dugme.altyapi_sorunu.secili .yuvarlak,
+.sonuc-dugme.girilemedi.secili .yuvarlak {
+  background: var(--amber-dolgu);
+}
+.sonuc-dugme.ilgilenmedi.secili .yuvarlak,
+.sonuc-dugme.evde_yok.secili .yuvarlak {
+  background: var(--gri-dolgu);
+}
+
+/* ---------------- Sayaç (satış adedi) ---------------- */
+
+.sayac-satir {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--yesil-yumusak);
+  border-radius: var(--yaricap);
+  padding: 12px 16px;
+}
+
+.sayac-dugme {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  color: var(--yesil);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--golge-ufak);
+}
+
+.sayac-dugme:disabled {
+  opacity: 0.4;
+}
+
+.sayac-deger {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  color: var(--yesil);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* ---------------- Form alanları ---------------- */
+
+.alan {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.alan .etiket {
+  display: block;
+  font-size: var(--boy-o);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.girdi {
+  width: 100%;
+  min-height: var(--hedef);
+  border-radius: var(--yaricap);
+  border: 1px solid var(--sac-koyu);
+  background: var(--kart);
+  padding: 16px 16px;
+  font-size: var(--boy-b);
+}
+
+.girdi::placeholder {
+  color: var(--metin-3);
+}
+
+.girdi:focus {
+  border-color: var(--vurgu-yazi);
+  outline: none;
+}
+
+textarea.girdi {
+  min-height: 92px;
+  resize: none;
+  line-height: 1.45;
+}
+
+.secim-serit {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.secim {
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--kart);
+  font-size: var(--boy-b);
+  font-weight: 600;
+  color: var(--metin-2);
+}
+
+.secim.secili {
+  background: var(--mor-dolgu);
+  border-color: var(--mor-dolgu);
+  color: var(--dolgu-yazi);
+}
+
+/* ---------------- Giriş ekranı ---------------- */
+
+.giris {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--ust-guvenli) + 28px) 24px calc(var(--alt-guvenli) + 20px);
+  background: var(--zemin);
+}
+
+.giris-marka {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.marka-isaret.avatar {
+  color: var(--dolgu-yazi);
+  box-shadow: none;
+}
+
+.marka-isaret {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--yaricap);
+  background: var(--marka);
+  color: var(--sari);
+  display: grid;
+  place-items: center;
+  font-size: var(--boy-bb);
+  font-weight: 600;
+}
+
+.giris h1 {
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.giris .aciklama {
+  text-align: center;
+  color: var(--metin-2);
+  font-size: var(--boy-b);
+  margin: 8px 0 0;
+}
+
+/* Giriş sütunu (Devam dahil) en çok 360 px (§6.12): masaüstünde ekran boyu
+   uzanan bir "Devam" düğmesi yerine telefondaki gibi derli toplu bir sütun. */
+.giris-orta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* 401 "Göreviniz değişti…" gibi bilgiler: girişin üstünde sakin şerit. */
+.giris-serit {
+  max-width: 360px;
+  width: 100%;
+  margin: 16px auto 0;
+  padding: 12px 16px;
+  border-radius: var(--yaricap);
+  background: var(--birincil-yumusak);
+  color: var(--metin);
+  font-size: var(--boy-o);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.pin-noktalar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 8px 0 4px;
+}
+
+.pin-nokta {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--cizgi-koyu);
+  background: transparent;
+  transition: background-color 0.14s var(--egri), border-color 0.14s var(--egri);
+}
+
+.pin-nokta.dolu {
+  background: var(--vurgu);
+  border-color: var(--vurgu-yazi);
+  transform: scale(1.12);
+}
+
+.pin-nokta.hata {
+  background: var(--kirmizi);
+  border-color: var(--kirmizi);
+}
+
+.tus-takimi {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 340px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tus {
+  height: 68px;
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.1s var(--egri);
+}
+
+.tus:active {
+  background: var(--birincil-yumusak);
+}
+
+.tus.bos {
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.tus.islem {
+  background: transparent;
+  box-shadow: none;
+  color: var(--birincil-yazi);
+}
+
+.hata-yazi {
+  color: var(--kirmizi);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  text-align: center;
+  min-height: 22px;
+}
+
+/* ---------------- Bildirim (toast) ---------------- */
+
+.bildirimler {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(76px + var(--alt-guvenli));
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  padding: 0 16px;
+}
+
+.bildirim {
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bildirim-zemin);
+  color: var(--bildirim-yazi);
+  border-radius: var(--yaricap);
+  padding: 12px 16px;
+  font-size: var(--boy-b);
+  font-weight: 600;
+  box-shadow: var(--golge-yuksek);
+  animation: bildirim-gir 150ms var(--yay-yumusak) both;
+}
+
+.bildirim.basari {
+  background: var(--yesil);
+}
+.bildirim.uyari {
+  background: var(--amber);
+}
+
+@keyframes bildirim-gir {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------------- Aşağı çekip yenileme ---------------- */
+
+.yenile-alani {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  gap: 8px;
+}
+
+.donen {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2.5px solid var(--cizgi-koyu);
+  border-top-color: var(--vurgu-yazi);
+  animation: don 0.8s linear infinite;
+  flex: 0 0 auto;
+}
+
+@keyframes don {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------- Yükleniyor iskeleti ---------------- */
+
+.iskelet {
+  background: var(--iskelet-a);
+  border-radius: var(--yaricap);
+}
+
+/* ---------------- Segmentli seçici ---------------- */
+
+.segment {
+  display: flex;
+  gap: 4px;
+  background: var(--gri-yumusak);
+  border-radius: var(--yaricap);
+  padding: 4px;
+  margin: 12px var(--bosluk);
+}
+
+.segment button {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--yaricap);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--metin-2);
+  transition: background-color 0.14s var(--egri), color 0.14s var(--egri);
+}
+
+.segment button.secili {
+  background: var(--kart);
+  color: var(--metin);
+  box-shadow: var(--golge-ufak);
+}
+
+/* ---------------- Harita ---------------- */
+
+.harita-sarmal {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--iskelet-a);
+  overflow: hidden;
+}
+
+.harita-lejant {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+.harita-lejant .rozet {
+  background: var(--ust-zemin);
+  box-shadow: var(--golge-ufak);
+  height: 30px;
+}
+
+.harita-dugmeler {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.harita-yuvarlak {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--kart);
+  color: var(--birincil-yazi);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--golge-orta);
+}
+
+.harita-yuvarlak:active {
+  background: var(--birincil-yumusak);
+}
+
+.harita-kart {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 16px;
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  box-shadow: var(--golge-yuksek);
+  padding: 16px;
+  animation: cekmece-ac 150ms var(--yay-yumusak) both;
+}
+
+.harita-uyari {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--metin-2);
+}
+
+/* ---------------- Halka (yüzde) ---------------- */
+
+.halka {
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.halka .yuzde {
+  position: absolute;
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Satır listesi ---------------- */
+
+.satir {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--sac-koyu);
+  text-align: left;
+}
+
+.satir:last-child {
+  border-bottom: 0;
+}
+
+.satir .ad {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--boy-b);
+  font-weight: 600;
+}
+
+.satir .deger {
+  font-size: var(--boy-b);
+  font-weight: 600;
+  color: var(--metin-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Erişilebilirlik ---------------- */
+
+.gizli {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Küçük telefonlar (360 px) */
+@media (max-width: 370px) {
+  :root {
+    --bosluk: 13px;
+  }
+  body {
+    font-size: var(--boy-b);
+  }
+  .ust-baslik {
+    font-size: var(--boy-bb);
+  }
+  .kart-ad {
+    font-size: var(--boy-b);
+  }
+  .tus {
+    height: 62px;
+    font-size: var(--boy-bb);
+  }
+  .sonuc-dugme {
+    min-height: 96px;
+    font-size: var(--boy-o);
+  }
+  .ilerleme-sayi {
+    font-size: var(--boy-bb);
+  }
+  .bilgi .deger {
+    font-size: var(--boy-bb);
+  }
+  .sayac-deger {
+    font-size: var(--boy-bb);
+  }
+  .rozet {
+    font-size: var(--boy-k);
+    padding: 0 8px;
+  }
+  .liste-kart {
+    gap: 12px;
+    padding: 12px 12px 12px 12px;
+  }
+}
+
+/* Gösterim (demo) verisi uyarısı — kapatılamaz, her ekranda aynı yerde. */
+.serit.demo {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+  border: 1px solid var(--amber-cizgi);
+}
+
+/* =========================================================================
+   DENETİM DÜZELTMELERİ — yeni parçalar ve karanlık mod
+   ========================================================================= */
+
+/* ---------------- Liste kartı: sokak + kapı numarası ---------------- */
+
+/* Binayı sokakta bulmayı sağlayan tek bilgi budur; kesilmez. */
+.kart-yol {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.kart-sokak {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--boy-b);
+  font-weight: 600;
+  /* İki satıra kadar sarar, sonra keser: numara asla ellipsis'e kurban gitmez. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kart-no {
+  flex: 0 0 auto;
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+  border-radius: var(--yaricap);
+  padding: 4px 8px;
+  font-size: var(--boy-o);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.kucuk-not {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  margin: 0 0 8px;
+}
+
+.dugme-sebep {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+/* ---------------- Şeritler ---------------- */
+
+.serit.uyari-serit {
+  background: var(--amber-yumusak);
+  color: var(--amber);
+  border: 1px solid var(--amber-cizgi);
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.serit.reddedilen {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+  border: 1px solid var(--kirmizi-cizgi);
+  align-items: flex-start;
+}
+
+.serit-alt {
+  display: block;
+  font-weight: 600;
+  font-size: var(--boy-o);
+  opacity: 0.92;
+}
+
+/* ---------------- Çekmece: gövde kayar, ayak yapışık ---------------- */
+
+/* 360 px'lik telefonda not alanı açıkken "Kaydet" ekranın dışında kalıyor ve
+   kaydırılabildiğine dair hiçbir işaret olmuyordu. */
+.cekmece-govde {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Ayak yapışık durduğu için içeriğin son satırı onun altında kalmasın:
+     yarım kesilmiş bir kart "bozuk" görünüyor, "aşağısı var" görünmüyor. */
+  padding-bottom: 12px;
+}
+
+.cekmece-ayak {
+  position: sticky;
+  bottom: calc(-16px - var(--alt-guvenli));
+  z-index: 2;
+  display: grid;
+  gap: 8px;
+  padding: 12px 0 calc(8px + var(--alt-guvenli));
+  margin-top: 8px;
+  background: var(--kart);
+}
+
+/* Ayağın üstünde yumuşak bir geçiş: altta içerik kaldığı, ekranın kesilmediği
+   anlaşılsın. Sert gölge kartları ortadan bıçakla kesilmiş gibi gösteriyordu. */
+.cekmece-ayak::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 22px;
+  pointer-events: none;
+  background: none;
+}
+
+.cekmece-ozet {
+  margin: 0;
+  text-align: center;
+  font-size: var(--boy-o);
+  font-weight: 600;
+  color: var(--mor);
+}
+
+.cekmece-ipucu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  margin: 12px 0 0;
+}
+
+.cekmece-ipucu.orta {
+  justify-content: center;
+}
+
+.etiket.blok {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Yedinci seçenek: "Bina burada değil" — diğerleriyle aynı görsel dil. */
+.sonuc-dugme.genis {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 62px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.sonuc-dugme.yanlis_adres .yuvarlak {
+  background: var(--kirmizi-yumusak);
+  color: var(--kirmizi);
+}
+
+.sonuc-dugme.yanlis_adres.secili {
+  border-color: var(--kirmizi);
+  background: var(--kirmizi-yumusak);
+}
+
+.sonuc-dugme.yanlis_adres.secili .yuvarlak {
+  background: var(--kirmizi-dolgu);
+  color: var(--dolgu-yazi);
+}
+
+/* ---------------- Bina ekranı ---------------- */
+
+.konum-onizleme {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  color: var(--metin-2);
+}
+
+.konum-imleci {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--yaricap);
+  display: grid;
+  place-items: center;
+  background: var(--birincil-yumusak);
+  color: var(--birincil-yazi);
+}
+
+.konum-yazi {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.konum-baslik {
+  display: block;
+  font-size: var(--boy-b);
+  font-weight: 600;
+  color: var(--metin);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.konum-alt {
+  display: block;
+  font-size: var(--boy-o);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ek-ziyaret {
+  width: 100%;
+  margin-bottom: calc(8px + var(--alt-guvenli));
+}
+
+.satir-not {
+  display: block;
+  font-weight: 600;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+}
+
+/* ---------------- Giriş ekranı ---------------- */
+
+.giris-baslik {
+  font-size: var(--boy-b);
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--metin);
+}
+
+.giris-kilit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--metin-2);
+  margin-bottom: 8px;
+}
+
+.giris-kilit .giris-baslik {
+  margin: 0;
+}
+
+.giris-numara {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: var(--boy-bb);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-height: 42px;
+}
+/* Boş hane: yer tutucu nokta (yazı değil; kaç hane kaldığını gösterir). */
+.giris-numara .bos-hane::before {
+  content: '·';
+  color: var(--metin-3);
+}
+
+.giris-ipucu {
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  margin: 12px 0 0;
+}
+
+.giris-alt-yazi {
+  display: block;
+  margin: 0 auto;
+  font-size: var(--boy-o);
+  color: var(--metin-2);
+  font-weight: 600;
+}
+
+.giris-durum {
+  min-height: 22px;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.bilgi-yazi {
+  color: var(--birincil-yazi);
+  font-size: var(--boy-o);
+  font-weight: 600;
+  text-align: center;
+  min-height: 22px;
+  padding: 0 8px;
+}
+
+/* Takılan satışçının tek çaresi WhatsApp'a dönmek olmamalı. */
+.giris-yardim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--birincil-yazi);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.giris-yardim-yazi {
+  text-align: center;
+  color: var(--metin-2);
+  font-size: var(--boy-o);
+  margin: 12px 8px 0;
+}
+
+/* ---------------- Rakam tuşları (giriş PIN'i) ---------------- */
+.tus {
+  border-radius: 999px;
+  width: 72px;
+  height: 72px;
+  justify-self: center;
+  background: var(--ikincil-zemin);
+  font-size: var(--boy-bb);
+  font-weight: 400;
+  transition: background-color var(--sure-k) var(--egri);
+}
+.tus:active:not(:disabled) {
+  background: var(--basili);
+}
+.pin-nokta {
+  transition: background-color var(--sure-k) var(--egri), border-color var(--sure-k) var(--egri);
+}
+
+/* --- iOS tarzı anahtar (switch) — ortak/Anahtar.tsx; yalın da kullanılabilir:
+       label.anahtar > input[type=checkbox][role=switch] + span.ray --- */
+.anahtar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+.anahtar.kapali {
+  cursor: default;
+}
+.anahtar input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+.anahtar .ray {
+  position: relative;
+  flex: 0 0 auto;
+  width: 51px;
+  height: 31px;
+  border-radius: 999px;
+  background: var(--pasif-zemin);
+  box-shadow: inset 0 0 0 0.5px var(--sac-koyu);
+  transition: background-color var(--sure) var(--egri);
+}
+.anahtar .ray::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: var(--kart);
+  box-shadow: var(--golge-ufak);
+  transition: transform var(--sure) var(--yay-yumusak), width var(--sure-k) var(--yay-hizli);
+}
+:root[data-theme="dark"] .anahtar .ray::after {
+  background: var(--metin);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .anahtar .ray::after {
+    background: var(--metin);
+  }
+}
+.anahtar:not(.kapali):active .ray::after {
+  width: 33px;
+}
+.anahtar input:checked + .ray {
+  background: var(--vurgu);
+}
+.anahtar input:checked + .ray::after {
+  transform: translateX(20px);
+}
+.anahtar input:focus-visible + .ray {
+  outline: 3px solid var(--odak);
+  outline-offset: 2px;
+}
+.anahtar input:disabled + .ray {
+  opacity: 0.45;
+}
+.anahtar.kucuk .ray {
+  width: 40px;
+  height: 24px;
+}
+.anahtar.kucuk .ray::after {
+  width: 20px;
+  height: 20px;
+}
+.anahtar.kucuk:not(.kapali):active .ray::after {
+  width: 24px;
+}
+.anahtar.kucuk input:checked + .ray::after {
+  transform: translateX(16px);
+}
+.anahtar-etiket {
+  font-size: var(--boy-o);
+}
+
+/* --- Gruplu iç içe liste (iOS Ayarlar): .grup > .grup-satir. Satırlar
+       arasında sol girintili saç çizgisi; başlık ve dipnot grubun dışında. --- */
+.grup {
+  background: var(--kart);
+  border-radius: var(--yaricap);
+  overflow: hidden;
+}
+
+/* ---------------- Giriş ekranı: lacivert zemin, tek kart ---------------- */
+.giris {
+  background: var(--lacivert);
+}
+.giris-marka {
+  gap: var(--b2);
+}
+.giris-logo {
+  width: 96px;
+  height: auto;
+}
+.giris h1.giris-kelime {
+  color: var(--vurgu-ust);
+  font-weight: var(--kalin);
+  font-size: var(--boy-bb);
+}
+.giris-orta {
+  flex: 0 0 auto;
+  margin-top: var(--b5);
+  padding: var(--b6) var(--b4) var(--b4);
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  color: var(--metin);
+  box-shadow: var(--golge-pencere);
+}
+.giris-serit {
+  background: color-mix(in srgb, var(--vurgu-ust) 14%, transparent);
+  color: var(--vurgu-ust);
+}
+.giris-numara {
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 768px) {
+  .giris {
+    justify-content: center;
+    align-items: center;
+  }
+  .giris-orta {
+    max-width: 400px;
+    padding: var(--b8) var(--b8) var(--b6);
+  }
+}
+
+/* Administrator önizleme şeridi ve ayar seçicisi (her ekranda). */
+.onizleme-seridi {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px;
+  padding-top: calc(var(--ust-guvenli) + 4px);
+  background: var(--lacivert);
+  color: var(--lacivert-ust);
+  font-size: var(--boy-k);
+}
+.onizleme-seridi button {
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: var(--yaricap-k);
+  padding: 0 var(--b2);
+  background: var(--kart);
+  color: var(--metin);
+  cursor: pointer;
+}
+.onizleme-secici {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--boy-o);
+}
+.onizleme-secici select {
+  font: inherit;
+  padding: 8px 8px;
+  border-radius: var(--yaricap);
+  border: 0.5px solid var(--sac-koyu);
+  background: var(--kart);
+  color: var(--metin);
+}
+.bos-unvan {
+  min-height: 60dvh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--metin-2);
+  font-size: var(--boy-b);
+  padding: 24px;
+}
+
+
+/* BOSS ile giriş (Giris.tsx BossIleGiris): telefon adımının altında, ayraçla */
+.giris-boss {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cizgi);
+  text-align: center;
+}

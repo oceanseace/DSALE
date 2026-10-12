@@ -1,6 +1,6 @@
 """Excel'deki TICKET sayfasını ticket defterine aktarır (bir kez; tekrar çalıştırmak güvenli).
 
-    .venv/Scripts/python.exe -m saha.ticket_aktar                     # PS26/data.xlsx → saha/saha.db
+    .venv/Scripts/python.exe -m saha.ticket_aktar                     # PS26/data.xlsx → <çalışma klasörü>/saha/saha.db
     .venv/Scripts/python.exe -m saha.ticket_aktar --kuru              # yazmadan ne olacağını göster
     .venv/Scripts/python.exe -m saha.ticket_aktar --dosya D:/x.xlsx --db kopya.db
 
@@ -133,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     ayrac = argparse.ArgumentParser(description="Excel TICKET sayfasını ticket defterine aktarır.")
     ayrac.add_argument("--dosya", default=str(VARSAYILAN_DOSYA), help="data.xlsx yolu (varsayılan: ../PS26/data.xlsx)")
     ayrac.add_argument("--sayfa", default=SAYFA)
-    ayrac.add_argument("--db", default=None, help="Veritabanı (varsayılan: saha/saha.db)")
+    ayrac.add_argument("--db", default=None, help=ayarlar.db_yardim())
     ayrac.add_argument("--kuru", action="store_true", help="Yazmadan ne olacağını göster")
     a = ayrac.parse_args(argv)
     ayarlar.konsolu_hazirla()

@@ -1,7 +1,7 @@
 """Bölgeleme çıktılarının bütünlük denetimi (CCPD-2.5).
 
-    python kod/araclar/dogrula.py                    # cikti/N08_res_hp + sunum veri paketi
-    python kod/araclar/dogrula.py --klasor cikti/N10_res_hp
+    python kod/araclar/dogrula.py                    # veri/cikti/N08_res_hp + sunum veri paketi
+    python kod/araclar/dogrula.py --klasor veri/cikti/N10_res_hp
     python kod/araclar/dogrula.py --ozet             # yalnız atama.csv özeti (determinizm karşılaştırması)
 
 Denetlenenler
@@ -184,7 +184,7 @@ def main() -> int:
         kontrol("her planın birim dizisi tam", all(len(p["birim_bolge"]) == birim_sayisi for p in planlar.values()))
         kontrol("hiçbir birim atanmamış kalmamış", all(min(p["birim_bolge"]) >= 1 for p in planlar.values()))
     else:
-        print("  (planlar.json yok — paketi üretmek için: python bolge.py --n 8)")
+        print("  (planlar.json yok — paketi üretmek için: python kod/araclar/bolge.py --n 8)")
 
     # 10. Excel BINA_ATAMA'da da metin "Null" kalmamalı (app paketi temiz olsa bile).
     xlsx = next(iter(sorted(klasor.glob("*.xlsx"))), None)
@@ -200,7 +200,7 @@ def main() -> int:
         wb.close()
         kontrol("Excel BINA_ATAMA'da 'Null' metni yok", kotu == 0, f"{kotu} hücre")
     else:
-        print("  (Excel yok — üretmek için: python bolge.py --n 8)")
+        print("  (Excel yok — üretmek için: python kod/araclar/bolge.py --n 8)")
 
     hatali = [ad for tamam, ad in _sonuc if not tamam]
     print(f"\n{'=' * 70}\n{len(_sonuc) - len(hatali)}/{len(_sonuc)} denetim geçti")

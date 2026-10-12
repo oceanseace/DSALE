@@ -1,35 +1,35 @@
-# DSALE
+# Turkcell
 
-Dehanet EÇM · Bursa fiber saha sistemi. Her şey bu klasörde.
+Bayi iş akışı uygulaması (Bursa + Yalova). Her şey bu klasörde yaşar; bilgisayarda başka yere yazılmaz.
 
-**Her gün:** `BASLAT.bat` — çalışan sistemi açar. Başka bir şeye gerek yok.
+## Kullanım
 
-## Ne nerede
+**`Turkcell.exe`'ye çift tıklayın.** Pencere açılır, sunucu ve API'ler uygulamanın içinde başlar, hazır olunca
+ekran gelir.
 
-| Yer | Ne |
-|---|---|
-| `BASLAT.bat` | Saha Sistemi'ni açar (canlı). |
-| `YAYINLA.bat` | Yeni sürümü canlıya geçirir — hazırlanıyor. |
-| `canli/` | Çalışan sistem ve gerçek veri. Elle dokunmayın. |
-| `kod/` | Bütün kaynak kod. Yollar tek dosyada: `kod/yollar.py`. |
-| `veri/` | Bina verisi: `raw/` ham · `master/` işlenmiş · `ref/` harita ve sözlükler. |
-| `cikti/` | Sunum (`DSALE_Sunum.exe`), bölge planları, Excel raporları. |
-| `belgeler/` | Kılavuzlar: `SAHA_KULLANIM.md` · `SUNUM.md` · `MASAUSTU.md` · `LISANS.md`. |
-| `gelistirme/` | Geliştirme verisi (git dışı; gerçek verinin kopyası olabilir). |
+- **İlk açılış:** eski düzendeki canlı veri (`canli\`) doğrulanmış bir kopyayla bir kez `veri\canli\`'ye devredilir
+  (`veri\canli\devir.json`). Eski klasöre dokunulmaz. Şema güncellemesi açılışta, yedek alınarak kendiliğinden yapılır.
+- **Windows Güvenlik Duvarı** ilk açılışta soru sorarsa **"İzin ver"** deyin (özel ağ): telefonlar ofis ağından bu
+  yolla bağlanır. Adres: bildirim alanındaki Turkcell simgesi → *Telefonlar için adres* (panoya kopyalar).
+- **Pencereyi kapatmak sunucuyu kapatmaz**; telefonlar çalışmaya devam eder. Tamamen kapatmak: simge → *Çıkış*.
+- **Administrator** hesabı `veri\canli\turkcell.json` dosyasındaki telefonla tanınır (git dışı).
+- **Yedek:** günde bir, kendiliğinden (`veri\canli\saha\yedek\`).
 
-`kod/` içinde: `saha/` sunucu · `operasyon/` iş emirleri · `dsale/` bölgeleme ·
-`lisans/` lisans · `arayuz/` telefon ve yönetici uygulaması · `sunum/` 3B sunum ·
-`masaustu/` masaüstü paketi · `eklenti/` tarayıcı eklentisi · `araclar/` komut satırı araçları.
+## Klasörler
 
-## Geliştirme
+`Turkcell.exe` uygulama · `kod\` kaynak kod · `veri\` bina verisi, çıktılar (`veri\cikti\`) ve canlı veri
+(`veri\canli\`) · `belgeler\` kılavuzlar. Gizli: `.turkcell\` (uygulama dosyaları), `canli\` (eski düzen),
+`gelistirme\` (geliştirme verisi), `.venv\`, `.git\`.
+
+## Geliştirici notları
 
 ```
-.venv\Scripts\python.exe -m pytest                  bütün testler (kökten)
-kod\saha\GELISTIRME_BASLAT.bat                      geliştirme sunucusu · 127.0.0.1:8090 · gelistirme\veri
-cd kod\arayuz  &&  npm run build                    arayüzü derle
-.venv\Scripts\python.exe kod\araclar\bolge.py --n 10    10 bölgelik plan → cikti\N10_res_hp
+py -3 -m venv .venv
+.venv\Scripts\python.exe -m pip install -r kod\requirements.txt
+cd kod\arayuz && npm install && node node_modules\vite\bin\vite.js build
+.venv\Scripts\python.exe kod\masaustu\derle.py        → kökte Turkcell.exe + .turkcell\
+.venv\Scripts\python.exe -m pytest                    bütün testler (kökten, ~10 dk)
 ```
 
-Python komutları `kod\`'u içe aktarma yoluna ister: `.bat` dosyaları ve `pytest.ini` bunu
-kendisi yapar; elle çalıştırırken `set PYTHONPATH=kod`.
-Geliştirme hiçbir zaman `canli\` klasörüne ve 8080 portuna dokunmaz.
+Deneme: `TURKCELL_PORT=8097`, `SAHA_VERI_DIZINI=<mutlak yol>` (verilirse devir yapılmaz). Yollar tek yerde:
+`kod\yollar.py`. Arayüz birimleri: `kod\arayuz\README.md`.

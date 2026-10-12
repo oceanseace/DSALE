@@ -1,14 +1,14 @@
 /*
- * OneMap bina çekme aracı — Saha Sistemi (Dehanet EÇM)
+ * OneMap bina çekme aracı — Turkcell (Dehanet EÇM)
  * ======================================================
  *
  * NE YAPAR: Tur raporuyla gelen YENİ binaların konumunu (bina poligonu, LAT/LON,
  * mahalle, kat, daire) Turkcell OneMap'ten çeker ve bilgisayarınıza
- * "onemap_yeni.json" olarak indirir. Bu dosyayı Saha Sistemi'nde
+ * "onemap_yeni.json" olarak indirir. Bu dosyayı Turkcell'de
  * Yönetim → Veri → "OneMap dosyasını yükle" ile yüklersiniz.
  *
- * NASIL KULLANILIR (docs/SAHA_KULLANIM.md §12):
- *   1. Saha Sistemi'nden "bekleyen_idler.txt" dosyasını indirin
+ * NASIL KULLANILIR (belgeler/SAHA_KULLANIM.md §12):
+ *   1. Turkcell'den "bekleyen_idler.txt" dosyasını indirin
  *      (Yönetim → Veri → "Konum bekleyen binalar" → "Kimlik listesini indir").
  *   2. OneMap'in açık olduğu tarayıcıda (Brave, OneMap oturumunuz açık) şu adresi açın:
  *        https://arcgis.turkcell.com.tr/arcgis/rest/services/ONEMAP/BINA/MapServer/0
@@ -43,7 +43,7 @@
     'font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.25)';
   kutu.innerHTML =
     '<div style="font-weight:700;font-size:16px;margin-bottom:6px">OneMap bina çekme aracı</div>' +
-    '<div style="margin-bottom:10px;color:#444">Saha Sistemi\'nden indirdiğiniz <b>bekleyen_idler.txt</b> ' +
+    '<div style="margin-bottom:10px;color:#444">Turkcell\'nden indirdiğiniz <b>bekleyen_idler.txt</b> ' +
     'dosyasını seçin.</div>' +
     '<input type="file" accept=".txt,.csv" style="width:100%;margin-bottom:10px">' +
     '<div data-durum style="min-height:42px;color:#0b4"></div>' +

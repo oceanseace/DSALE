@@ -20,8 +20,13 @@ import sqlite3
 
 # ----------------------------------------------------------------------------- sürüm
 # 1 kullanici_rol_dort · 2 kullanici_ek_sutunlar · 3 obek_ve_mahalle · 4 is_emri_tablolari ·
-# 5 indeks_onarim · 6 kullanici_gorev (Ek-1) · 7 is_aski (Ek-3) · 8 ticket_ek_ve_ps26 (Ek-5, Ek-8)
-HEDEF = 8
+# 5 indeks_onarim · 6 kullanici_gorev (Ek-1) · 7 is_aski (Ek-3) · 8 ticket_ek_ve_ps26 (Ek-5, Ek-8) ·
+# 9 unvan_ve_yetkinlik (Administrator, unvan kataloğu, yetkinlik paketleri) · 10 is_bizim_durum (İşler tablosu) ·
+# 11 ticket_salt_okunur (Satış Destek unvanları: Ticket defteri → Ticket izleme)
+HEDEF = 11
+
+# v10: is_emri'ye operasyonun kendi takip durumu (Excel'deki "Bizim durum" sütunu; yalnız ALTER ADD)
+IS_EMRI_V10_SUTUNLAR = (("bizim_durum", "TEXT"),)
 
 ROLLER = ("satisci", "operasyon", "teknik", "yonetici")
 
@@ -57,6 +62,14 @@ KULLANICI_EK_SUTUNLAR = (
     ("kaynak", "TEXT"),          # Ek-2: 'elle' | 'rehber'
 )
 
+# v9: yalnız ALTER ADD. ``yetki_modeli`` 1 = izinler unvan + yetkinlikten (göçten geçen ve yeni açılan herkes);
+# 0 = eski görev kümesi modeli (yalnız göç öncesi kayıtlar ve SQL ile doğrudan eklenen satırlar).
+KULLANICI_V9_SUTUNLAR = (
+    ("unvan_id", "INTEGER"),                          # unvan(id); NULL = unvansız
+    ("takim_lideri", "INTEGER NOT NULL DEFAULT 0"),   # İK işaretler; ayar 'takim_lideri_yetkinlikleri'
+    ("yetki_modeli", "INTEGER NOT NULL DEFAULT 0"),
+)
+
 # Taze kurulumdaki tanım: v1 tanımı + v2 sütunları, aynı sırayla. db.SEMA bunu kullanır.
 KULLANICI_TAZE = """CREATE TABLE IF NOT EXISTS kullanici (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +88,10 @@ KULLANICI_TAZE = """CREATE TABLE IF NOT EXISTS kullanici (
     davet_zamani TEXT,
     oturum_neden TEXT,
     unvan       TEXT,
-    kaynak      TEXT
+    kaynak      TEXT,
+    unvan_id    INTEGER,
+    takim_lideri INTEGER NOT NULL DEFAULT 0,
+    yetki_modeli INTEGER NOT NULL DEFAULT 0
 );
 """
 
@@ -192,6 +208,7 @@ CREATE TABLE IF NOT EXISTS is_emri (
     boss_bekleyen TEXT,
     boss_islendi TEXT,
     boss_kapanmadi INTEGER NOT NULL DEFAULT 0,
+    bizim_durum TEXT,
     durum TEXT NOT NULL,
     durum_zamani TEXT NOT NULL,
     atanan_id INTEGER REFERENCES kullanici(id),
@@ -332,6 +349,51 @@ CREATE TABLE IF NOT EXISTS is_aski (
 CREATE INDEX IF NOT EXISTS ix_is_aski_is ON is_aski(is_no);
 """
 
+# ----------------------------------------------------------------------------- v9 unvan + yetkinlik
+# Unvan kataloğu (Administrator düzenler; kişiler id ile bağlı, ad değişse de bağ kopmaz), unvan → yetkinlik
+# matrisi ve kişiye özel ek yetkinlikler. Yetkinlik kodları ``saha/yetki.py`` YETKINLIKLER'dedir (kodda tanımlı).
+V9 = """
+CREATE TABLE IF NOT EXISTS unvan (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ad TEXT NOT NULL,
+    ad_k TEXT NOT NULL UNIQUE,
+    aktif INTEGER NOT NULL DEFAULT 1,
+    sira INTEGER NOT NULL DEFAULT 0,
+    olusturma TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS unvan_yetkinlik (
+    unvan_id INTEGER NOT NULL REFERENCES unvan(id) ON DELETE CASCADE,
+    yetkinlik TEXT NOT NULL,
+    PRIMARY KEY (unvan_id, yetkinlik)
+);
+CREATE TABLE IF NOT EXISTS kullanici_yetkinlik (
+    kullanici_id INTEGER NOT NULL REFERENCES kullanici(id) ON DELETE CASCADE,
+    yetkinlik TEXT NOT NULL,
+    PRIMARY KEY (kullanici_id, yetkinlik)
+);
+"""
+
+# Kullanıcının verdiği unvan listesi, AYNEN (yinelenen satır tek kayıt) ve varsayılan yetkinlikleri.
+# Müdür/koordinatörler yalnız Pano: iş atamaz, plan yapmaz, teknik ekranı açılmaz.
+UNVAN_TOHUM: list[tuple[str, list[str]]] = [
+    ("EÇM-Fiber- Yeni Müşteri - Sorumlu", ["saha_satis"]),
+    ("EÇM-Fiber- Yeni Müşteri - Takım Lideri", ["saha_satis", "satis_izleme"]),
+    ("EÇM-Fiber-Hizmet Danışmanı - Sorumlu", ["randevu_arama"]),
+    ("EÇM-Fiber-Hizmet Danışmanı - Takım Lideri", ["randevu_arama", "operasyon_planlama"]),
+    ("EÇM-Fiber- Teknik - Sorumlu", ["teknik_saha"]),
+    ("EÇM-Fiber-Fiber Yayılım-Sorumlu", []),
+    ("EÇM-Fiber- Stok Yönetimi - Sorumlu", ["depo_stok"]),
+    ("EÇM-Fiber-Satış-Müdür", ["pano"]),
+    ("EÇM-Fiber- İdari İşler - Sorumlu", []),
+    ("EÇM-Fiber- Telesales Mevcut Müşteri - Sorumlu", ["randevu_arama"]),
+    ("EÇM-Fiber- Satış Destek - Takım Lideri", ["operasyon_planlama", "randevu_arama", "ticket_izleme", "pano"]),
+    ("EÇM-Fiber- Teknik - Müdür", ["pano"]),
+    ("EÇM - Genel Koordinatör", ["pano"]),
+    ("EÇM-Fiber- Satış Destek - Sorumlu", ["operasyon_planlama", "randevu_arama", "ticket_izleme"]),
+    ("EÇM-Çalışan Deneyimi ve İnsan Kaynakları-Müdür", ["kisi_yonetimi", "pano"]),
+    ("EÇM - Finans - Sorumlu", []),
+]
+
 # ----------------------------------------------------------------------------- v8 ticket eki + PS26 (Ek-5, Ek-8)
 TICKET_EK_SUTUNLAR = (
     ("onedesk_ekip", "TEXT"),    # Ek-5: ticket'ın açıldığı OneDesk ekibi (TEAM-TAS1BRS)
@@ -373,7 +435,7 @@ SEMA_GOC = """CREATE TABLE IF NOT EXISTS sema_goc (surum INTEGER PRIMARY KEY, ad
 # INSERT OR IGNORE: var olan (kullanıcının değiştirdiği) değerlere dokunulmaz.
 AYAR_V4 = {
     "obek_surumu": "1",
-    "musteri_tel": "kapali",
+    "musteri_tel": "acik",
     "boss_task_url": "",
     "aktarim_esik": json.dumps({"kaybolan_oran": 0.25, "kaybolan_min": 50}),
     "rapor_bayat_dk": json.dumps({"amber": 30, "kirmizi": 60}),
@@ -457,6 +519,10 @@ AYAR_EK = {
     "izlenen_desenler": json.dumps(["TeknikTaskDetayRaporu*.xlsx"], ensure_ascii=False),
 }
 
+# v9: takım lideri bayrağının kendiliğinden verdiği yetkinlikler (Administrator düzenler; varsayılan yok →
+# bayrak yalnız etikettir, göçte kimsenin erişimi değişmez).
+AYAR_V9 = {"takim_lideri_yetkinlikleri": "[]"}
+
 
 # ----------------------------------------------------------------------------- yardımcılar
 def ifadeler(metin: str) -> list[str]:
@@ -494,4 +560,4 @@ def ayar_varsayilanlari(conn: sqlite3.Connection, anahtarlar: dict[str, str]) ->
 def tum_v2_ifadeleri() -> list[str]:
     """Taze kurulum için v3–v8'in bütün CREATE ifadeleri (sıra: göç sırası)."""
     return (ifadeler(V3) + ifadeler(V4) + is_emri_tetikleyicileri() + ifadeler(V5)
-            + ifadeler(V6) + ifadeler(V7) + ifadeler(V8))
+            + ifadeler(V6) + ifadeler(V7) + ifadeler(V8) + ifadeler(V9))

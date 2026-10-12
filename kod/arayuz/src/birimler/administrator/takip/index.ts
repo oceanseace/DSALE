@@ -1,0 +1,1 @@
+export { Takip } from './Takip';

@@ -22,14 +22,18 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
+from operasyon.tembel import tembel
+
+np = tembel("numpy")  # ağır: ilk kullanımda yüklenir
+pd = tembel("pandas")  # ağır: ilk kullanımda yüklenir
 
 import yollar
 
 MASTER = yollar.VERI / "master" / "bina_master.csv"
 MAHALLE_LISTESI = yollar.VERI / "ref" / "BursaStateList.xlsx"
-MAHALLE_ONBELLEK = yollar.VERI / "ref" / "mahalle_listesi.json"     # BursaStateList'in hızlı kopyası
+# BursaStateList'in hızlı kopyası. BİLEREK sürümdedir (kamuya açık mahalle adları + koordinat; masaüstü paketine de
+# girer). Yalnız içerik değişirse yeniden yazılır, yoksa yalnız zamanı tazelenir: depo kirlenmez.
+MAHALLE_ONBELLEK = yollar.VERI / "ref" / "mahalle_listesi.json"
 ILCE_SINIRLARI = yollar.VERI / "ref" / "osm_ilce.geojson"
 # Çalışma verisi (git dışı): öbek tanımları ve yüklenen raporlar. OPERASYON_OBEK / OPERASYON_VERI önce gelir.
 OBEK_DOSYASI = yollar.CALISMA_OPERASYON / "obekler.json"
@@ -253,8 +257,14 @@ def _mahalle_listesi(liste: Path) -> list[tuple]:
             if isinstance(ad, str) and ad.strip():
                 lat, lon = _koordinat(koord)
                 satirlar.append(("Bursa", sayfa, mahalle_eki_sil(ad), lat, lon))
-    MAHALLE_ONBELLEK.write_text(json.dumps({"kaynak": liste.name, "mahalleler": satirlar}, ensure_ascii=False),
-                                encoding="utf-8")
+    yeni = json.dumps({"kaynak": liste.name, "mahalleler": satirlar}, ensure_ascii=False)
+    try:
+        if MAHALLE_ONBELLEK.exists() and MAHALLE_ONBELLEK.read_text(encoding="utf-8") == yeni:
+            MAHALLE_ONBELLEK.touch()               # aynı içerik: dosyaya yazılmaz, yalnız "taze" sayılır
+        else:
+            MAHALLE_ONBELLEK.write_text(yeni, encoding="utf-8")
+    except OSError:
+        pass                                       # salt okunur kurulum (masaüstü paketi): önbelleksiz devam
     return satirlar
 
 
@@ -616,7 +626,7 @@ def sozluk() -> Sozluk:
 
 
 def hazirla(df: pd.DataFrame, obekler: Obekler | None = None, szl: Sozluk | None = None,
-            istisnalar=VARSAYILAN_ISTISNALAR, mahalle_cozucu=None) -> Sonuc:
+            istisnalar=VARSAYILAN_ISTISNALAR, mahalle_cozucu=None, cikar: bool = True) -> Sonuc:
     """Rapor → işler. ``mahalle_cozucu(szl, adres, il, ilce)`` verilirse ``mahalle_coz`` yerine o kullanılır
     (v2 hattı köy biçimlerini önce dener); komut satırı makrosu bugünkü davranışla kalır."""
     t0 = time.perf_counter()
@@ -627,9 +637,10 @@ def hazirla(df: pd.DataFrame, obekler: Obekler | None = None, szl: Sozluk | None
     if eksik:
         raise ValueError(f"Raporda eksik sütun: {', '.join(eksik)}")
     df = df.reset_index(drop=True)
-    neden = df[SUTUNLAR["task"]].map(lambda t: cikarilacak_mi(t, istisnalar))
+    # cikar=False (v2 hattı): hiçbir iş çıkarılmaz — kurulum, 2. donanım dahil BÜTÜN BOSS işleri tek havuzdadır.
+    neden = df[SUTUNLAR["task"]].map(lambda t: cikarilacak_mi(t, istisnalar) if cikar else None)
     istisna_tutulan = int(sum(1 for t, n in zip(df[SUTUNLAR["task"]], neden)
-                              if pd.isna(n) and cikarilacak_mi(t, ()) is not None))
+                              if cikar and pd.isna(n) and cikarilacak_mi(t, ()) is not None))
     cikarilan = df[neden.notna()].assign(**{"Çıkarılma Nedeni": neden[neden.notna()]})
     d = df[neden.isna()].copy()
 
@@ -695,7 +706,9 @@ def hazirla(df: pd.DataFrame, obekler: Obekler | None = None, szl: Sozluk | None
             "Bilgi": "; ".join(n for n in bilgi if n),
             "_yer": ks.yer,
         })
-    ek = pd.DataFrame(satirlar, index=d.index)
+    # sütunlar açıkça: rapor yalnız kapalı işlerden oluşursa (BOSS eşitlemesi) satır yoktur, sütunlar yine olmalı
+    ek = pd.DataFrame(satirlar, index=d.index, columns=["Mahalle", "Öbek", "Mahalle Kaynağı", "Enlem", "Boylam",
+                                                        "Konum Kaynağı", "Bina Serial", "Kontrol Notu", "Bilgi", "_yer"])
     # Yeni sütunlar İlçe'nin hemen sağına: … İl, İlçe, Mahalle, Öbek, …
     konum = list(d.columns).index(SUTUNLAR["ilce"]) + 1
     for j, kol in enumerate(["Mahalle", "Öbek"]):

@@ -1,0 +1,429 @@
+/* =========================================================================
+   Komut paleti (VS Code / Office gibi) + arama düğmeleri.
+   Düz kart yüzey, yüzen pencere gölgesi; satır 32 px, üzerinde --uzerinde,
+   seçili satır --vurgu-yumusak. Yalnız tokenlar; koyu mod kendiliğinden.
+   ========================================================================= */
+
+.ara-kap {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(10vh, calc(var(--ust-guvenli) + var(--b6))) var(--b4) var(--b6);
+  background: var(--perde);
+  animation: ara-belir var(--sure) var(--egri) both;
+}
+
+.ara-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, 100%);
+  max-height: min(560px, 80vh);
+  overflow: hidden;
+  border-radius: var(--yaricap);
+  background: var(--kart);
+  box-shadow: var(--golge-pencere);
+  color: var(--metin);
+  font-family: var(--yazi);
+  font-size: var(--boy-o);
+  line-height: var(--satir-o);
+  animation: ara-belir var(--sure) var(--egri) both;
+}
+
+/* ---------------- Üst: arama alanı ---------------- */
+
+.ara-ust {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  margin: var(--b2);
+  padding: 0 var(--b1) 0 var(--b2);
+  min-height: var(--kontrol);
+  border: 1px solid var(--girdi-kenar);
+  border-bottom-color: var(--vurgu-yazi);
+  border-radius: var(--yaricap-k);
+  box-shadow: inset 0 -1px 0 var(--vurgu-yazi);
+  background: var(--kart);
+}
+
+.ara-buyutec {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--metin-2);
+}
+
+.ara-girdi {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--metin);
+  font: inherit;
+  font-size: var(--boy-o);
+}
+
+.ara-girdi::placeholder {
+  color: var(--metin-3);
+}
+
+.ara-girdi::-webkit-search-cancel-button {
+  display: none;
+}
+
+.ara-vazgec {
+  display: none;
+}
+
+/* ---------------- Tür sekmeleri ---------------- */
+
+.ara-sekmeler {
+  padding: 0 var(--b2);
+}
+
+/* ---------------- Sonuçlar ---------------- */
+
+.ara-govde {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--b1) var(--b1) var(--b2);
+  scroll-padding: 28px 0 var(--b1);
+}
+
+.ara-grup > header {
+  position: sticky;
+  top: calc(-1 * var(--b1));
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  min-height: 28px;
+  padding: 0 var(--b2);
+  background: var(--kart);
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+  line-height: var(--satir-k);
+  font-weight: var(--kalin);
+}
+
+.ara-grup > header .sayi {
+  color: var(--metin-3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.ara-grup-eylem {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--vurgu-yazi);
+  font: inherit;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.ara-grup-eylem:hover {
+  text-decoration: underline;
+}
+
+.ara-satir {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  min-height: var(--kontrol);
+  padding: 0 var(--b2);
+  border-radius: var(--yaricap-k);
+  cursor: pointer;
+}
+
+.ara-satir:hover {
+  background: var(--uzerinde);
+}
+
+.ara-satir.etkin {
+  background: var(--vurgu-yumusak);
+}
+
+.ara-satir.soluk .ara-metin .baslik {
+  color: var(--metin-2);
+}
+
+.ara-simge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--metin-2);
+}
+
+.ara-metin {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--b2);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ara-metin .baslik {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ara-metin .alt {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--metin-2);
+  font-size: var(--boy-k);
+}
+
+.ara-satir mark {
+  background: transparent;
+  color: var(--vurgu-yazi);
+  font-weight: var(--kalin);
+}
+
+.ara-kimlik {
+  flex: 0 0 auto;
+  max-width: 34%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--metin-2);
+  font-family: var(--yazi-es);
+  font-size: var(--boy-k);
+  font-variant-numeric: tabular-nums;
+}
+
+.ara-kart {
+  visibility: hidden;
+}
+
+.ara-satir.etkin .ara-kart,
+.ara-satir:hover .ara-kart {
+  visibility: visible;
+}
+
+.ara-enter {
+  flex: 0 0 auto;
+  width: var(--b4);
+  color: var(--metin-3);
+  text-align: center;
+  visibility: hidden;
+}
+
+.ara-satir.etkin .ara-enter {
+  visibility: visible;
+}
+
+/* ---------------- Boş, iskelet ---------------- */
+
+.ara-bos {
+  padding: var(--b3) var(--b2);
+  color: var(--metin-2);
+}
+
+.ara-bos.hata {
+  color: var(--kirmizi);
+}
+
+.ara-iskelet {
+  display: grid;
+  gap: var(--b1);
+  padding: var(--b1) var(--b2);
+}
+
+.ara-iskelet span {
+  height: var(--kontrol-k);
+  border-radius: var(--yaricap-k);
+  background: var(--iskelet-a);
+}
+
+.ara-iskelet span:nth-child(2) { width: 86%; }
+.ara-iskelet span:nth-child(3) { width: 70%; }
+
+/* ---------------- Alt bilgi ---------------- */
+
+.ara-alt {
+  display: flex;
+  align-items: center;
+  gap: var(--b4);
+  min-height: var(--durum-cubuk);
+  padding: 0 var(--b3);
+  background: var(--ikincil-zemin);
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+  line-height: var(--satir-k);
+}
+
+.ara-alt span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--b1);
+}
+
+.ara-alt kbd {
+  font: inherit;
+  color: var(--metin-2);
+}
+
+.ara-alt .sag {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Açan düğmeler ---------------- */
+
+/* Kenar menüde Fluent arama kutusu görünümü. */
+.ara-alan-dugme {
+  display: flex;
+  align-items: center;
+  gap: var(--b2);
+  width: 100%;
+  min-height: var(--kontrol);
+  padding: 0 var(--b2);
+  border: 1px solid var(--girdi-kenar);
+  border-bottom-color: var(--girdi-alt);
+  border-radius: var(--yaricap-k);
+  background: var(--kart);
+  color: var(--metin-2);
+  font: inherit;
+  font-size: var(--boy-o);
+  text-align: left;
+  cursor: text;
+  transition: border-color var(--sure-k) var(--egri);
+}
+
+.ara-alan-dugme:hover {
+  border-color: var(--cizgi-koyu);
+  border-bottom-color: var(--metin-2);
+}
+
+.ara-alan-dugme:focus-visible {
+  outline: 2px solid var(--odak);
+  outline-offset: 1px;
+}
+
+.ara-alan-dugme .yazi {
+  flex: 1;
+}
+
+.ara-alan-dugme .kisayol {
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+
+/* Konsol başlığında büyüteç yalnız telefonda (masaüstünde kenar menüde alan var). */
+.ara-yalniz-telefon {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .ara-yalniz-telefon,
+  .yon-ust-sag > .ara-simge-dugme.ara-yalniz-telefon {
+    display: inline-grid !important; /* kabuk.css telefonda birincil dışını gizler; büyüteç kalır */
+    order: 99;
+  }
+}
+
+/* ---------------- Telefon: tam ekran sayfa ---------------- */
+
+@media (max-width: 640px) {
+  .ara-kap {
+    padding: 0;
+    background: var(--zemin);
+  }
+
+  .ara-panel {
+    width: 100%;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--zemin);
+  }
+
+  .ara-ust {
+    margin: calc(var(--ust-guvenli) + var(--b2)) var(--b3) var(--b2);
+    min-height: 40px;
+    font-size: var(--boy-b);
+  }
+
+  .ara-girdi {
+    font-size: var(--boy-b);
+  }
+
+  .ara-vazgec {
+    display: inline-flex;
+  }
+
+  .ara-alt {
+    display: none;
+  }
+
+  .ara-govde {
+    padding: 0 var(--b3) calc(var(--alt-guvenli) + var(--b4));
+  }
+
+  .ara-grup > header {
+    background: var(--zemin);
+  }
+
+  .ara-satir {
+    min-height: var(--hedef);
+    background: var(--kart);
+    border-radius: 0;
+  }
+
+  .ara-grup > .ara-satir:nth-of-type(1) {
+    border-top-left-radius: var(--yaricap);
+    border-top-right-radius: var(--yaricap);
+  }
+
+  .ara-grup > .ara-satir:last-child {
+    border-bottom-left-radius: var(--yaricap);
+    border-bottom-right-radius: var(--yaricap);
+  }
+
+  .ara-satir.etkin {
+    background: var(--kart);
+  }
+
+  .ara-metin {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .ara-kart {
+    visibility: visible;
+  }
+
+  .ara-enter {
+    display: none;
+  }
+}
+
+/* ---------------- Hareket ---------------- */
+
+@keyframes ara-belir {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ara-kap,
+  .ara-panel {
+    animation: none;
+  }
+}

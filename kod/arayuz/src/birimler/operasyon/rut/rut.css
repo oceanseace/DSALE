@@ -1,0 +1,208 @@
+/* =========================================================================
+   RUT — günlük ekip rotası, TASKS ızgarasıyla aynı Excel görünümü (renkler: ../isler/tablo.css --xg-*).
+   Satır 24 px, başlık 28 px, yazı 12 px; sekmeler altta (Excel sayfa sekmeleri gibi).
+   ========================================================================= */
+
+.rut {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  font-size: var(--boy-k);
+}
+.rut-tarih {
+  width: auto;
+}
+.rut-bos {
+  margin: var(--b6) var(--b1);
+  color: var(--metin-2);
+}
+
+.rut-sayfa {
+  border: 1px solid var(--xg-izgara);
+  border-bottom: 0;
+  border-radius: var(--yaricap-k) var(--yaricap-k) 0 0;
+  background: var(--kart);
+  overflow: hidden;
+}
+.rut-kaydir {
+  overflow: auto;
+  max-height: calc(100vh - 230px);
+  min-height: 120px;
+}
+
+.rut-tablo {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  color: var(--metin);
+}
+.rut-tablo th,
+.rut-tablo td {
+  height: 24px;
+  padding: 0 var(--b2);
+  border-right: 1px solid var(--xg-izgara);
+  border-bottom: 1px solid var(--xg-izgara);
+  white-space: nowrap;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  vertical-align: middle;
+}
+.rut-tablo th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 28px;
+  background: var(--xg-bas);
+  color: var(--metin-2);
+  font-weight: var(--kalin);
+  font-size: var(--boy-k);
+  border-bottom: 1px solid var(--xg-izgara-koyu);
+}
+.rut-tablo th.rut-bas-duzen {
+  color: var(--xg-vurgu-yazi);
+}
+.rut-tablo tbody tr:hover td {
+  box-shadow: inset 0 0 0 999px var(--xg-ustunde);
+}
+.rut-tablo .rut-no {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+  background: var(--xg-bas);
+  color: var(--xg-bas-yazi);
+  font-size: var(--boy-k);
+  border-right: 1px solid var(--xg-izgara-koyu);
+}
+.rut-tablo th.rut-no {
+  z-index: 3;
+}
+.rut-tablo tr.rut-yan td:not(.rut-duzen):not(.rut-no) {
+  background: var(--xg-r-mavi);
+}
+.rut-c-task_no,
+.rut-c-musteri_no,
+.rut-c-irtibat,
+.rut-c-randevu {
+  font-variant-numeric: tabular-nums;
+}
+
+/* elle düzenlenen hücreler: hücrenin kendisi giriş kutusu */
+.rut-tablo td.rut-duzen {
+  padding: 0;
+  min-width: 90px;
+  background: var(--kart);
+}
+.rut-tablo td.rut-duzen:has(.saat) {
+  min-width: 64px;
+}
+.rut-girdi {
+  box-sizing: border-box;
+  width: 100%;
+  height: 23px;
+  padding: 0 var(--b2);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--boy-k);
+}
+.rut-girdi.saat {
+  width: 64px;
+  font-variant-numeric: tabular-nums;
+}
+.rut-girdi::placeholder {
+  color: var(--metin-3);
+}
+.rut-girdi:focus {
+  outline: 2px solid var(--xg-vurgu);
+  outline-offset: -2px;
+  background: var(--kart);
+}
+.rut-tablo td.rut-d-tamam {
+  background: var(--xg-r-yesil);
+}
+.rut-tablo td.rut-d-iptal {
+  background: var(--xg-r-kirmizi);
+}
+.rut-tablo td.rut-d-ertele {
+  background: var(--xg-r-sari);
+}
+.rut-tablo td.rut-d-diger {
+  background: var(--xg-r-turuncu);
+}
+
+/* özet */
+.rut-ozet td.rut-sayi {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rut-ozet td:nth-child(2) {
+  text-align: left;
+}
+.rut-ozet tr.rut-toplam td {
+  font-weight: var(--kalin);
+  background: var(--xg-bas);
+  border-top: 1px solid var(--xg-izgara-koyu);
+}
+.rut-mesai {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--b2);
+  padding: var(--b2);
+  background: var(--ikincil-zemin);
+}
+.rut-not {
+  flex-basis: 100%;
+  color: var(--metin-3);
+  font-size: var(--boy-k);
+}
+
+/* Excel sayfa sekmeleri (altta) */
+.rut-sekmeler {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  border: 1px solid var(--xg-izgara);
+  border-radius: 0 0 var(--yaricap-k) var(--yaricap-k);
+  background: var(--xg-bas);
+}
+.rut-sekmeler button {
+  flex: none;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid var(--xg-izgara);
+  background: transparent;
+  color: var(--metin-2);
+  font: inherit;
+  font-size: var(--boy-k);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rut-sekmeler button:hover {
+  background: var(--xg-ustunde);
+}
+.rut-sekmeler button.secili {
+  background: var(--kart);
+  color: var(--xg-vurgu-yazi);
+  font-weight: var(--kalin);
+  box-shadow: inset 0 -2px 0 var(--xg-vurgu);
+}
+.rut-sekme-sayi {
+  margin-left: var(--b1);
+  color: var(--metin-3);
+  font-weight: 400;
+}
+
+@media (max-width: 700px) {
+  .rut-kaydir {
+    max-height: calc(100vh - 260px);
+  }
+}

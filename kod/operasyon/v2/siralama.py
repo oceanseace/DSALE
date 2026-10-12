@@ -217,7 +217,7 @@ def oneri_hesapla(conn: sqlite3.Connection, is_nolar=None, simdi: dt.datetime | 
     yuk = _bugunku_yuk(conn, simdi)
     obekler = {r[0]: dict(r) for r in conn.execute("SELECT id, ad, sahip_id, yedek_id FROM obek WHERE aktif=1")}
     acik_ticketli = {r[0] for r in conn.execute(
-        "SELECT DISTINCT bina_serial FROM ticket WHERE bina_serial IS NOT NULL AND durum IN ('AÇIK','HATA','TRANSFER')")} \
+        "SELECT DISTINCT bina_serial FROM ticket WHERE bina_serial IS NOT NULL AND durum IN ('AÇIK','HATA','TRANSFER','BÖLGE')")} \
         if conn.execute("SELECT 1 FROM sqlite_master WHERE name='ticket'").fetchone() else set()
     sql = ("SELECT is_no, durum, serit, btk_hedef, son24, acilis, btk_hedef_saat, obek_id, obek_elle_id, bina_serial, "
            "acilma_sayisi, oneri_teknik_id, oneri_bas, oneri_bit, oneri_neden, task_adi, parca, parca_tarih FROM is_emri "

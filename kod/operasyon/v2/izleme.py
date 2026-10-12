@@ -9,6 +9,13 @@ yedek, tek işlem. Bekçiye takılan rapor kendiliğinden uygulanmaz → "Onay b
 Yoklama tabanlıdır (ek paket yok), ``ayar.klasor_izleme`` ile kapatılır. Sunucu açılışında ``baslat()``
 çağrılır (``operasyon/v2/api.py`` yönlendiricisinin yaşam döngüsü; FastAPI onu ``saha/api.py`` açılışının içine
 yerleştirir); testler iş parçacığı açmaz, ``Izleyici.tara(an)`` ile adım adım dener.
+
+SÜREÇ İZNİ (``surec_izni``): izleyici kullanıcının GERÇEK İndirilenler/Masaüstü klasörüne bakar ve bulduğu BOSS
+raporunu (müşteri adı/adresi/telefonu) çalışma klasörüne aktarır. Bu yüzden yalnız CANLI veride
+(``yollar.canli_veri_mi()``) ve masaüstü sürümünde (dondurulmuş; kullanıcının kendi kurulumu) kendiliğinden açılır.
+Geliştirme verisi ya da karalama klasörüyle açılan sunucuda KAPALIDIR; elle açmak: ``SAHA_KLASOR_IZLEME=1``.
+``SAHA_KLASOR_IZLEME=0`` (ya da eski ``SAHA_IZLEME=0``) her yerde kapatır. ``ayar.klasor_izleme`` bunun üstüne
+uygulanır (izin olsa da ayar kapalıysa bakmaz).
 """
 from __future__ import annotations
 
@@ -260,6 +267,27 @@ class Izleyici:
 
 _IZLEYICI: Izleyici | None = None
 _KILIT = threading.Lock()
+# pytest yüklüyken iş parçacığı hiç açılmaz; süreç iznini sınayan test bunu False yapar (yine de izin yoksa açılmaz).
+_TESTTE_KAPALI = True
+
+_EVET = ("1", "acik", "açık", "evet", "true", "on")
+_HAYIR = ("0", "kapali", "kapalı", "hayir", "hayır", "false", "off")
+
+
+def surec_izni() -> tuple[bool, str]:
+    """Bu sunucu süreci klasör izleyiciyi açabilir mi → (izin, neden). Ayrıntı modül belgesinde (SÜREÇ İZNİ)."""
+    secim = (os.environ.get("SAHA_KLASOR_IZLEME") or "").strip().lower()
+    if secim in _HAYIR:
+        return False, "SAHA_KLASOR_IZLEME=0 ile kapatıldı"
+    if os.environ.get("SAHA_IZLEME") == "0":
+        return False, "SAHA_IZLEME=0 ile kapatıldı"
+    if secim in _EVET:
+        return True, "SAHA_KLASOR_IZLEME=1 ile açıldı"
+    import yollar
+    if yollar.canli_veri_mi():
+        return True, "canlı veri"
+    return False, ("geliştirme/karalama verisi: gerçek İndirilenler/Masaüstü klasörüne bakılmaz "
+                   "(açmak için SAHA_KLASOR_IZLEME=1)")
 
 
 def _varsayilan_fabrika():
@@ -268,11 +296,17 @@ def _varsayilan_fabrika():
 
 
 def baslat(conn_fabrikasi=None, *, zorla: bool = False) -> Izleyici | None:
-    """Sunucu açılışında bir kez çağrılır (idempotent). Testlerde (pytest yüklüyse) ya da ``SAHA_IZLEME=0`` iken
-    iş parçacığı AÇILMAZ — testler kullanıcının gerçek İndirilenler/Masaüstü klasörüne asla bakmaz."""
+    """Sunucu açılışında bir kez çağrılır (idempotent). Testlerde (pytest yüklüyse) ve süreç izni yokken
+    (``surec_izni``: geliştirme/karalama verisi, ``SAHA_KLASOR_IZLEME=0``) iş parçacığı AÇILMAZ — geliştirme sunucusu
+    ve testler kullanıcının gerçek İndirilenler/Masaüstü klasörüne asla bakmaz."""
     global _IZLEYICI
-    if not zorla and (os.environ.get("SAHA_IZLEME") == "0" or "pytest" in sys.modules):
-        return None
+    if not zorla:
+        if _TESTTE_KAPALI and "pytest" in sys.modules:
+            return None
+        izin, neden = surec_izni()
+        if not izin:
+            _gunluk.info("Rapor klasörü izlenmiyor: %s.", neden)
+            return None
     with _KILIT:
         if _IZLEYICI is None:
             _IZLEYICI = Izleyici(conn_fabrikasi or _varsayilan_fabrika)
@@ -294,7 +328,9 @@ def durum(conn: sqlite3.Connection) -> dict:
     """GET /api/aktarim/izleme (``IzlemeDurumu``)."""
     a = ayarlar(conn)
     iz = _IZLEYICI
+    izin, neden = surec_izni()
     return {"acik": a["acik"], "calisiyor": bool(iz and iz._is and iz._is.is_alive()),
+            "surec_izni": izin, "kapali_neden": None if izin else neden,
             "klasorler": a["klasorler"], "desenler": a["desenler"], "klasorler_varsayilan": a["klasorler_varsayilan"],
             "yoklama_sn": iz.yoklama_sn if iz else YOKLAMA_SN, "sabit_sn": iz.sabit_sn if iz else SABIT_SN,
             "son_bakis": iz.son_bakis if iz else None, "son_alinan": iz.son_alinan if iz else None,

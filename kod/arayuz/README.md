@@ -1,4 +1,4 @@
-# Saha Sistemi — saha uygulaması (PWA)
+# Turkcell — arayüz (PWA)
 
 8 satışçının telefonunda çalışan uygulama. Algoritmanın hazırladığı günlük bina
 listesini gösterir, yol tarifi verir, ziyaret sonucunu kaydeder; bağlantı
@@ -14,28 +14,13 @@ npm install
 npm run dev        # http://127.0.0.1:5180  (/api → 127.0.0.1:8090'a vekil: kod/saha/GELISTIRME_BASLAT.bat)
 npm run build      # tsc + vite  →  dist/
 npm run onizle     # derlenmiş hali 127.0.0.1:4173'te aç
-npm run qa         # örnek veriyle ekran fotoğrafları → qa/*.png
-npm run e2e        # GERÇEK sunucuya karşı uçtan uca test → qa/e2e/*.png
+npm run sinir      # birim sınırı denetimi (build bunu kendisi çalıştırır)
+npm run tasi -- <eski> <yeni>   # dosya taşı, içe aktarmaları düzelt (yollar src'ye göre)
 npm run ikon       # PWA simgelerini yeniden üret (Python + Pillow)
 npm run build:sahte  # DEMO derlemesi (örnek veri içerir) → dist-sahte/
 ```
 
 `dist/` klasörü FastAPI tarafından statik olarak sunulur (sözleşme §5).
-
-### Uçtan uca test
-
-`qa/e2e.mjs` derlenmiş uygulamayı **çalışan bir FastAPI sunucusuna** bağlar ve
-gerçek akışı yürütür: ilk giriş (davet kodu + PIN) → günün 25 binalık rotası →
-dört farklı sonuç → yenileme sonrası kalıcılık → çevrimdışı iki kayıt →
-bağlantı gelince tam bir kez senkron → yönetici konsolunda sayıların hareketi.
-Her adımın fotoğrafı `qa/e2e/` altına düşer.
-
-```bash
-SAHA_URL=http://127.0.0.1:8098 E2E_DAVET=<6 hane> E2E_YONETICI_DAVET=<6 hane> node qa/e2e.mjs
-```
-
-> Test **veri yazar**. Gerçek veritabanı yerine bir kopyaya bağlanın
-> (`SAHA_DB=<kopya> PYTHONPATH=kod python -m saha.sunucu --host 127.0.0.1 --port 8098`).
 
 ### Sunucu yokken: örnek veri kipi
 
@@ -93,7 +78,7 @@ Bu uygulamanın tek sözü var: **kaydettiğin hiçbir şey kaybolmaz.**
 4. Gönderim; bağlantı gelince, uygulamaya dönülünce ve artan aralıklarla
    (15 sn → 5 dk) kendiliğinden tekrar denenir.
 5. Liste sunucudan tazelendiğinde kuyrukta bekleyen binalar yine "bitti"
-   kalır (`depo/bugun.tsx` → `bekleyenleriUygula`). Aksi hâlde satışçı işlediği
+   kalır (`cekirdek/yerel/bugun.tsx` → `bekleyenleriUygula`). Aksi hâlde satışçı işlediği
    bina yeniden listeye düşünce uygulamaya güvenmez.
 6. Uygulama kabuğu ve son liste servis çalışanında önbellektedir; sinyal yokken
    yeniden açılsa bile aynı şekilde çalışır.
@@ -103,20 +88,44 @@ Bu uygulamanın tek sözü var: **kaydettiğin hiçbir şey kaybolmaz.**
 > `http://localhost`) devreye girer. Ofis ağında düz HTTP ile her şey çalışır,
 > çevrimdışı hariç.
 
-## Klasörler
+## Klasörler — birimler
 
-| Yol | İçerik |
+Kod, organizasyon şemasındaki birimlere bölünmüştür. Bir değişiklik tek birime dokunur.
+
+| Yol | Birim · içerik |
 |---|---|
-| `src/api/` | Sözleşme tipleri (`tipler.ts`), fetch sarmalayıcı (`istemci.ts`), uçlar (`uclar.ts`), örnek sunucu (`sahte.ts`) |
-| `src/depo/` | IndexedDB (`db.ts`), kuyruk/senkron (`senkron.tsx`), oturum (`oturum.tsx`), bugünün listesi (`bugun.tsx`) |
-| `src/ekran/` | Giriş · Bugün · Bina · Sonuç çekmecesi · Harita · Ben |
-| `src/ortak/` | Ortak arayüz parçaları, simgeler, Türkçe biçimlendirme, yol tarifi bağlantıları |
-| `src/yonetici/` | **Başka bir ajanın alanı.** Şimdilik yer tutucu. |
-| `src/stil/temel.css` | Tüm tasarım (tek dosya, değişken tabanlı) |
+| `src/birimler/operasyon/` | **Operasyon.** `isler/` **TASKS** (Excel gibi tek tablo: `Isler.tsx` ekran, `Tablo.tsx` ızgara, `Baslik`/`SuzgecMenusu`/`SagTikMenusu`/`SutunSecici`/`DurumCubugu`; `secim`, `klavye`, `pano`, `panoSuzgeci`, `sutunlar`, `sutunDuzeni`, `tabloSuzgec` mantık; adres sözleşmesi `cekirdek/yol/tasks.ts`) · `isler/map/` **MAP** (`IsHaritasiEkrani.tsx` ekran; `MapTuval`, `KonumAra`, `SecimKarti`, `konumArama`, `tarihSuzgeci`, `noktalar`, `noktaGecisi`) · İş çekmecesi, Görünümler, BOSS bağlantısı · `obekler/` (menüde yok) |
+| `src/birimler/saha/` | **Saha.** `ekran/` satışçının telefonu (Bugün · Bina · Harita · Ben) · `yonetim/` Canlı · Kapsama · Görev atama · Rapor · Tur raporu · `bolge/` Bölge planlayıcı |
+| `src/birimler/altyapi/` | **Altyapı.** `ticket/` Ticketlar (Excel TICKET sayfası gibi tablo; hücreden durum ve ticket no) · `tablolar/` (PS26 yerine) |
+| `src/birimler/teknik/` | **Teknik.** teknisyenin İşlerim'i (`Islerim`, `IsEkrani`, çevrimdışı `kuyruk`) |
+| `src/birimler/depo/` | **Depo.** Seri takibi |
+| `src/birimler/administrator/` | **Administrator.** `takip/` Pano (gösterge paneli) · `ekip/` kişiler ve görevler · `unvan/` · Veri kalitesi |
+| `src/cekirdek/` | Ortak çekirdek: `api/` sunucu sözleşmesi · `yerel/` IndexedDB, oturum, senkron · `konsol/` kabuk ve menü (`menu.ts`) · `ortak/` arayüz parçaları · `harita/` · `is/` iş modeli · `ticket/` ticket açma · `giris/` · `yol/` · `stil/` |
+| `src/App.tsx` · `src/Konsol.tsx` | Birimleri birbirine bağlayan tek iki yer (adresler, menü bölümleri) |
 | `src/sw.js` | Servis çalışanı şablonu; dosya adları derlemede gömülür |
-| `qa/cek.mjs` | Ekran görüntüsü + çevrimdışı doğrulama betiği |
 
-## Tasarım kuralları
+**Sınır kuralı:** `cekirdek/` hiçbir birimi içe aktarmaz; bir birim başka birimi içe aktarmaz.
+`npm run build` önce `npm run sinir` ile bunu denetler. İki birimin ortak kullandığı parça
+çekirdeğe taşınır: `npm run tasi -- <eski> <yeni>` (içe aktarmaları kendisi düzeltir).
+
+## Tasarım sistemi (masaüstü konsolu + telefon)
+
+Tek kaynak: `src/cekirdek/stil/tokenlar.css` (Fluent 2 temelli). İlkeller:
+`src/cekirdek/ortak/Ilkel.tsx` + `ilkel.css` (Dugme, SimgeDugme, Girdi, Secici, Alan,
+AramaKutusu, Sekmeler, AracCubugu, DurumCubugu/DurumIcerigi); pencere `Onay.tsx`,
+çekmece `Panel.tsx`, ⋯ menü `Menu.tsx`, tablo `Tablo.tsx`.
+
+- Renk: nötr griler + tek vurgu lacivert (`--vurgu`). Sarı (`--birincil`) yalnız ekranın
+  TEK ana eylemi ve marka. Yeşil/kırmızı/amber yalnız durum. Ekran CSS'inde renk kodu yok.
+- Boşluk 4'ün katları (`--b1…--b8`); tek yazı ailesi, 4 boy (`--boy-k/o/b/bb` = 12/14/16/20),
+  kalınlık 400/600. Bölgeler zemin farkıyla ayrılır; gölge yalnız menü/pencerede.
+- Hareket ≤ 150 ms ease-out; ışıma, degrade, nabız, zıplama yok.
+- İskelet: üst çubuk (başlık solda, eylemler sağda) · iş alanı · durum çubuğu
+  (`YonUst altYazi` ve `DurumIcerigi` oraya yazar). Başlığın altına açıklama yazılmaz.
+- Simgeler: ✕ kapat, ← geri, büyüteç ara, çöp sil, kalem düzenle, ⋯ daha.
+- Örnek veriyle yönetim konsolu: `npm run dev` → `?sahte=1&rol=admin`.
+
+## Telefon (saha) kuralları
 
 Kullanıcı kışın eldivenle, güneş altında, tek eliyle çalışıyor. Bu yüzden:
 

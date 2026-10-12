@@ -12,13 +12,17 @@ rem
 rem  Calisma klasoru: SAHA_VERI_DIZINI (yoksa gelistirme\veri). Bu klasorde
 rem    saha\saha.db  saha\gizli.key  saha\yedek\  saha\kayit\  operasyon\ ...
 rem
+rem  Rapor klasoru izleme (Indirilenler/Masaustu'ndeki BOSS raporunu kendiliginden
+rem  alma) gelistirmede KAPALIDIR: gercek musteri verisi gelistirme verisine girmesin.
+rem  Bilerek denemek icin once:  set SAHA_KLASOR_IZLEME=1
+rem
 rem  Kapatmak: bu pencerede Ctrl+C.
 rem
 rem  NOT: bu dosya bilerek Turkce karakter icermez (chcp 65001 + cmd.exe).
 rem ============================================================================
 chcp 65001 >nul
 setlocal
-title Saha Sistemi - GELISTIRME (127.0.0.1)
+title Turkcell - GELISTIRME (127.0.0.1)
 
 rem --- Ortam: depo koku, Python (.venv), kod yolu, calisma klasoru ---------
 for %%I in ("%~dp0..\..") do set "KOK=%%~fI"
@@ -31,6 +35,7 @@ if not exist "%PY%" (
 set "PYTHONPATH=%KOK%\kod"
 set "PYTHONUNBUFFERED=1"
 if not defined SAHA_VERI_DIZINI set "SAHA_VERI_DIZINI=%KOK%\gelistirme\veri"
+if not defined SAHA_KLASOR_IZLEME set "SAHA_KLASOR_IZLEME=0"
 set "VERI=%SAHA_VERI_DIZINI%"
 
 set "PORT=8090"

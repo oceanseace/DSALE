@@ -3,7 +3,7 @@
  * Görsel QA sürücüsü — tek dosya HTML'i Edge (msedge) ile açar, sahne sahne ekran görüntüsü alır,
  * konsol hatalarını ve deck.gl "Missing character" uyarılarını toplar.
  *
- * Kullanım (app/ içinden):
+ * Kullanım (kod/sunum içinden):
  *   node scripts/qa.mjs
  *   node scripts/qa.mjs --html ../../cikti/DSALE_Sunum.html --offline --modes sunum,kesif \
  *        --scenes 1-10 --adim 6:1,4,8 --kesif-durumlar varsayilan,bolge4,n25,arama,2b,hover \

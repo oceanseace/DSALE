@@ -1,4 +1,4 @@
-"""Saha Sistemi ayarları: dosya yolları, sabitler, ofis konumu.
+"""Turkcell ayarları: dosya yolları, sabitler, ofis konumu.
 
 Hiçbir değer internete açılmaz; sunucu ofis ağında çalışır.
 """
@@ -29,7 +29,8 @@ def konsolu_hazirla() -> None:
 # Bütün yollar kod/yollar.py'den gelir (tek kaynak). Salt okunur girdiler depodadır (veri/, cikti/,
 # kod/arayuz/dist); sunucunun YAZDIĞI her şey çalışma klasöründedir (yollar.CALISMA_SAHA):
 #   geliştirme: gelistirme/veri/saha/   ·   canlı: SAHA_VERI_DIZINI=canli\veri → canli/veri/saha/
-# TODO(YAYINLA): canlıya yayınlarken sunucu SAHA_VERI_DIZINI=canli\veri ile başlatılmalı; ayrıntı KORUNAN.txt.
+# TODO(YAYINLA): canlıya yayınlarken sunucu SAHA_VERI_DIZINI=<DSALE>\canli\veri (MUTLAK) ile başlatılmalı; canli\ altındaki
+# kopya bunsuz açılmaz (yollar.py). Ayrıntı KORUNAN.txt.
 CALISMA = yollar.CALISMA_SAHA                  # yazılabilir kök: saha.db, gizli.key, yedek/, kayit/, ek/, raporlar/
 
 VERI_BINA = yollar.VERI / "master" / "bina_master.csv"
@@ -39,6 +40,13 @@ VERI_YOLLAR = yollar.VERI / "ref" / "osm_yollar.geojson"   # harita arka planı 
 # Testler SAHA_DB ile geçici bir dosyaya yönlendirir.
 DB_YOLU = Path(os.environ.get("SAHA_DB") or (CALISMA / "saha.db"))
 GIZLI_ANAHTAR = CALISMA / "gizli.key"
+
+
+def db_yardim() -> str:
+    """Komut satırı ``--db`` yardımı: GERÇEK varsayılan (``SAHA_DB`` ya da çalışma klasörü; geliştirmede
+    ``gelistirme/veri/saha/saha.db``, canlıda ``canli/veri/saha/saha.db``)."""
+    return (f"Veritabanı dosyası (varsayılan: {DB_YOLU} — <çalışma klasörü>/saha/saha.db; "
+            "SAHA_DB ya da SAHA_VERI_DIZINI ile değişir)")
 KAYIT_DIZINI = CALISMA / "kayit"
 PWA_DIZINI = yollar.ARAYUZ_DIST
 VERI_GEOMETRI = yollar.VERI / "master" / "bina_geometri.json"   # bina taban poligonları (3B ikiz)

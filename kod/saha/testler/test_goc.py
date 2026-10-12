@@ -48,7 +48,7 @@ def test_bos_db_hedef_surumde_kurulur(tmp_path):
                 "ilce", "ie_aktarim", "erisim_kaydi", "yonetim_kaydi", "is_aski", "altyapi_bekleyen",
                 "ticket_ek", "sema_goc"} <= tablolar
         assert conn.execute("SELECT ad FROM sema_goc").fetchone()[0] == "taze_kurulum"
-        assert db.ayar_oku(conn, "musteri_tel") == "kapali"
+        assert db.ayar_oku(conn, "musteri_tel") == "acik"
         assert db.ayar_oku(conn, "ticket_varsayilan_ekip") == "TEAM-TAS1BRS"
         # Taze tanım: dört görev kabul, 'hacker' ret; telefon boş olabilir (Ek-2 girişsiz kişi).
         conn.execute("INSERT INTO kullanici (ad, telefon, rol, olusturma) VALUES ('A', NULL, 'teknik', 'z')")
@@ -249,12 +249,12 @@ def test_v1_fk_hedefleri_ve_sayac_korunur(eski_db):
     sonra = fk_hedefleri(eski_db)
     assert set(once_fk) <= set(sonra)                       # eski FK'lar aynen
     kullaniciya = [f for f in sonra if f[2] == "kullanici"]
-    # 10 eski + obek.sahip_id + obek.yedek_id + is_emri.atanan_id + kullanici_gorev
-    assert len(kullaniciya) == 14
+    # 10 eski + obek.sahip_id + obek.yedek_id + is_emri.atanan_id + kullanici_gorev + kullanici_yetkinlik (v9)
+    assert len(kullaniciya) == 15
     c = sqlite3.connect(eski_db)
     try:
         assert c.execute("SELECT seq FROM sqlite_sequence WHERE name='kullanici'").fetchone()[0] >= once_seq
-        assert len(c.execute("PRAGMA table_info(kullanici)").fetchall()) == 17
+        assert len(c.execute("PRAGMA table_info(kullanici)").fetchall()) == 20   # +3 v9 sütunu
         assert c.execute("SELECT COUNT(*) FROM sema_goc").fetchone()[0] == goc.HEDEF
     finally:
         c.close()
@@ -310,6 +310,28 @@ def test_goc_komut_satiri_kuru_ve_uygula(eski_db, capsys):
     assert goc.main(["--db", str(eski_db), "--yedeksiz"]) == 0
     assert "GÜNCELLEME TAMAM (v0 → v" in capsys.readouterr().out
     assert surum(eski_db) == goc.HEDEF
+
+
+@pytest.mark.skipif(os.name != "nt", reason="dosya paylaşım denetimi yalnız Windows'ta")
+def test_calisma_db_acikken_goc_etmez_port_neresi_olursa_olsun(eski_db, monkeypatch, capsys):
+    """Çalışma veritabanını tutan bir sunucu hangi portta açılmış olursa olsun (8080, 8090–8099, karalama) göç
+    durur: bekçi dosyanın kendisine bakar. Dosya kapanınca göç sürer."""
+    from saha import ayarlar, sunucu
+    monkeypatch.setattr(ayarlar, "CALISMA", eski_db.parent)
+    calisma = eski_db.parent / "saha.db"
+    eski_db.rename(calisma)
+    monkeypatch.setattr(sunucu, "port_dolu_mu", lambda port: False)      # hiçbir port açık görünmesin
+    tutan = sqlite3.connect(calisma)                                     # "açık sunucu"
+    try:
+        tutan.execute("SELECT COUNT(*) FROM sqlite_master").fetchone()
+        assert sunucu.dosya_kullanimda_mi(calisma) is True
+        assert goc.main(["--db", str(calisma)]) == 2
+        assert "başka bir süreçte açık" in capsys.readouterr().out and surum(calisma) == 0
+    finally:
+        tutan.close()
+    assert sunucu.dosya_kullanimda_mi(calisma) is False
+    assert goc.main(["--db", str(calisma), "--yedeksiz"]) == 2              # çalışma veritabanı yedeksiz güncellenmez
+    assert goc.main(["--db", str(calisma)]) == 0 and surum(calisma) == goc.HEDEF
 
 
 def test_kilit_bayat_10dk(eski_db):

@@ -1,6 +1,6 @@
 # Operasyon planı: tek sayfa
 
-*Hasan Bey için · Dehanet EÇM · 30.09.2026 · Ayrıntı: `docs/OPERASYON_TASARIM.md`*
+*Hasan Bey için · Dehanet EÇM · 30.09.2026 · Ayrıntı: `belgeler/OPERASYON_TASARIM.md`*
 
 ## Hedef
 

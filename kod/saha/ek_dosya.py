@@ -39,7 +39,7 @@ TURLER = {"jpg": "image/jpeg", "png": "image/png"}
 
 # Bu modülün uçlarının izinleri: ``saha/api.py`` bağlarken ``yetki.ROTA_IZNI``'na ekler (``rota_izni_ekle``).
 # Kapsam (hangi ticket) uçların içinde ayrıca denetlenir.
-GORME = ("ticket.defter", "bina.oku")
+GORME = ("ticket.oku", "ticket.defter", "bina.oku")
 YUKLEME = ("ticket.defter", "is.saha")
 ROTA_IZNI: dict[tuple[str, str], tuple[str, ...]] = {
     ("GET", "/api/ticket/{ticket_id}/ek"): GORME,
@@ -289,7 +289,7 @@ def kucuk_resim(ticket_id: int, sha256: str, dosya_adi: str) -> tuple[Path, str]
 def ticket_getir_gorunur(conn: sqlite3.Connection, k: dict, ticket_id: int) -> dict:
     """Kişinin GÖREBİLDİĞİ ticket; göremediği ya da olmayan → 404 (varlık sızdırılmaz)."""
     t = conn.execute("SELECT id, bina_serial FROM ticket WHERE id=?", (int(ticket_id),)).fetchone()
-    if t and (izinli(k, "ticket.defter") or (t["bina_serial"] and bina_gorebilir(conn, k, t["bina_serial"]))):
+    if t and (izinli(k, "ticket.defter") or izinli(k, "ticket.oku") or (t["bina_serial"] and bina_gorebilir(conn, k, t["bina_serial"]))):
         return dict(t)
     raise hata(404, "Ticket bulunamadı.", "ticket_yok")
 

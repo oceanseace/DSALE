@@ -12,7 +12,7 @@ Aynı gün ikinci kez çalıştırılırsa o günün yedeğinin üzerine yazar. 
 eski dosyalar silinir; kaç dosya kalırsa kalsın en yeni 7 tanesi asla silinmez
 (bilgisayar uzun süre kapalı kaldıysa elde hiç yedek kalmasın istemeyiz).
 
-Windows Görev Zamanlayıcı ile her gün çalıştırmak için: saha/YEDEK.bat
+Windows Görev Zamanlayıcı ile her gün çalıştırmak için: kod/saha/YEDEK.bat (canlıda canli/surum içindeki kopyası)
 
 v2 (spec §1.3, §1.12): göç öncesi ve rapor aktarımı öncesi DOĞRULANMIŞ yedekler
 (``goc_yedegi``, ``aktarim_yedegi``) veritabanının yanındaki ``yedek/goc/`` ve
@@ -299,14 +299,20 @@ def geri_yukle(secilen: Path, kaynak: Path | None = None) -> dict:
 
 def geri_yukle_etkilesimli() -> int:
     """GERI_YUKLE.bat: listeler, sorar, geri yükler. Sunucu açıksa hiçbir şey yapmaz."""
-    from .sunucu import port_dolu_mu
+    from .sunucu import CANLI_ADRES, canli_veri_mi, dosya_kullanimda_mi, durdur_komutu, port_dolu_mu
 
-    if port_dolu_mu(8080):
-        print("Sunucu açık. Önce saha\\DURDUR.bat, sonra yeniden GERI_YUKLE.bat.")
+    if dosya_kullanimda_mi(db.db_yolu()):
+        print("Veritabanı başka bir süreçte açık (sunucu?). Önce sunucuyu kapatın (DURDUR.bat), sonra yeniden "
+              "GERI_YUKLE.bat.")
         return 2
+    # Canlı veride canlı port; geliştirmede geliştirme portları (8090–8099) denetlenir.
+    for port in ([CANLI_ADRES[1]] if canli_veri_mi() else range(8090, 8100)):
+        if port_dolu_mu(port):
+            print(f"Sunucu açık ({port}). Önce {durdur_komutu(port)}, sonra yeniden GERI_YUKLE.bat.")
+            return 2
     adaylar = geri_yukleme_adaylari()
     if not adaylar:
-        print("Geri yüklenecek yedek bulunamadı (saha\\yedek\\ ve saha\\yedek\\goc\\ boş).")
+        print(f"Geri yüklenecek yedek bulunamadı ({YEDEK_DIZINI} ve {YEDEK_DIZINI / 'goc'} boş).")
         return 1
     print("\nYedekler (en yenisi önce):\n")
     for i, d in enumerate(adaylar[:30], 1):
@@ -349,7 +355,7 @@ def listele(dizin: Path | None = None) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ayarlar.konsolu_hazirla()
-    ayrac = argparse.ArgumentParser(description="Saha Sistemi veritabanı yedeği")
+    ayrac = argparse.ArgumentParser(description="Turkcell veritabanı yedeği")
     ayrac.add_argument("--gun", type=int, default=SAKLAMA_GUN, help="Kaç gün saklansın (varsayılan 30)")
     ayrac.add_argument("--liste", action="store_true", help="Yedekleri listeler, yedek almaz")
     ayrac.add_argument("--dizin", help="Yedek klasörü (varsayılan saha/yedek)")

@@ -15,6 +15,23 @@ rem ============================================================================
 chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
+rem --- Gelistirme kopyasi gorev KURMAZ/SILMEZ ---------------------------------
+rem  Gorev adlari canli kurulumla AYNIDIR. Bu kopya (kod\saha\gorev) gelistirme
+rem  kodudur; "Yedek" gorevi buradan kurulursa canli veritabaninin gunluk yedegi
+rem  sessizce gelistirme verisinin yedegiyle yer degistirir. Canli gorevler
+rem  canli\ altindaki kopyadan kurulur (YAYINLA.bat hazir olana kadar:
+rem  canli\surum\saha\gorev\%~nx0).
+set "GOREV_YERI=%~dp0"
+if /i "%GOREV_YERI:\canli\=%"=="%GOREV_YERI%" (
+    echo.
+    echo   Bu dosya GELISTIRME kopyasidir; zamanlanmis gorevlere dokunmaz.
+    echo   Canli sistemin gorevleri icin su dosyayi kullanin:
+    for %%I in ("%~dp0..\..\..\canli\surum\saha\gorev\%~nx0") do echo     %%~fI
+    echo.
+    pause
+    exit /b 1
+)
+
 net session >nul 2>&1
 if errorlevel 1 (
     echo.

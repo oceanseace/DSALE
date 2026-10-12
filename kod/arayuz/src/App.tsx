@@ -11,49 +11,48 @@
  *   #/yonetici/…                operasyon + yönetici (menüdeki bölümün izni)
  *   #/ben                       herkes (satışta Ben, diğerlerinde Profil)
  * İzinsiz adreste "Bu bölüm görevinize kapalı." + [Ana ekrana dön].
+ *
+ * Arama paleti (Ctrl+F · Ctrl+K · "/") oturum açıkken her ekranda bağlıdır.
+ * Adresin `?…` kısmı (ör. `#/harita?loc=…`) ekran seçiminde yok sayılır; onu
+ * ekranın kendisi okur.
  */
 
-import { lazy, Suspense, useEffect, type ComponentType } from 'react';
-import { BildirimSaglayici } from './ortak/Bildirim';
-import { SenkronSaglayici } from './depo/senkron';
-import { OturumSaglayici, useOturum } from './depo/oturum';
-import { BugunSaglayici } from './depo/bugun';
-import { AltBar } from './ortak/AltBar';
-import { Giris } from './ekran/Giris';
-import { Bugun } from './ekran/Bugun';
-import { Bina } from './ekran/Bina';
-import { Ben } from './ekran/Ben';
-import { bosAdresMi, git, useAdres, yoluCoz } from './yol/rota';
-import { Sayfa, SayfaGovde, Ust, BosDurum } from './ortak/Sayfa';
-import { HataSiniri } from './ortak/HataSiniri';
-import { KapaliBolum } from './ortak/Bos';
-import { KutlamaSaglayici } from './ortak/Kutlama';
-import { BaslangicSecimi } from './ortak/BaslangicSecimi';
-import { Profil } from './ortak/Profil';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { BildirimSaglayici } from './cekirdek/ortak/Bildirim';
+import { SenkronSaglayici, type EkKuyruk } from './cekirdek/yerel/senkron';
+import { isKuyrugunuBaslat, isKuyrugunuGonder } from './birimler/teknik/kuyruk';
+import { OturumSaglayici, useOturum } from './cekirdek/yerel/oturum';
+import { BugunSaglayici } from './cekirdek/yerel/bugun';
+import { AltBar } from './cekirdek/ortak/AltBar';
+import { Giris } from './cekirdek/giris/Giris';
+import { Bugun } from './birimler/saha/ekran/Bugun';
+import { Bina } from './birimler/saha/ekran/Bina';
+import { Ben } from './birimler/saha/ekran/Ben';
+import { bosAdresMi, git, useAdres, yoluCoz } from './cekirdek/yol/rota';
+import { Sayfa, SayfaGovde, Ust, BosDurum } from './cekirdek/ortak/Sayfa';
+import { HataSiniri } from './cekirdek/ortak/HataSiniri';
+import { KapaliBolum } from './cekirdek/ortak/Bos';
+import { KutlamaSaglayici } from './cekirdek/ortak/Kutlama';
+import { OnizlemeSeridi } from './cekirdek/ortak/OnizlemeSecici';
+import { menuSuz } from './cekirdek/konsol/menu';
+import { Profil } from './cekirdek/ortak/Profil';
+import { AramaPaleti } from './cekirdek/arama';
+import { acilisSerbest, useAcilisTut } from './cekirdek/ortak/acilis';
 
 /** Harita ağır (deck.gl); yalnız sekmeye girilince indirilir. */
-const Harita = lazy(() => import('./ekran/Harita').then((m) => ({ default: m.Harita })));
+const Harita = lazy(() => import('./birimler/saha/ekran/Harita').then((m) => ({ default: m.Harita })));
 /** Yönetim konsolu ayrı parça olarak yüklenir. */
-const Yonetim = lazy(() => import('./yonetici').then((m) => ({ default: m.Yonetim })));
+const Yonetim = lazy(() => import('./Konsol').then((m) => ({ default: m.Yonetim })));
+/** Teknik birimi: teknisyenin "İşlerim" ekranı. */
+const Islerim = lazy(() => import('./birimler/teknik').then((m) => ({ default: m.Islerim })));
 
-/**
- * Teknik "İşlerim" (WP-D, `src/teknik/index.ts` → `Islerim`). Dosya gelince
- * kendiliğinden bağlanır; o zamana kadar sakin bir yer tutucu durur.
- */
-const TEKNIK = import.meta.glob('./teknik/index.{ts,tsx}');
-const Islerim: ComponentType | null = (() => {
-  const yukle = Object.values(TEKNIK)[0] as (() => Promise<Record<string, unknown>>) | undefined;
-  if (!yukle) return null;
-  return lazy(async () => {
-    const m = await yukle();
-    return { default: (m.Islerim as ComponentType | undefined) ?? IslerimHazirlaniyor };
-  });
-})();
+/** Birimlerin çevrimdışı kuyrukları: teknisyenin düğme basışları. */
+const EK_KUYRUKLAR: EkKuyruk[] = [{ baslat: isKuyrugunuBaslat, gonder: isKuyrugunuGonder }];
 
 export function App() {
   return (
     <BildirimSaglayici>
-      <SenkronSaglayici>
+      <SenkronSaglayici ekKuyruklar={EK_KUYRUKLAR}>
         <OturumSaglayici>
           <KutlamaKapisi>
             <Kapi />
@@ -72,12 +71,12 @@ function KutlamaKapisi({ children }: { children: React.ReactNode }) {
 
 /** Oturum açık mı kapalı mı: buna göre giriş ekranı ya da uygulama. */
 function Kapi() {
-  const { asama, anaYol, baslangicSor, baslangicSec } = useOturum();
+  const { asama, anaYol } = useOturum();
 
   useEffect(() => {
-    // Açılış perdesini ilk gerçek ekran boyandığında kaldır.
+    // Açılış perdesi: giriş ekranında hemen kalkar; oturum açıksa ilk veriyi bekleyenler bırakınca (acilis.ts).
     if (asama === 'baslatiliyor') return;
-    document.getElementById('acilis')?.remove();
+    acilisSerbest(asama === 'kapali');
   }, [asama]);
 
   /* Adres boşsa (uygulama simgesinden açılış) kişinin ana ekranına. */
@@ -90,8 +89,9 @@ function Kapi() {
 
   return (
     <>
+      <OnizlemeSeridi />
       <Yonlendirici />
-      <BaslangicSecimi acik={baslangicSor} sec={(b) => baslangicSec(b)} />
+      <AramaPaleti />
     </>
   );
 }
@@ -103,7 +103,7 @@ function Kapi() {
 const SEKMELI_EKRANLAR = new Set(['bugun', 'harita', 'ben', 'islerim']);
 
 function Yonlendirici() {
-  const adres = useAdres();
+  const adres = useAdres().split('?')[0];
   const { izinli } = useOturum();
   const { ekran, deger } = yoluCoz(adres);
   // İş ekranının içinde (İşlerim/<no>) sekme çubuğu yok: alttaki büyük düğme tek başına.
@@ -131,12 +131,14 @@ function Yonlendirici() {
  * kullanır. iOS'taki alışılmış davranış budur ve düğmelerin üstü kapanmaz.
  */
 function Ekran({ ekran, deger }: { ekran: string; deger: string | null }) {
-  const { izinli, gorevler, ozet, anaYol } = useOturum();
+  const { izinli, gorevler, ozet, anaYol, onizleme } = useOturum();
   const kapali = (baslik: string) => <Kapali baslik={baslik} anaYol={anaYol} />;
 
   switch (ekran) {
     case 'bugun':
       if (!izinli('satis.kendi')) return kapali('Bugün');
+      // Önizlemede sunucu gerçek kişinin verisini döner: örnek veri yok.
+      if (onizleme) return <OnizlemeBos baslik="Bugün" />;
       return ozet?.bolge_yok ? <BolgeYok /> : <Bugun />;
     case 'bina':
       if (!izinli('bina.oku')) return kapali('Bina');
@@ -156,15 +158,14 @@ function Ekran({ ekran, deger }: { ekran: string; deger: string | null }) {
       return izinli('satis.kendi') && !izinli('is.ata') ? <Ben /> : <Profil />;
     case 'islerim':
       if (!gorevler.includes('teknik')) return kapali('İşlerim');
+      if (onizleme && !deger) return <OnizlemeBos baslik="İşlerim" />;
       return (
         <HataSiniri baslik="İşlerim">
-          <Suspense fallback={<Bekleyen baslik="İşlerim" />}>{Islerim ? <Islerim /> : <IslerimHazirlaniyor />}</Suspense>
+          <Suspense fallback={<Bekleyen baslik="İşlerim" />}><Islerim /></Suspense>
         </HataSiniri>
       );
     case 'yonetici':
-      if (!izinli('is.ata', 'satis.izle', 'ekip.yonet', 'ticket.defter', 'takip.oku', 'veri.yonet')) {
-        return kapali('Yönetim');
-      }
+      if (!menuSuz(izinli).length) return kapali('Yönetim');
       return (
         <HataSiniri baslik="Yönetim">
           <Suspense fallback={<Bekleyen baslik="Yönetim" />}>
@@ -172,12 +173,36 @@ function Ekran({ ekran, deger }: { ekran: string; deger: string | null }) {
           </Suspense>
         </HataSiniri>
       );
+    case 'bos':
+      return <BosUnvan />;
     default:
       return <Bulunamadi anaYol={anaYol} />;
   }
 }
 
+/** Hiç ekranı açılmayan unvanlar (Finans, İK, İdari İşler…): sakin boş sayfa. */
+function BosUnvan() {
+  const { gorevAdi, cikisYap } = useOturum();
+  return (
+    <Sayfa>
+      <Ust baslik={gorevAdi || 'Turkcell'} />
+      <SayfaGovde sekmesiz>
+        <div className="bos-unvan">
+          <div>
+            <p>Bu unvanın ekranları henüz tanımlanmadı.</p>
+            <TazeleProfil />
+            <button type="button" className="dugme sessiz" onClick={cikisYap}>
+              Çıkış
+            </button>
+          </div>
+        </div>
+      </SayfaGovde>
+    </Sayfa>
+  );
+}
+
 function Bekleyen({ baslik }: { baslik: string }) {
+  useAcilisTut();
   return (
     <Sayfa>
       <Ust baslik={baslik} />
@@ -207,21 +232,48 @@ function BolgeYok() {
     <Sayfa>
       <Ust baslik="Bugün" />
       <SayfaGovde>
-        <BosDurum simge="🗺️" baslik="Size henüz bölge atanmadı." aciklama="Yöneticinize başvurun." />
+        <BosDurum simge="🗺️" baslik="Size henüz bölge atanmadı." aciklama="Yöneticinize başvurun; atandıktan sonra Yenile'ye basın.">
+          <TazeleProfil />
+        </BosDurum>
       </SayfaGovde>
     </Sayfa>
   );
 }
 
-function IslerimHazirlaniyor() {
+/** Yönetici bölge/unvan atadıktan sonra çıkmadan yenileme + profil (görünüm). */
+function TazeleProfil() {
+  const { ozetiTazele } = useOturum();
+  const [bekle, setBekle] = useState(false);
+  return (
+    <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', margin: '12px 0' }}>
+      <button
+        type="button"
+        className="dugme birincil"
+        disabled={bekle}
+        onClick={() => {
+          setBekle(true);
+          void ozetiTazele().finally(() => setBekle(false));
+        }}
+      >
+        {bekle ? 'Yenileniyor…' : 'Yenile'}
+      </button>
+      <button type="button" className="dugme sessiz" onClick={() => git('/ben')}>
+        Profil ve görünüm
+      </button>
+    </div>
+  );
+}
+
+/** Administrator önizlemesi: kişisel ekranlar için örnek veri yok. */
+function OnizlemeBos({ baslik }: { baslik: string }) {
   return (
     <Sayfa>
-      <Ust baslik="İşlerim" />
+      <Ust baslik={baslik} />
       <SayfaGovde>
         <BosDurum
-          simge="🛠️"
-          baslik="İşlerim hazırlanıyor"
-          aciklama="Size atanan işler yeni sürümle burada sırayla görünecek."
+          simge="👁️"
+          baslik="Önizleme — örnek veri yok"
+          aciklama="Bu ekran görevlinin kendi kayıtlarını gösterir; önizlemede örnek veri bulunmuyor."
         />
       </SayfaGovde>
     </Sayfa>
@@ -231,7 +283,7 @@ function IslerimHazirlaniyor() {
 function Bulunamadi({ anaYol }: { anaYol: string }) {
   return (
     <Sayfa>
-      <Ust baslik="Saha Sistemi" />
+      <Ust baslik="Turkcell" />
       <SayfaGovde>
         <BosDurum simge="🧭" baslik="Bu sayfa yok" aciklama="Ana ekranınıza dönelim.">
           <button className="dugme birincil buyuk" onClick={() => git(anaYol, { degistir: true })}>

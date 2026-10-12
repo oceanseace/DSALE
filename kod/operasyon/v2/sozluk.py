@@ -14,7 +14,9 @@ import sqlite3
 import threading
 from pathlib import Path
 
-import pandas as pd
+from operasyon.tembel import tembel
+
+pd = tembel("pandas")  # ağır: ilk kullanımda yüklenir
 
 import yollar
 from operasyon import is_emri as ie
@@ -476,14 +478,6 @@ def esad_ekle(conn: sqlite3.Connection, il: str, ilce: str, esad: str, mahalle_i
                      "VALUES (?,?,?,?,?,?)", (il_k, ilce_k, ek, mahalle_id, (k or {}).get("id"), zaman or z.metin()))
     onbellegi_bosalt()
     return {"il_k": il_k, "ilce_k": ilce_k, "esad_k": ek, "mahalle": mahalle_kaydi(conn, hedef)}
-
-
-def asil_mahalle(conn: sqlite3.Connection, il_k: str, ilce_k: str, mk: str) -> sqlite3.Row | None:
-    r = conn.execute("SELECT * FROM mahalle WHERE il_k=? AND ilce_k=? AND mahalle_k=?", (il_k, ilce_k, mk)).fetchone()
-    if r is None:
-        r = conn.execute("SELECT m.* FROM mahalle_esad e JOIN mahalle m ON m.id = e.mahalle_id "
-                         "WHERE e.il_k=? AND e.ilce_k=? AND e.esad_k=?", (il_k, ilce_k, mk)).fetchone()
-    return r
 
 
 def yukle(conn: sqlite3.Connection, df: pd.DataFrame, k: dict | None, zaman: str | None = None) -> dict:

@@ -1,0 +1,6 @@
+# Masaüstü kabuğu (Turkcell.exe): kod/masaustu/turkcell.py ve derle.py
+#   .venv\Scripts\python.exe -m pip install -r kod/masaustu/gereksinimler.txt
+pywebview>=6.2        # Windows'un WebView2'si (Edge) ile pencere; pythonnet'i getirir
+pystray>=0.19         # bildirim alanı simgesi
+pillow>=10            # simge üretimi (ikon.py) ve pystray
+pyinstaller>=6.10     # derle.py

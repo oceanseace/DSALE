@@ -262,25 +262,36 @@ def liste(conn: sqlite3.Connection) -> dict:
     for (a, b, _), n in sayi["mahalle"].items():
         ilce_sayi[(a, b)] = ilce_sayi.get((a, b), 0) + n
     h = harita(conn)
+    ilce_mahalleleri: dict[tuple, list[str]] = {}
+    for r in conn.execute("SELECT il_k, ilce_k, mahalle_k FROM mahalle"):
+        ilce_mahalleleri.setdefault((r[0], r[1]), []).append(r[2])
     out = []
     for o in conn.execute("SELECT * FROM obek WHERE aktif = 1 ORDER BY id").fetchall():
         mahalleler = []
+        tekil = {(m[0], m[1], m[2]) for m in conn.execute(
+            "SELECT il_k, ilce_k, mahalle_k FROM obek_mahalle WHERE obek_id = ? AND mahalle_k <> '*'", (o["id"],))}
         for m in conn.execute("SELECT * FROM obek_mahalle WHERE obek_id = ? ORDER BY rowid", (o["id"],)):
             il, ilce = ilce_adi.get((m["il_k"], m["ilce_k"]), ("", ""))
             if m["mahalle_k"] == "*":
                 # ilçenin tamamı: o ilçede başka öbeğe tek tek verilmemiş mahallelerin işleri
                 acik = sum(n for (a, b, c), n in sayi["mahalle"].items() if (a, b) == (m["il_k"], m["ilce_k"])
                            and haritadan(h, a, b, c) == o["id"])
+                # ilçenin sözlükteki bütün mahalleleri sayılır; başka öbeğe tek tek verilenler ve bu öbekte
+                # ayrıca listelenenler (iki kez sayılmasın) hariç
+                mk = [c for c in ilce_mahalleleri.get((m["il_k"], m["ilce_k"]), [])
+                      if haritadan(h, m["il_k"], m["ilce_k"], c) == o["id"]
+                      and (m["il_k"], m["ilce_k"], c) not in tekil]
                 mahalleler.append({"ref": m["ref"], "il": il, "ilce": ilce, "mahalle": "İlçenin tamamı",
-                                   "tum_ilce": True, "acik": acik})
+                                   "tum_ilce": True, "acik": acik, "mahalle_sayisi": len(mk)})
             else:
                 ad = mahalle_adi.get((m["il_k"], m["ilce_k"], m["mahalle_k"]), (il, ilce, m["ref"].split("/")[-1]))[2]
                 mahalleler.append({"ref": m["ref"], "il": il, "ilce": ilce, "mahalle": ad, "tum_ilce": False,
-                                   "acik": sayi["mahalle"].get((m["il_k"], m["ilce_k"], m["mahalle_k"]), 0)})
+                                   "acik": sayi["mahalle"].get((m["il_k"], m["ilce_k"], m["mahalle_k"]), 0),
+                                   "mahalle_sayisi": 1})
         s = sayi["obek"].get(o["id"], {"acik": 0, "geciken": 0, "btk": 0, "atanmamis": 0})
         out.append({"id": o["id"], "ad": o["ad"], "renk": o["renk"],
                     "sahip": kisi.ozet(kisiler.get(o["sahip_id"])), "yedek": kisi.ozet(kisiler.get(o["yedek_id"])),
-                    "mahalleler": mahalleler, **s})
+                    "mahalleler": mahalleler, "mahalle_sayisi": sum(m["mahalle_sayisi"] for m in mahalleler), **s})
     obeksiz = []
     for (a, b, c), n in sorted(sayi["mahalle"].items(), key=lambda x: -x[1]):
         if not b or haritadan(h, a, b, c) is not None:

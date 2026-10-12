@@ -1,0 +1,16 @@
+# DSALE — bütün Python bağımlılıkları. Depo kökünden, bir kez:
+#   py -3 -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r kodequirements.txt
+#
+# Bölgeleme (kod/dsale, kod/araclar/bolge.py)
+pandas>=2.2
+numpy>=1.26
+openpyxl>=3.1
+shapely>=2.0
+scipy>=1.11
+# Araçlar: PWA simgeleri (kod/arayuz: npm run ikon) ve ticket fotoğrafı küçük resimleri
+pillow>=10
+# Sunucu + testler (kod/saha) ve lisans (kod/lisans); yollar bu dosyaya göredir
+-r saha/gereksinimler.txt
+-r lisans/gereksinimler.txt
+-r masaustu/gereksinimler.txt

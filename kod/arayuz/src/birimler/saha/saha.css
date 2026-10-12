@@ -1,0 +1,67 @@
+/* Saha birimi — ekranların küçük yerleşim yardımcıları (yalnız tokenlar). */
+
+.s-ust-2 { margin-top: var(--b2); }
+.s-ust-3 { margin-top: var(--b3); }
+.s-alt-2 { margin-bottom: var(--b2); }
+.s-alt-3 { margin-bottom: var(--b3); }
+.s-alt-4 { margin-bottom: var(--b4); }
+.s-ic-4 { padding: var(--b4); }
+.s-harita-sarmal { padding: 0 var(--b3) var(--b3); }
+.s-sola-it { margin-left: auto; }
+.s-blok { display: block; }
+.s-esnek { flex: 1; min-width: 0; }
+.s-satir { display: inline-flex; align-items: center; gap: var(--b2); }
+.s-orta { justify-content: center; }
+.s-iki-uc { justify-content: space-between; }
+.s-dar-aralik { gap: var(--b1); }
+.s-genis-aralik { gap: var(--b4); align-items: flex-end; }
+.s-en-az { min-width: 224px; }
+.s-tarih { width: 160px; }
+.s-suzgec { width: 200px; }
+.s-oran-sutun { min-width: 128px; }
+.s-tablo-yuksek { max-height: 520px; overflow-y: auto; }
+.s-liste-yuksek { max-height: 52vh; }
+.s-ikincil-zemin { background: var(--ikincil-zemin); }
+.s-yesil { color: var(--yesil); }
+.s-sayi-kalin { font-size: var(--boy-o); font-weight: var(--kalin); font-variant-numeric: tabular-nums; }
+.s-sira-bitti { background: var(--yesil-yumusak); color: var(--yesil); }
+.s-toplam-satir { background: var(--ikincil-zemin); font-weight: var(--kalin); }
+
+/* Telefon haritası: bina durumu noktaları (deck.gl RENKLER ile aynı tokenlar). */
+.s-durum-bekliyor { background: var(--gri-dolgu); }
+.s-durum-planli { background: var(--vurgu); }
+.s-durum-ziyaret_edildi { background: var(--yesil-dolgu); }
+.s-durum-tekrar_gel,
+.s-durum-girilemedi { background: var(--amber-dolgu); }
+.s-durum-altyapi_sorunu { background: var(--kirmizi-dolgu); }
+.s-durum-siradaki { background: var(--birincil); box-shadow: inset 0 0 0 2px var(--metin); }
+.s-kart-nokta { flex: none; width: 12px; height: 12px; border-radius: 999px; }
+.s-tam { display: flex; }
+.s-akista { position: static; }
+.s-bosluksuz { margin: 0; }
+.s-es { font-family: var(--yazi-es); user-select: all; }
+.s-uyari-baslik { font-size: var(--boy-bb); font-weight: var(--kalin); color: var(--metin); }
+.s-donen-orta { display: block; margin: 0 auto var(--b3); }
+
+/* Telefon ekranları (Bugün · Bina · Ben) */
+.s-ust-4 { margin-top: var(--b4); }
+.s-ust-5 { margin-top: var(--b5); }
+.s-ust-6 { margin-top: var(--b6); }
+.s-alt-1 { margin-bottom: var(--b1); }
+.s-kalin { font-weight: var(--kalin); }
+.s-ikincil { color: var(--metin-2); }
+.s-vurgu-yazi { color: var(--vurgu-yazi); }
+.s-dikey { display: grid; gap: var(--b3); }
+.s-genis-satir { gap: var(--b4); }
+.s-acilir-baslik { display: flex; align-items: center; gap: var(--b2); width: 100%; min-height: var(--hedef); }
+.s-ok { display: inline-flex; margin-left: auto; transition: transform var(--sure) var(--egri); }
+.s-ok.acik { transform: rotate(90deg); }
+.s-iskelet-ozet { height: 92px; margin-bottom: var(--b4); }
+.s-iskelet-kart { height: 104px; margin-bottom: var(--b3); }
+.s-iskelet-bina { height: 180px; }
+.s-bina-bas { padding: var(--b4) 0 var(--b1); }
+.s-bina-ad { margin: 0 0 var(--b2); font-size: var(--boy-bb); font-weight: var(--kalin); line-height: var(--satir-bb); }
+.s-baslik-bb { font-size: var(--boy-bb); font-weight: var(--kalin); line-height: var(--satir-bb); }
+.s-sira-kucuk { width: 32px; height: 32px; font-size: var(--boy-o); }
+.s-avatar { flex: none; width: 48px; height: 48px; border-radius: var(--yaricap); font-size: var(--boy-bb); }
+.s-halka { flex: none; }

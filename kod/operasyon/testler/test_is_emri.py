@@ -5,7 +5,6 @@ Adresler uydurmadır (gerçek müşteri verisi yok); mahalle adları gerçek lis
 """
 from __future__ import annotations
 
-import io
 import json
 
 import numpy as np
@@ -163,68 +162,6 @@ def test_mesafe_ve_dengeli_bolme():
     lat2 = lat.copy(); lat2[-1] = np.nan
     et2 = yakinlik.dengeli_bol(lat2, lon, 3, grup=grup)
     assert len(set(et2[:5])) == 1 and et2[-1] == 0
-
-
-# ---------------------------------------------------------------- 5) API
-@pytest.fixture()
-def istemci(tmp_path, monkeypatch):
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient
-    from operasyon import api
-    monkeypatch.setattr(api, "VERI_DIZINI", tmp_path / "veri")
-    monkeypatch.setattr(api, "OBEK_DOSYASI", tmp_path / "obek.json")
-    monkeypatch.setattr(api, "DEPO", api._Depo())
-    app = FastAPI()
-    app.include_router(api.yonlendirici(lambda: {"rol": "yonetici"}))
-    return TestClient(app)
-
-
-def _xlsx(df: pd.DataFrame) -> bytes:
-    b = io.BytesIO()
-    df.to_excel(b, index=False, sheet_name="Task Detail Report")
-    return b.getvalue()
-
-
-def test_api_akisi(istemci):
-    assert istemci.get("/api/is-emri").json()["yukleme"] is None
-    df = rapor([("Bağlantı Problemi", f"X APT. {mh} Mh. No:{i} Nilüfer", "Bursa", "Nilüfer")
-                for i, mh in enumerate(["Görükle"] * 6 + ["Dumlupınar"] * 4 + ["Ataevler"] * 2)]
-               + [("TV+ Kurulum", "X APT. Görükle Mh. No:1 Nilüfer", "Bursa", "Nilüfer")])
-    r = istemci.post("/api/is-emri/yukle", content=_xlsx(df), headers={"X-Dosya-Adi": "Rapor%20%C3%A7.xlsx"})
-    assert r.status_code == 200, r.text
-    j = r.json()
-    assert j["yukleme"]["ozet"]["cikarilan"] == 1 and len(j["isler"]) == 12
-    assert "Müşteri" not in json.dumps(j, ensure_ascii=False)
-    assert {m["mahalle"]: m["is"] for m in j["mahalleler"]} == {"Görükle": 6, "Dumlupınar": 4, "Ataevler": 2}
-
-    j = istemci.post("/api/is-emri/obek", json={"islem": "ata", "ad": "Batı",
-                                                "mahalleler": ["Bursa/Nilüfer/Görükle", "Bursa/Nilüfer/Dumlupınar"]}).json()
-    assert sum(i["obek"] == "Batı" for i in j["isler"]) == 10
-
-    ids = [i["id"] for i in j["isler"] if i["obek"] == "Batı"]
-    b = istemci.post("/api/is-emri/bol", json={"ids": ids, "k": 2, "birim": "mahalle", "ad": "Batı"}).json()
-    assert sorted(p["is"] for p in b["parcalar"]) == [4, 6]
-    kayit = [{"ad": p["ad"], "mahalleler": p["mahalleler"]} for p in b["parcalar"]]
-    j = istemci.post("/api/is-emri/parca", json={"atama": {}, "obek_olarak": kayit, "eski_obek": "Batı"}).json()
-    assert {t["ad"] for t in j["obekler"]} == {"Batı-1", "Batı-2"}
-
-    b = istemci.post("/api/is-emri/bol", json={"ids": ids, "k": 3, "birim": "bina", "ad": "G"}).json()
-    atama = {int(k): f"G-{v}" for k, v in b["atama"].items()}
-    j = istemci.post("/api/is-emri/parca", json={"atama": atama, "temizle": True}).json()
-    assert sum(1 for i in j["isler"] if i["parca"]) == 10
-
-    x = istemci.get("/api/is-emri/excel")
-    assert x.status_code == 200 and "attachment" in x.headers["content-disposition"]
-    sayfalar = pd.read_excel(io.BytesIO(x.content), sheet_name=None)
-    assert {"İşler", "Öbekler", "Mahalleler", "Kontrol", "Çıkarılanlar", "Özet"} <= set(sayfalar)
-    assert "Parça" in sayfalar["İşler"].columns
-
-
-def test_api_yanlis_dosya(istemci):
-    r = istemci.post("/api/is-emri/yukle", content=b"merhaba")
-    assert r.status_code == 400
-    r = istemci.post("/api/is-emri/yukle", content=_xlsx(pd.DataFrame({"a": [1]})))
-    assert r.status_code == 400 and "Task Adı" in r.text
 
 
 # ---------------------------------------------------------------- 6) Location Id önce (kullanıcı kuralı, 30.09)

@@ -130,25 +130,6 @@ def test_degisim_imleci(istemci, jeton, v2db, conn, kisi, kim):
     assert d["gorunmez"] == [nolar[1]] and d["isler"] == []
 
 
-def test_eski_uclar_410(monkeypatch, v2db):
-    """Eski İş emirleri ekranı kaldırılınca (ya da SAHA_ESKI_IS_EMRI=0) /api/is-emri/* 410 'yenilendi'."""
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient
-
-    from operasyon.testler.conftest import uygulama
-    from operasyon.v2 import api as v2api
-    from saha import yetki
-    monkeypatch.setenv("SAHA_ESKI_IS_EMRI", "0")
-    app = uygulama()
-    for r in v2api.eski_yonlendirici(yetki.Bagimliliklar()):
-        app.include_router(r)
-    with TestClient(app) as c:
-        for yontem, yol in (("GET", "/api/is-emri"), ("POST", "/api/is-emri/yukle"), ("DELETE", "/api/is-emri/x")):
-            r = c.request(yontem, yol)
-            assert r.status_code == 410 and r.json()["kod"] == "yenilendi"
-    assert isinstance(FastAPI, type)
-
-
 def _anahtarlar(ornek, gercek, yol, eksik: list, izinli_fazla=frozenset()):
     """Örnekteki her anahtar gerçek yanıtta da olmalı (iç içe sözlüklerde ve listelerin ilk öğesinde)."""
     if isinstance(ornek, dict) and isinstance(gercek, dict):
@@ -175,7 +156,7 @@ def test_ornek_yanitlar_sema_uyumu(istemci, jeton, v2db, conn, kisi, kim):
     dizin = json.loads((ORNEK / "_dizin.json").read_text(encoding="utf-8"))
     uclar = {
         "GET /api/isler": "/api/isler", "GET /api/isler/{is_no}": f"/api/isler/{nolar[1]}",
-        "GET /api/aranacaklar": "/api/aranacaklar", "GET /api/obekler": "/api/obekler",
+        "GET /api/obekler": "/api/obekler",
         "GET /api/isler/ayarlar": "/api/isler/ayarlar", "GET /api/isler/kurallar": "/api/isler/kurallar",
         "GET /api/isler/teknikler": "/api/isler/teknikler", "GET /api/boss/giden": "/api/boss/giden",
         "GET /api/takip": "/api/takip", "GET /api/kesinti": "/api/kesinti", "GET /api/kesinti/aday": "/api/kesinti/aday",
@@ -183,7 +164,13 @@ def test_ornek_yanitlar_sema_uyumu(istemci, jeton, v2db, conn, kisi, kim):
     }
     # Role/duruma bağlı, örnekte olmayabilen ek alanlar (sözleşmede isteğe bağlı: tipler.ts '?')
     fazla = frozenset({"calisiyor", "klasorler_varsayilan", "yontem", "fark", "btk_durduran_aski", "teknik_kapasite",
-                       "aski_nedeni", "uyanma", "talep_ulasamama_sms", "musteri_tel"})
+                       "aski_nedeni", "uyanma", "talep_ulasamama_sms", "musteri_tel",
+                       "bizim_durum", "boss_durum", "boss_randevu_durumu", "satis_kanali",
+                       "uyarilar", "isaret", "hucre_renk", "durum_renkleri", "boss_yazma", "boss_yazma_not", "boss_yazma_atama",
+                       "iliskili_akis", "iliskili_isler",
+                       # otomatik planlama ayarları (09.10; tipler.ts IsAyarlari, isteğe bağlı)
+                       "iliskili_dahil", "ticket_otomatik_aski", "ticket_cozum_yeniden_ata", "ticket_cozum_slot",
+                       "varsayilan_aski", "boss_yazma_paralel"})   # TASKS + BOSS yazma ayarları
     eksik: list[str] = []
     for uc, yol in uclar.items():
         r = istemci.get(yol, headers=h)
@@ -198,6 +185,13 @@ def test_boss_giden_ek4(istemci, jeton, v2db, conn, kisi, kim):
     satirlar = [y.satir(i, mahalle="Görükle") for i in range(1, 3)]
     y.aktar(v2db, satirlar)
     no = "400000001"
+    # atama + randevu BOSS'a kendiliğinden yazılıyorsa (varsayılan) elle işlenecek kutusuna düşmez
+    akis.ata(conn, "400000002", kisi["teknik1"], kim("operasyon"),
+             randevu={"bas": "2026-10-01 10:00:00", "bit": "2026-10-01 12:00:00", "teyitli": True})
+    assert istemci.get("/api/boss/giden", headers=jeton(kisi["operasyon"])).json() == []
+    conn.execute("INSERT INTO ayar(anahtar, deger) VALUES('boss_yazma_atama','kapali') ON CONFLICT(anahtar) DO UPDATE "
+                 "SET deger='kapali'")
+    conn.commit()
     akis.ata(conn, no, kisi["teknik1"], kim("operasyon"),
              randevu={"bas": "2026-10-01 10:00:00", "bit": "2026-10-01 12:00:00", "teyitli": True})
     h = jeton(kisi["operasyon"])

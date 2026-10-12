@@ -32,17 +32,3 @@ def islem(conn: sqlite3.Connection):
         conn.execute("ROLLBACK")
         raise
     conn.execute("COMMIT")
-
-
-@contextlib.contextmanager
-def kayit_noktasi(conn: sqlite3.Connection):
-    """Toplu işlemlerde her iş kendi SAVEPOINT'inde: biri düşerse diğerleri kalır (spec §5.5)."""
-    ad = f"sp_{next(_sayac)}"
-    conn.execute(f"SAVEPOINT {ad}")
-    try:
-        yield conn
-    except BaseException:
-        conn.execute(f"ROLLBACK TO {ad}")
-        conn.execute(f"RELEASE {ad}")
-        raise
-    conn.execute(f"RELEASE {ad}")

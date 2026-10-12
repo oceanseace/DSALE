@@ -1,4 +1,0 @@
-# Derleme çıktıları (DERLE.bat üretir) — içlerinde bina verisi var, depoya GİRMEZ
-build/
-dist/
-node_modules/

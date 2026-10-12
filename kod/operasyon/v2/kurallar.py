@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import math
 import re
 import sqlite3
 
@@ -412,7 +411,3 @@ def kesinti_ayristir(metin: str, ilceler: list[tuple[str, str, str, str]]) -> di
     return {"ilceler": bulunan, "tur": tur, "durum": durum, "no": no.group(1) if no else None,
             "baslama_saat": f"{int(saat.group(1)):02d}:{saat.group(2)}" if saat else None,
             "etki_musteri": int(musteri.group(1)) if musteri else None}
-
-
-def yuvarla_yukari(x: float) -> int:
-    return int(math.ceil(x))

@@ -1,21 +1,22 @@
 {
   "name": "saha-app",
-  "productName": "Saha Sistemi",
+  "productName": "Turkcell",
   "version": "1.0.0",
   "private": true,
-  "description": "Dehanet EÇM · Saha Sistemi — satışçı saha uygulaması (PWA)",
+  "description": "Turkcell — bayi iş akışı uygulaması (PWA)",
   "author": "Dehanet EÇM",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build": "node scripts/sinir.mjs && node scripts/saf_test.mjs && tsc --noEmit -p tsconfig.json && vite build",
     "build:hizli": "vite build",
     "onizle": "vite preview --port 4173 --host 127.0.0.1",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "ikon": "node scripts/ikon.mjs",
-    "qa": "node qa/cek.mjs",
+    "ikon": "..\\..\\.venv\\Scripts\\python.exe scripts/ikon.py",
     "build:sahte": "vite build --mode sahte --outDir dist-sahte",
-    "e2e": "node qa/e2e.mjs"
+    "sinir": "node scripts/sinir.mjs",
+    "test": "node scripts/saf_test.mjs",
+    "tasi": "node scripts/tasi.mjs"
   },
   "dependencies": {
     "@deck.gl/core": "~9.4.0",

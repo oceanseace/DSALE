@@ -11,7 +11,7 @@ Karar (2026-09-21): **PWA** (telefon tarayıcısı → ana ekrana ekle) · sunuc
 > http://<pc-ip>:8080 ile her şey çalışır (çevrimdışı hariç). Sahadan erişim için Cloudflare Tunnel
 > / şirket VPN / sabit IP gerekir — kullanıcı onayı alınmadan dışarı açılmaz.
 
-## 1. Veritabanı (SQLite, `saha/saha.db`, WAL)
+## 1. Veritabanı (SQLite, çalışma klasöründe `saha/saha.db` — geliştirmede `gelistirme/veri/saha/saha.db`; WAL)
 
 | Tablo | Alanlar |
 |---|---|
@@ -28,7 +28,7 @@ Karar (2026-09-21): **PWA** (telefon tarayıcısı → ana ekrana ekle) · sunuc
 
 `ziyaret.sonuc`: `satis` · `ilgilenmedi` · `evde_yok` · `randevu` · `altyapi_sorunu` · `girilemedi` · `yanlis_adres`.
 
-Tohumlama: `data/master/bina_master.csv` + `outputs/N08_res_hp/atama.csv` (bölge) → `bina`.
+Tohumlama: `veri/master/bina_master.csv` + `cikti/N08_res_hp/atama.csv` (bölge) → `bina`.
 Her bina için `bina_durum.durum='bekliyor'`. Kullanıcılar: 1 yönetici + 8 satışçı (ad/telefon
 yönetici ekranından düzenlenir, PIN ilk girişte belirlenir).
 
@@ -87,8 +87,8 @@ bağlantı gelince otomatik gönderilir. Ekranda "3 kayıt bekliyor" rozeti.
 
 ## 5. Klasörler
 - `saha/` — FastAPI uygulaması, SQLite şeması + tohumlama, rota/öncelik algoritması, testler
-- `saha_app/` — PWA (Vite + React + TS), `saha_app/dist` derlenir ve FastAPI tarafından sunulur
-- `saha/baslat.bat` — ofis bilgisayarında tek tıkla sunucu
+- `kod/arayuz/` — PWA (Vite + React + TS), `kod/arayuz/dist` derlenir ve FastAPI tarafından sunulur
+- `BASLAT.bat` (depo kökü) — ofis bilgisayarında tek tıkla canlı sunucu; geliştirme: `kod/saha/GELISTIRME_BASLAT.bat`
 
 ---
 
@@ -121,7 +121,7 @@ künyesi uzun diye kaybolamaz.
 (aynı metin), tek satır adres `adres` alanındadır.
 
 **Sözleşmeye eklenen uçlar ve alanlar:**
-- `GET /api/yollar?bolge=` → harita arka planı (`data/ref/osm_yollar.geojson`,
+- `GET /api/yollar?bolge=` → harita arka planı (`veri/ref/osm_yollar.geojson`,
   bölge verilirse o bölgenin kutusuna kırpılır). İsteğe bağlı: 404 dönerse
   harita yolsuz çizilir.
 - `GET /api/ben` → `hafta:{ziyaret,satis,randevu}` ve
@@ -182,7 +182,7 @@ künyesi uzun diye kaybolamaz.
 - Rota, bölgenin sonunda iki parçalı kurulur: kalan dokunulmamış bina bir
   günlük işin altına düşünce **önce onlar** alınır, gün tekrar ziyaretlerle
   doldurulur. Sözleşmedeki formül değişmedi; değişen, puan yarışının son
-  binaları kalıcı olarak elemesinin engellenmesi (bkz. `docs/SAHA_KULLANIM.md`
+  binaları kalıcı olarak elemesinin engellenmesi (bkz. `belgeler/SAHA_KULLANIM.md`
   § Kapsama simülasyonu).
 
 ---
@@ -248,7 +248,7 @@ alanında ve `kalite_kaynak.ham` içinde kalır. Bugünkü sayılar (19.706 bina
 
 Bir binanın HP'si/abonesi değişince (tur raporu) o binanın bayrakları yeniden
 hesaplanır. Aynı binayı iki kez denetlemek aynı sonucu verir. Kanıtlar
-`data/master/bina_kalite_kanit.json`'da önbelleklenir (kaynak dosyalar değişince yenilenir).
+`veri/master/bina_kalite_kanit.json`'da önbelleklenir (kaynak dosyalar değişince yenilenir).
 
 - `GET /api/kalite/ozet?bolge=` (yönetici) → `{toplam_bina, bayrakli_bina, hesaplanmamis, kural_surumu, kurallar:[{kural, ad, seviye, aciklama, duzeltir, adet, duzeltilen}]}`
 - `GET /api/kalite/liste?kural=&bolge=&seviye=bilgi|uyari&limit=50&offset=0` (yönetici, limit ≤ 500) → `{toplam, limit, offset, binalar:[{bina_serial, baslik, ad, site_adi, sokak, kapi_no, mahalle, ilce, bolge, lat, lon, location_id, tellcordia_id, res_hp, aktif_res, kat, daire, kalite:[…]}]}` · bilinmeyen kural `400 kural_gecersiz`
@@ -264,7 +264,7 @@ hesaplanır. Aynı binayı iki kez denetlemek aynı sonucu verir. Kanıtlar
   - Plan bulunursa **200**: `{hazir:true, n, olcu, plan_ref, kaynak, kaynak_ad, parametreler, mevcut_n, bolgeler:[{bolge, ad, kisa_ad, renk, bina, res_hp, aktif_res, toplam_hp, firsat, kalan_firsat, dokunulan, dokunulan_oran, satis, ziyaret, penetrasyon, sapma, poligon (GeoJSON MultiPolygon), merkez, etiket, satiscilar, yeni_satisci_acilacak, nereden:[{bolge (eski), bina}]}], denge:{sapma_min, sapma_maks}, fark:{aktif_bina, el_degistiren_bina, el_degistiren_oran, el_degistiren_ziyaret, el_degistiren_dokunulmus_bina, numarasi_degisen_bina, bugun_listede_el_degistiren, satisci_hareketleri, bolgesiz_kalacak_satiscilar, yeni_satisci_acilacak_bolgeler, kalkan_bolgeler}, uyarilar:[metin], bina_bolge:[int]}`
   - `bina_bolge`: `/api/harita` (bölgesiz istek) ile AYNI seri sırasında (pasif olmayan binalar, `bina_serial` artan) yeni bölge numaraları → önizleme haritası bunu boyar.
   - Plan yoksa (ya da `hesapla=1`) **202**: `{hazir:false, n, olcu, is:{is_id, n, olcu, durum, ilerleme (0..1; bölgeleme aşamasında süreye göre TAHMİNİ), asama, tahmini_sn, baslangic, bitis, mesaj}, mesaj}`. Aynı anda tek hesap; başka N hesaplanıyorsa `409 hesap_suruyor`.
-  - Kaynak sırası: bu veriyle sunucuda hesaplanmış plan (`outputs/_onbellek/saha/<veri imzası>/plan_NXX_<ölçü>.json`) → sunum paketi `app/src/data/generated/planlar.json` (yalnız `res_hp`; veritabanının en az %97'sini birebir tanımıyorsa kullanılmaz) → `bolge.py` önbelleği (yalnız bugünkü master ile üretilmişse). Planda olmayan bina en yakın binanın bölgesine verilir.
+  - Kaynak sırası: bu veriyle sunucuda hesaplanmış plan (`<çalışma>/cikti/_onbellek/saha/<veri imzası>/plan_NXX_<ölçü>.json`) → sunum paketi `kod/sunum/src/data/generated/planlar.json` (yalnız `res_hp`; veritabanının en az %97'sini birebir tanımıyorsa kullanılmaz) → `bolge.py` önbelleği (yalnız bugünkü master ile üretilmişse). Planda olmayan bina en yakın binanın bölgesine verilir.
   - Geçersiz `n` → 422, geçersiz ölçü → `400 olcu_gecersiz`.
 - `GET /api/bolgeleme/is/{is_id}` → iş durumu (`durum`: `bekliyor` · `calisiyor` · `bitti` · `hata`). Bitince `onizleme?n=` aynı N için `kaynak:'hesap'` döner. Sunucu yeniden başlarsa iş kaydı kaybolur (`404 is_yok`), hesaplanmış dosya kalır.
 - `POST /api/bolgeleme/uygula {n, plan_ref, pasiflestir?:false, notu?}` → `{plan_id, n, onceki_plan_id, degisen_bina, el_degistiren_bina, el_degistiren_ziyaret, tasinan_satiscilar, bolgesiz_kalan, pasife_alinan, yeni_satiscilar:[{id, ad, bolge, telefon, telefon_goster, davet_kodu}], mesaj}`
@@ -273,14 +273,14 @@ hesaplanır. Aynı binayı iki kez denetlemek aynı sonucu verir. Kanıtlar
   - Numaralandırma: yeni bölgeler, binalarının (ziyaret edilmişler ağır) çoğunu devraldıkları eski bölgeyle Macar yöntemiyle eşleşir. 8→14: 1-8 numarası ve satışçısı korunur, 9-14 yeni. 14→8: numaralar 1-8'e sıkışır; bölgesi kalmayan satışçı `bolge=0` (bölgesiz, hesap açık) olur, `pasiflestir:true` ise ayrıca `aktif=0` ve oturumları düşer. Hesap SİLİNMEZ.
   - `plan_ref` = `kaynak:n:olcu:imza`; önizlemeden sonra binalar değiştiyse `409 plan_degisti`, plan bulunamazsa `409 plan_yok`, `n` uyuşmazsa `400 plan_ref_gecersiz`.
 - `POST /api/bolgeleme/geri-al` → önceki plana (`onceki_id`) döner: bina bölgeleri ve satışçıların bölge/aktiflik durumu uygulama öncesine; o plan için açılan yer tutucular `aktif=0` (silinmez). → `{plan_id, geri_alinan_plan_id, n, degisen_bina, kapatilan_yer_tutucular:[{id, ad, pin_belirlemisti}], mesaj}` · geri alınacak yoksa `409 geri_alinacak_yok`. Arka arkaya geri almak plan zincirinde geriye yürür (başlangıçta durur).
-- `GET /api/bolgeleme/excel?plan_id=` → etkin (ya da verilen) planın açıklayıcı Excel'i `Bursa_{N}_Satisci_Bolgeleme.xlsx` (`dsale.excel_report`, güncel HP ile; PERSONEL_ATAMA satışçı adlarıyla dolu). İlk üretim ~15-30 sn, sonra önbellekten (`outputs/saha_bolgeleme/`); plan, künye sürümü ya da satışçı adları değişince yeniden üretilir.
+- `GET /api/bolgeleme/excel?plan_id=` → etkin (ya da verilen) planın açıklayıcı Excel'i `Bursa_{N}_Satisci_Bolgeleme.xlsx` (`dsale.excel_report`, güncel HP ile; PERSONEL_ATAMA satışçı adlarıyla dolu). İlk üretim ~15-30 sn, sonra önbellekten (`<çalışma>/cikti/saha_bolgeleme/`); plan, künye sürümü ya da satışçı adları değişince yeniden üretilir.
 - `GET /api/saglik` → `bolge_sayisi` (etkin N). `POST /api/kullanici` satışçı bölgesini `1..bolge_sayisi` aralığında kabul eder (14 bölgede 14).
 - **Gün içinde plan değişirse:** satışçının son 14 gündeki listelerinde olan bina, bölgesi değişse de ona açıktır (`POST /api/ziyaret`, `/api/ziyaret/toplu`, `GET /api/bina/{serial}`, ticket şablonu) — çevrimdışı kuyruk "başka bölge" diye takılmaz. Listede olmayan başka bölge binası hâlâ `403 baska_bolge`.
 - `python -m saha.kur` yeniden çalışırsa: plan geçmişi varsa bölgelere, `tur_tarihi` dolu binaların HP/abone/fırsatına DOKUNMAZ.
 
 ### 7.3 Tur raporu ve OneMap yenileme (B2) — hepsi yönetici
 
-- `POST /api/veri/tur-raporu` — gövde: `multipart/form-data` (`dosya` alanı) ya da ham `.xlsx` (`application/octet-stream`, isteğe bağlı `X-Dosya-Adi` başlığı). En çok 80 MB. Dosya `data/raw/gelen/tur_<YYYYAAGG_SSDDss>.xlsx` olarak saklanır, **ORIGN** sayfası (yoksa ilk sayfa) okunur, farkı döner, **bina tablosuna hiçbir şey yazmaz** → `{tur_id, dosya, dosya_adi, okuma:{sayfa, satir, tekil_bina, bos_serial, tekrar, tekrar_ornek, bozuk_tellcordia}, fark:{once:{bina, res_hp, aktif_res, firsat, toplam_hp}, sonra:{…}, sonra_haric_yeni, yeni_bina, yeni_bina_il_disi, il_disi_dagilim, cikan_bina, cikan_oran, pasif_onay_gerekli, geri_donen_bina, degisen_bina, degismeyen_bina, ornek:{yeni, cikan, degisen:[{bina_serial, ad, bolge, ilce, degisim:{alan:[eski, yeni]}, firsat_fark}], geri_donen}, hizmet_illeri, uyarilar}, ayni_dosya_daha_once}` · xlsx değilse `400 dosya_gecersiz`, zorunlu sütun yoksa `400 sutun_eksik` (okunamayan dosya saklanmaz), 80 MB üstü `413 dosya_buyuk`.
+- `POST /api/veri/tur-raporu` — gövde: `multipart/form-data` (`dosya` alanı) ya da ham `.xlsx` (`application/octet-stream`, isteğe bağlı `X-Dosya-Adi` başlığı). En çok 80 MB. Dosya `<çalışma>/gelen/tur_<YYYYAAGG_SSDDss>.xlsx` olarak saklanır, **ORIGN** sayfası (yoksa ilk sayfa) okunur, farkı döner, **bina tablosuna hiçbir şey yazmaz** → `{tur_id, dosya, dosya_adi, okuma:{sayfa, satir, tekil_bina, bos_serial, tekrar, tekrar_ornek, bozuk_tellcordia}, fark:{once:{bina, res_hp, aktif_res, firsat, toplam_hp}, sonra:{…}, sonra_haric_yeni, yeni_bina, yeni_bina_il_disi, il_disi_dagilim, cikan_bina, cikan_oran, pasif_onay_gerekli, geri_donen_bina, degisen_bina, degismeyen_bina, ornek:{yeni, cikan, degisen:[{bina_serial, ad, bolge, ilce, degisim:{alan:[eski, yeni]}, firsat_fark}], geri_donen}, hizmet_illeri, uyarilar}, ayni_dosya_daha_once}` · xlsx değilse `400 dosya_gecersiz`, zorunlu sütun yoksa `400 sutun_eksik` (okunamayan dosya saklanmaz), 80 MB üstü `413 dosya_buyuk`.
 - `GET /api/veri/tur-raporu` → `{raporlar:[{tur_id, dosya, yukleme, durum, uygulama, yukleyen, yeni_bina, cikan_bina, degisen_bina}], son_uygulanan}` · `GET /api/veri/tur-raporu/{tur_id}` → kayıtlı önizleme.
 - `POST /api/veri/tur-raporu/uygula {tur_id, pasif_onay?:false, iller?:[..]}` → TEK İŞLEM: var olan binalarda `res_hp, aktif_res, firsat, toplam_hp, soho_hp, tur_tarihi` güncellenir (her değişiklik `bina_degisim`'e), raporda olmayan bina pasif, geri dönen etkin, yeni bina `bina_bekleyen`'e (yalnız hizmet verilen illerden; `iller` ile genişletilir), kalite yeniden hesaplanır. **Bölgeler ve `site_grup` değişmez.** → `{tur_id, zaten_uygulandi, guncellenen_bina, pasife_alinan_bina, geri_donen_bina, konum_bekleyen_bina, once, sonra, mesaj}`
   - İkinci kez: `200 {zaten_uygulandi:true}` (hiçbir şey iki kez yazılmaz).
@@ -288,8 +288,8 @@ hesaplanır. Aynı binayı iki kez denetlemek aynı sonucu verir. Kanıtlar
   - Daha yeni bir rapor uygulanmışsa eskisi `409 daha_yeni_var`; uygulanan raporun öncesindeki önizlemeler `eskidi` olur.
 - `GET /api/veri/bekleyen?durum=konum_bekliyor|eklendi|rapordan_cikti` → `{durum, toplam, binalar:[{bina_serial, tellcordia_id, location_id, ad, site_adi, ilce, il, res_hp, firsat, durum, tur_id, eklenme}]}`
 - `GET /api/veri/bekleyen.txt` → OneMap aracına verilecek `bekleyen_idler.txt` (satır başına Tellcordia ID = OneMap `ID`; yoksa Bina Serial = `LOCATION_ID`).
-- `GET /api/veri/onemap-araci.js` → `saha/araclar/onemap_cek.js` (tarayıcı konsoluna yapıştırılır; kullanım `SAHA_KULLANIM.md` §12).
-- `POST /api/veri/onemap` — gövde: aracın indirdiği `onemap_yeni.json` (multipart `dosya` ya da ham JSON). Hem araç biçimi `{features:[{a, g}]}` hem ham ArcGIS `{features:[{attributes, geometry:{rings}}]}` kabul edilir. Eşleşen bekleyen bina poligon merkeziyle (poligon yoksa LAT/LON) `bina`ya eklenir: mahalle `enrich.mahalle_norm`, kat OneMap (1-60) ya da daireden tahmin, `site_grup` aynı ilçe + mahalle + site adındaki 350 m içindeki VAR OLAN gruba katılır (yoksa yeni anahtar; var olanlar asla değişmez), bölge = aynı site grubunun bölgesi, yoksa en yakın etkin binanın bölgesi; `bina_durum='bekliyor'`, poligon `bina_geometri_ek`'e, dosya `data/raw/gelen/onemap_<zaman>.json`'a. → `{eklenen, eslesmeyen, zaten_haritada, konumsuz, hala_bekleyen, binalar:[{bina_serial, ad, bolge, lat, lon, site_grup}], mesaj}` · boş dosya `400 onemap_bos`, JSON değilse `400 dosya_gecersiz`. Aynı dosya iki kez: `eklenen:0`.
+- `GET /api/veri/onemap-araci.js` → `kod/saha/araclar/onemap_cek.js` (tarayıcı konsoluna yapıştırılır; kullanım `SAHA_KULLANIM.md` §12).
+- `POST /api/veri/onemap` — gövde: aracın indirdiği `onemap_yeni.json` (multipart `dosya` ya da ham JSON). Hem araç biçimi `{features:[{a, g}]}` hem ham ArcGIS `{features:[{attributes, geometry:{rings}}]}` kabul edilir. Eşleşen bekleyen bina poligon merkeziyle (poligon yoksa LAT/LON) `bina`ya eklenir: mahalle `enrich.mahalle_norm`, kat OneMap (1-60) ya da daireden tahmin, `site_grup` aynı ilçe + mahalle + site adındaki 350 m içindeki VAR OLAN gruba katılır (yoksa yeni anahtar; var olanlar asla değişmez), bölge = aynı site grubunun bölgesi, yoksa en yakın etkin binanın bölgesi; `bina_durum='bekliyor'`, poligon `bina_geometri_ek`'e, dosya `<çalışma>/gelen/onemap_<zaman>.json`'a. → `{eklenen, eslesmeyen, zaten_haritada, konumsuz, hala_bekleyen, binalar:[{bina_serial, ad, bolge, lat, lon, site_grup}], mesaj}` · boş dosya `400 onemap_bos`, JSON değilse `400 dosya_gecersiz`. Aynı dosya iki kez: `eklenen:0`.
 - `GET /api/bina/{serial}/degisim` (yönetici) → `{bina_serial, degisimler:[{kaynak, alan, eski, yeni, zaman}]}` (en yenisi önce, 200 satır).
 - Komut satırı (arayüz hazır olmasa da): `python -m saha.veri_araci tur | bekleyen | onemap | bolge | excel | kalite` (aynı işlevler).
 
@@ -299,7 +299,7 @@ hesaplanır. Aynı binayı iki kez denetlemek aynı sonucu verir. Kanıtlar
 `ticket_gecmis`: `ticket_id, zaman, kullanici_id, eski_durum, yeni_durum, notu, alanlar (JSON {alan:[eski, yeni]})`. Kayıt silinmez; iptal bir durumdur.
 
 - Konu: `SİNYAL · EK SP · GÜZERGAH · ALTYAPI · DİĞER` (girişte "sinyal", "EKSP", "ek kapasite" gibi yazımlar tanınır). Durum: `AÇIK · ÇÖZÜLDÜ · HATA · KAPATILDI · İPTAL · TRANSFER`; **açık sayılan**: AÇIK, HATA, TRANSFER. Kapalı duruma geçince `kapanis` dolar, yeniden açılınca boşalır.
-- **Ticket metni** `saha/ticket.py → ticket_metni()` ile `saha_app/src/ortak/kimlik.ts → ticketMetni()` BİREBİR aynı (sekme ayrımlı: giriş cümlesi · Bina Serial Number · BN · Tellcordia ID · … · Location Id · … · Obek Adı · Site Adı · `Ekip: <tel>`; Site Adı = CRM site adı, yoksa bina adı). SİNYAL metni kullanıcının gerçek ticket'ıyla karakter karakter test edilir; diğer konular `sablon_taslak:true` (örnek metin bekleniyor). Birinde değişiklik yapan diğerini de değiştirmeli.
+- **Ticket metni** `saha/ticket.py → ticket_metni()` ile `kod/arayuz/src/ortak/kimlik.ts → ticketMetni()` BİREBİR aynı (sekme ayrımlı: giriş cümlesi · Bina Serial Number · BN · Tellcordia ID · … · Location Id · … · Obek Adı · Site Adı · `Ekip: <tel>`; Site Adı = CRM site adı, yoksa bina adı). SİNYAL metni kullanıcının gerçek ticket'ıyla karakter karakter test edilir; diğer konular `sablon_taslak:true` (örnek metin bekleniyor). Birinde değişiklik yapan diğerini de değiştirmeli.
 - `GET /api/ticket?durum=&konu=&kanal=&q=&bina_serial=&acik=true|false&bolge=&limit=100&offset=0` (yönetici, limit ≤ 500) → `{toplam, limit, offset, sayilar:{DURUM:n}, acik_toplam, acik_konu:{KONU:n}, ticketlar:[Ticket]}`; açıklar önce, sonra açılış tarihi yeni→eski. `q`: ticket no, Location Id, site, müşteri, detay, BN, bina adı.
 - `Ticket` = `{id, ticket_no, acilis, konu, konu_etiket, durum, acik, acik_gun, bina_serial, location_id, site, musteri, kanal, detay, metin, olusturan, olusturma, guncelleme, kapanis, kaynak, bina:{bina_serial, ad, bolge, ilce, mahalle, lat, lon} | null}`
 - `POST /api/ticket {konu, bina_serial?, location_id?, ticket_no?, acilis?, durum?='AÇIK', musteri?, kanal?, detay?, site?, ekip?, metin?, notu?}` (yönetici) → **201** `{ticket, sablon_taslak, mesaj}`. Binadan açılınca Location Id, site ve metin binadan dolar; yalnız `location_id` verilirse bina Location Id'den bulunur (birebir · 8 haneye sıfırlı · baştaki sıfırsız · sondaki "-1" eki atılmış). Geçersiz konu/durum `400 gecersiz_veri`, olmayan bina `404 bina_yok`.
@@ -338,4 +338,4 @@ ise önceden sıkıştırılmış gönderilir, `ETag` + `If-None-Match` → `304
 3. Bina kartı: `kalite[]`, `pasif`; detay yanıtı: `ticketlar[]`. Kimliklerde düzeltilmiş değerler (8 haneli Location Id, düzeltilmiş Tellcordia ID).
 4. Ziyaret ve bina detayı: satışçının son 14 gündeki listesinde olan bina, bölgesi değişse de açık.
 5. Güvenlik başlıkları: CSP'de karo sunucuları; Referrer-Policy `strict-origin-when-cross-origin`.
-6. Sunucu için ek paketler: `pandas, numpy, scipy, shapely, python-multipart` (`saha/gereksinimler.txt`; `baslat.bat` eksikse kurar).
+6. Sunucu için ek paketler: `pandas, numpy, scipy, shapely, python-multipart` (`kod/saha/gereksinimler.txt`; `kod/saha/GELISTIRME_BASLAT.bat` ve canlıdaki `BASLAT.bat` eksikse kurar).

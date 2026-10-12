@@ -9,8 +9,24 @@ canli/
 # Geliştirme verisi (gerçek kişilerin kopyası olabilir: saha.db, gizli.key, yedekler, öbekler) — yerel kalır
 gelistirme/
 
-# Masaüstü uygulamasının kökteki kopyası (DERLE.bat üretir; içinde bina verisi var)
+# Çalışma verisi NEREDE oluşursa oluşsun git'e girmez (yanlış SAHA_VERI_DIZINI, başıboş bir koşu, eski düzen):
+# veritabanları, oturum anahtarı, yedekler, günlükler, fotoğraf/ek klasörleri kişisel veridir.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+gizli.key
+**/yedek/
+**/kayit/
+**/ek/
+
+# Masaüstü uygulaması (kod/masaustu/derle.py üretir; içinde bina verisi var) ve eski kopyası
+/Turkcell.exe
+/.turkcell/
 /DehanetSaha.exe
+# Turkcell.exe'nin canlı çalışma klasörü (saha.db, gizli.key, yedekler, WebView2 profili) — asla git'e girmez
+/veri/canli/
+.turkcell/
 
 # Sunum uygulaması (kod/sunum): bağımlılıklar ve derleme çıktıları
 kod/sunum/node_modules/
@@ -37,19 +53,20 @@ kod/arayuz/dist/
 kod/arayuz/dist-sahte/
 
 # Masaüstü (kod/masaustu) ve eklenti (kod/eklenti) derlemeleri
-kod/masaustu/node_modules/
-kod/masaustu/build/
-kod/masaustu/dist/
+kod/masaustu/derleme/
 kod/eklenti/node_modules/
 kod/eklenti/dist/
 
-# Ara çıktılar
-cikti/_onbellek/
-cikti/*.exe
-cikti/*.mp4
-cikti/_*.log
+# Ara çıktılar — veri/cikti varsayılan olarak git dışında; depoda kalacaklar ! ile açıkça seçilir
+/veri/cikti/*
+!/veri/cikti/DSALE_Sunum.html
+!/veri/cikti/N08_res_hp/
+veri/cikti/_onbellek/
+veri/cikti/*.exe
+veri/cikti/*.mp4
+veri/cikti/_*.log
 # Sunucunun bölgeleme çıktıları (eski varsayılan yer; artık çalışma klasöründe)
-cikti/saha_bolgeleme/
+veri/cikti/saha_bolgeleme/
 
 # Operasyon: yüklenen iş emri raporları (kişisel veri — yerel kalır)
 kod/operasyon/veri/

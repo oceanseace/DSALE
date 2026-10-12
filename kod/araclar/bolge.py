@@ -6,7 +6,7 @@
     .venv\\Scripts\\python.exe kod\\araclar\\bolge.py --n 12 --olcu firsat # boş HP (fırsat) dengesi
     .venv\\Scripts\\python.exe kod\\araclar\\bolge.py --n 8 --haric-il Yalova
 
-Çıktılar: cikti/N08_res_hp/ (atama.csv, bolgeler.json, Excel raporu, plan_N08.json)
+Çıktılar: veri/cikti/N08_res_hp/ (atama.csv, bolgeler.json, Excel raporu, plan_N08.json)
 ve sunum uygulamasının veri paketi: kod/sunum/src/data/generated/
 Ham veri değiştiğinde önce:  PYTHONPATH=kod  python -m dsale.enrich
 """
